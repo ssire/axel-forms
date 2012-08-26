@@ -1,15 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- *
- * Copyright (C) 2012 Stéphane Sire
- *
- * This file is part of the AXEL-FORMS extension to the Adaptable XML Editing Library (AXEL)
- *
- * AXEL-FORMS is licensed by Oppidoc SARL
- * 
- * Contributors(s) : Stéphane Sire
- * 
- * ***** END LICENSE BLOCK ***** */
-
 /**
  * Class InputFactory
  *
@@ -25,8 +13,8 @@
  *  - detect if HTML5 and use placeholder for 'text' input hint instead of default content
  *
  */
-xtiger.editor.InputFactory = (function InputFactory() {
-  
+(function () {
+
   var _CACHE= {}; // TODO: define and subscribe to load_begin / load_end events to clear it
 
   var _DEFAULT_PARAMS = {
@@ -42,10 +30,10 @@ xtiger.editor.InputFactory = (function InputFactory() {
     xtdom.setAttribute(h, 'type', aType);
     h.value = aData;
     // FIXME: placeholder if HTML5 (?)
-  }
+  };
 
   var _encache = function _encache(name, value) {
-    window.console.log('encache ', name, '=', value);
+    // window.console.log('encache ', name, '=', value);
     if (!_CACHE[name]) {
       _CACHE[name] = {};
     }
@@ -53,13 +41,13 @@ xtiger.editor.InputFactory = (function InputFactory() {
   };
 
   var _decache = function _decache(name, value) {
-      window.console.log('decache of ', name, '=', value);
+    // window.console.log('decache of ', name, '=', value);
     if (_CACHE[name] && _CACHE[name][value]) {
       delete _CACHE[name][value];
-      window.console.log('decache success of ', name, '=', value);
+      // window.console.log('decache success of ', name, '=', value);
       return true;
     }
-    window.console.log('decache failure of ', name, '=', value);
+    // window.console.log('decache failure of ', name, '=', value);
     return false;
   };
 
@@ -71,13 +59,17 @@ xtiger.editor.InputFactory = (function InputFactory() {
       if (this.isEditable) {
         xtdom.addEventListener(h, 'click',
           function(ev) {
-            if (!_this.isEditing())   _this.startEditing(ev);
+            if (!_this.isEditing()) {
+              _this.startEditing(ev); 
+            }
             xtdom.stopPropagation(ev);
             xtdom.preventDefault(ev);
           }, true);
         xtdom.addEventListener(h, 'blur',
           function(ev) { 
-            if (_this.isEditing())   _this.stopEditing(false, true);
+            if (_this.isEditing()) {
+              _this.stopEditing(false, true);
+            }
           }, true);
       }
     },
@@ -111,8 +103,9 @@ xtiger.editor.InputFactory = (function InputFactory() {
      */
     focus : function () {
       var m = this._editor.isModified();
-      if (m)
+      if (m) {
         this._editor.getHandle().focus();
+      }
       this.startEditing({shiftKey: !m});
     },
 
@@ -132,7 +125,7 @@ xtiger.editor.InputFactory = (function InputFactory() {
       if (aPoint !== -1) { 
         value = aDataSrc.getDataFor(aPoint);
         this._editor.getHandle().value = value || this._defaultData;
-        this._editor.setModified(value !=  this._defaultData);
+        this._editor.setModified(value !==  this._defaultData);
         this._editor.set(false);
       } else {
           this._editor.clear(false);
@@ -145,15 +138,15 @@ xtiger.editor.InputFactory = (function InputFactory() {
      */
     save : function (aLogger) {
       var val = this._editor.getHandle().value;
-      if (val)
+      if (val) {
         aLogger.write(val);
+      }
     },
 
     // Starts an edition process on *this* instance's device.
     startEditing : function (aEvent) {
       var h, kbd = xtiger.session(this._editor.getDocument()).load('keyboard');
       if (! this._isEditing) {
-        window.console.log('start');
         h = this._editor.getHandle();
         this._legacy = h.value;
         this._isEditing = true;
@@ -171,12 +164,12 @@ xtiger.editor.InputFactory = (function InputFactory() {
       var h = this._editor.getHandle();
       var kbd = xtiger.session(this._editor.getDocument()).load('keyboard');
       if (this._isEditing) {
-        window.console.log('stop');
         this._isEditing = false; // do it first to prevent any potential blur handle callback
         kbd.unregister(this, this.kbdHandlers, h);
         kbd.release(this, this._editor);
         if (!isCancel) {
-          this.update(h.value);
+          // this.update(h.value);
+          this._editor.update(h.value);
         }
         if ((! isBlur) && (h.blur)) {
           h.blur();
@@ -225,7 +218,6 @@ xtiger.editor.InputFactory = (function InputFactory() {
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);
       editor._params['name'] = name;
-      window.console.log('Nommage de ', name);
     }
     if (editor.getParam('checked')) {
       xtdom.setAttribute(h, 'checked', editor.getParam('checked'));
@@ -236,6 +228,17 @@ xtiger.editor.InputFactory = (function InputFactory() {
   _SelectField.prototype = {
 
     awake : function () {
+      // places an update call only for event filtering
+      var h = this._editor.getHandle();
+      var _this = this;
+      xtdom.addEventListener(h, 'click',
+        function(ev) {
+          if (_this._editor.getHandle().checked) {
+            _this._editor.update(_this._editor.getParam('value'));
+          } else { 
+            _this._editor.update('');
+          }
+        }, true);
     },
 
     isFocusable : function () {
@@ -247,15 +250,12 @@ xtiger.editor.InputFactory = (function InputFactory() {
      */
     load : function (aPoint, aDataSrc) {
       var found, value, ischecked = false;
-      window.console.log('load ', this._editor.getParam('name'));
       value = this._editor.getParam('value');
       if (-1 !== aPoint) { 
         found = aDataSrc.getDataFor(aPoint);
-        window.console.log('compare point ', found, ' with value ', value);
         ischecked = (found === value);
         if (!ischecked) { // second chance : cache lookup
           name = this._editor.getParam('name');
-          window.console.log('second chance for ', name);
           if (name) {
             ischecked = _decache(name, value);
             _encache(name, found);
@@ -271,7 +271,6 @@ xtiger.editor.InputFactory = (function InputFactory() {
         }
       } else { // second chance
         name = this._editor.getParam('name');
-        window.console.log('second chance for ', name);
         if (name) {
           ischecked = _decache(name, value);
         } // otherwise anonymous checkbox with unique XML tag
@@ -303,9 +302,14 @@ xtiger.editor.InputFactory = (function InputFactory() {
       }
     },
     
+    update : function (aData) {
+      // nope
+    },
+    
     clear : function () {
       this._editor.getHandle().checked = false;
-    }    
+    }
+    
   };
   
   var _InputModel = function(aHandleNode, aDocument) {
@@ -326,13 +330,15 @@ xtiger.editor.InputFactory = (function InputFactory() {
       var type, data;
       // 1. parses parameters (FIXME: factorize !)
       if (aParams) { 
-        if (typeof (aParams) == 'string')
+        if (typeof (aParams) === 'string') {
           xtiger.util.decodeParameters(aParams, this._params);
-        else if (typeof (aParams) == 'object')
+        }
+        else if (typeof (aParams) === 'object') {
           this._params = aParams;
+        }
       }
       // 2. creates delegate
-      type = this.getParam('type')
+      type = this.getParam('type');
       if ((type === 'text') || (type === 'password')) {
         this._delegate = new _KeyboardField(this, type, aDefaultData);
       } else if ((type === 'radio') || (type === 'checkbox')) {
@@ -346,9 +352,10 @@ xtiger.editor.InputFactory = (function InputFactory() {
       this._isOptional = aOption ? true : false;
       if (aOption) { /* the editor is optional */
         this._optCheckBox = this._handle.previousSibling;
-        if (aOption == 'unset')
+        if (aOption === 'unset') {
           this._isOptionSet = true; // Quirk to prevent unset to return immediately
-        (aOption == 'set') ? this.set(false) : this.unset(false);
+        }
+        (aOption === 'set') ? this.set(false) : this.unset(false);
       }
       // 4. installs class attribute on handle
       if (this.getParam('hasClass')) {
@@ -377,8 +384,9 @@ xtiger.editor.InputFactory = (function InputFactory() {
      * Creates (lazy creation) an array to "seed" *this* model. Seeding occurs in a repeat context. 
      */
     makeSeed : function () {
-      if (!this._seed)
-        this._seed = [ xtiger.editor.InputFactory, this._defaultData, this._params, this._isOptional ];
+      if (!this._seed) {
+        this._seed = [ _InputFactory, this._defaultData, this._params, this._isOptional ];
+      }
       return this._seed;
     },
     
@@ -395,7 +403,7 @@ xtiger.editor.InputFactory = (function InputFactory() {
      * Returns true if this object is able to perform the function whose name is given as parameter.
      */
     can : function (aFunction) {
-      return typeof this[aFunction] == 'function';
+      return typeof this[aFunction] === 'function';
     },
 
     /**
@@ -421,7 +429,6 @@ xtiger.editor.InputFactory = (function InputFactory() {
      */
     focus : function () {
       if (this._delegate.focus) {
-        window.console.log('Focus');
         this._delegate.focus();
       }
     },
@@ -432,7 +439,6 @@ xtiger.editor.InputFactory = (function InputFactory() {
      */
     unfocus : function () {
       if (this._delegate.focus) {
-        window.console.log('Unfocus');
         this._delegate.unfocus();
       }
     },
@@ -460,14 +466,23 @@ xtiger.editor.InputFactory = (function InputFactory() {
         this._delegate.save(aLogger);
       }
     },
+    
+    update : function (aData) {
+      this._delegate.update(aData);
+    },
 
     // Clears the model and sets its data to the default data.
     // Unsets it if it is optional and propagates the new state if asked to.     
     clear : function (doPropagate) {
       this._delegate.clear();
       this._isModified = false;
-      if (this.isOptional() && this.isSet())
+      if (this.isOptional() && this.isSet()) {
         this.unset(doPropagate);
+      }
+    },
+    
+    dump : function () {
+      return this._delegate.dump();
     },
 
     getHandle : function () {
@@ -528,8 +543,9 @@ xtiger.editor.InputFactory = (function InputFactory() {
         }
         xtdom.removeClassName(this._handle, 'axel-repeat-unset'); // fix if *this* model is "placed" and the handle is outside the DOM at the moment
       }
-      if (this._isOptionSet) // Safety guard (defensive)
+      if (this._isOptionSet) { // Safety guard (defensive)
         return;
+      }
       this._isOptionSet = true;
       if (this._isOptional) {
         this._handle.disabled = false;
@@ -541,12 +557,13 @@ xtiger.editor.InputFactory = (function InputFactory() {
      * Sets the editor option status to "unset" (i.e. false) if it is optional.
      */
     unset : function (doPropagate) {
-      if (!this._isOptionSet) // Safety guard (defensive)
+      if (!this._isOptionSet) { // Safety guard (defensive)
         return;
+      }
       this._isOptionSet = false;
       if (this._isOptional) {
         this._handle.disabled = true;
-        this._optCheckBox.checked = false;                    
+        this._optCheckBox.checked = false;
       }
     },
 
@@ -560,8 +577,7 @@ xtiger.editor.InputFactory = (function InputFactory() {
 
   var _BASE_KEY = 'input'; // Base string for key
   var _keyCounter = 0; // Key generation
-
-  return {
+  var _InputFactory = {
 
     /**
      * AXEL plugin factory API
@@ -595,8 +611,10 @@ xtiger.editor.InputFactory = (function InputFactory() {
       var _model = new _InputModel(aHandleNode, aDocument);
       var _param = {};
       xtiger.util.decodeParameters(aXTUse.getAttribute('param'), _param);
-      // if (_param['filter'])
-      //   _model = this.applyFilters(_model, _param['filter']);
+      if (_param['filter']) {
+        xtiger.cross.log('debug', 'applying filter ' + _param['filter']);
+        _model = this.applyFilters(_model, _param['filter']);
+      }
       _model.init(xtdom.extractDefaultContentXT(aXTUse), aXTUse.getAttribute('param'), aXTUse.getAttribute('option'), this.createUniqueKey());
       return _model;
     },
@@ -612,8 +630,9 @@ xtiger.editor.InputFactory = (function InputFactory() {
       var _defaultData = aSeed[1];
       var _params = aSeed[2];
       var _option = aSeed[3];
-      // if (_params['filter'])
-      //   _model = this.applyFilters(_model, _params['filter']);
+      if (_params['filter']) {
+        _model = this.applyFilters(_model, _params['filter']);
+      }
       _model.init(_defaultData, _params, _option, this.createUniqueKey(), aRepeater);
       return _model;
     },
@@ -623,8 +642,8 @@ xtiger.editor.InputFactory = (function InputFactory() {
     createUniqueKey : function createUniqueKey () {
       return _BASE_KEY + (_keyCounter++);
     }
-  }
-})();
+  };
+  
+  xtiger.editor.Plugin.prototype.pluginEditors['input'] = xtiger.util.filterable('input', _InputFactory);
+}());
 
-xtiger.editor.Plugin.prototype.pluginEditors['input'] = xtiger.editor.InputFactory;
-  // = xtiger.util.filterable('input', xtiger.editor.InputFactory);

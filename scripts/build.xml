@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AXEL beta" default="build.lib" basedir=".">
+<project name="AXEL-FORMS" default="build.lib" basedir=".">
 <!--
 AXEL-FORMS Library built file system
 ====================================
@@ -33,7 +33,10 @@ Author(s) : Stephane Sire
          //             EDIT ant.properties to change it              //
          ///////////////////////////////////////////////////////////////
     -->
+    <filelist id="files.core" dir="${core.src.dir}" files="${core.lib.files}"/>
     <filelist id="files.plugins" dir="${plugins.src.dir}" files="${plugins.lib.files}"/>
+    <filelist id="files.filters" dir="${filters.src.dir}" files="${filters.lib.files}"/>
+    <filelist id="files.bindings" dir="${bindings.src.dir}" files="${bindings.lib.files}"/>
   </target>
 
   <!-- "revision.number" property initialization
@@ -44,7 +47,7 @@ Author(s) : Stephane Sire
 <!--    <exec executable="/bin/sh" outputproperty="revision.number">
       <arg line='-c "svn info -r "HEAD"| awk &quot;/Revision/{print\$$2}&quot;"'/>
     </exec> -->
-    <property name="revision.number" value="TO BE DONE"/>
+    <property name="revision.number" value="TBD"/>
   </target>   
 
   <!-- *****************************************************
@@ -55,10 +58,13 @@ Author(s) : Stephane Sire
   <target name="-flatten" depends="-load.properties, -init.files">
     <concat destfile="${build.dir}/${product.name}-tmp.js" force="no">
       <filelist refid="files.plugins"/>
+      <filelist refid="files.filters"/>
+      <filelist refid="files.bindings"/>
+      <filelist refid="files.core"/>
     </concat>
   </target>
 
-  <!-- Build minified axel.js 
+  <!-- Build minified axel-forms.js 
   --> 
   <target name="build.lib" depends="-load.properties, -init.files, -init.revision">
 
@@ -87,11 +93,11 @@ Author(s) : Stephane Sire
     <delete file="${build.dir}/${product.name}-min.js"/>
   </target>
 
-  <!-- Build debug version of axel.js 
+  <!-- Build debug version of axel-form.js 
        (simple concatenation of source files) 
   -->
   <target name="build.debug" depends="-load.properties, -init.files, -init.revision">
-    <echo message="Creating debug AXEL-FORM library into ${build.dir}"/>
+    <echo message="Creating debug AXEL-FORMS library into ${build.dir}"/>
     <!-- FIXME : fail if not exist ${build.dir} -->
 
     <antcall target="-flatten"/>
@@ -114,10 +120,4 @@ Author(s) : Stephane Sire
        **                 Utilities                       **
        *****************************************************
   -->
-
-  <target name="clean" depends="-load.properties">
-    <!-- <delete file="../${product.name}-${release.number}.zip"/>
-    <delete file="../${product.name}-${release.number}.tar.gz"/>
-    <delete dir="${release.dir}"/> -->
-  </target>
 </project>

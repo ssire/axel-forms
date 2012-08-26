@@ -2,10 +2,18 @@ AXEL-FORMS Library
 ==================
 
 AXEL-FORMS is an extension to the Adaptable XML Editing Library that 
-defines some plugins for generating forms based on HTML forms elements.
+defines additional plugins and filters, and a binding mechanism to 
+create form based applications.
+
+AXEL-FORMS also includes the AXEL-MICRO library. This library allows 
+to use simple micro-format instructions to create submission actions 
+and other actions using the AXEL library functionalities, without 
+writing Javascript code.
 
 Pre-requisites
 --------------
+
+AXEL-FORMS and the AXEL-MICRO libraries requires JQuery.
 
 You must use this library as a sibling folder to the AXEL source 
 code distribution available at [https://github.com/ssire/axel]().
