@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>                  
+  <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=8;" />   
+  <meta name="description" content="XTiger XML document template" />
+  <meta name="keywords" content="template, XTiger" />
+
+  <title>AXEL-FORMS sample with "input" plugin</title>
+  
+  <style type="text/css" media="screen">
+    h2:first-of-type {
+      margin-top: 0;
+    }
+    h2 {
+      padding-left: 15px;
+      font-size: 1.2em;
+      font-family: "Comic Sans MS";
+      background: #006633;
+      color: white;
+    }
+    span.text.label {
+      float: left;
+      width: 7em;
+      text-align: right;
+      margin-right: 0.5em;
+    }
+    div.order {
+      margin: 20px 50px;
+      width: 500px;
+      border: solid 1px #006633;
+    }
+    div.group {
+      padding: 0 15px;
+    }
+    p.comment {
+      margin-left: 7.5em;
+    }
+  </style>
+
+  <xt:head version="1.1" templateVersion="1.0" label="Order">
+  
+    <xt:component name="t_cart">  
+      <div class="group">
+        <xt:repeat minOccurs="1" maxOccurs="*" pseudoLabel="IceCream">
+          <xt:use types="t_ice_cream" label="IceCream"/>
+        </xt:repeat>
+        <p><b>Extras</b></p>
+        <p><span class="form">Please select some extras :</span><xt:use types="t_extras" label="Extras"/></p>
+      </div>
+    </xt:component> 
+    
+    <xt:component name="t_ice_cream">
+      <p><b>Ice cream <!-- <xt:use types="counter"/> --></b> <xt:menu-marker/></p>
+      <p>Please select a flavor : <xt:use types="t_flavors"/></p>
+    </xt:component>
+
+    <xt:component name="t_flavors">
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=strawberry;"/>strawberry</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=vanilla;checked=true;"/>vanilla</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=chocolate;"/>chocolate</label>
+    </xt:component>
+
+    <xt:component name="t_extras">
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=chips;"/>chips</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=sticks;"/>bread sticks</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=cookie;"/>cookie</label>
+      <!-- <xt:use types="input" id="cookie" label="Extra" param="type=checkbox;value=cookie;">cookie</xt:use> -->
+    </xt:component>
+
+    <xt:component name="t_billing">
+      <div class="group">
+        <p><label><span class="text label">First Name :</span>
+          <xt:use types="input" label="FirstName" param="type=text" option="unset">enter your first name</xt:use></label>
+        </p>
+        <p><label><span class="text label">Last Name :</span>
+          <xt:use types="input" label="LastName" param="type=text">enter your last name</xt:use></label>
+        </p>
+        <p><label><span class="text label">Address Line 1 :</span>
+          <xt:use types="input" label="Address1" param="type=text">click to edit</xt:use></label>
+        </p>
+        <p><label><span class="text label">Address Line 2 :</span>
+          <xt:use types="input" label="Address2" param="type=text" option="unset">click to edit</xt:use></label>
+        </p>
+        <p><label><span class="text label">City :</span>
+          <xt:use types="input" label="City" param="type=text">click to edit</xt:use></label>
+        </p>
+        <p><label><span class="text label">Postal code :</span>
+          <xt:use types="input" label="Code" param="type=text">click to edit</xt:use></label>
+        </p>
+        <!-- variant (automatic labelling) -->
+        <!-- <p><xt:use types="input" id="postal-code" label="Code" param="type=text;placeholder=click\ to\ edit">Postal code : </xt:use></p> -->
+      </div>
+    </xt:component>
+
+    <!-- Variant  -->
+    <xt:component name="t_flavors_list">
+      <xt:use types="choice" label="Flavor" values="strawberry vanilla chocolate" param="appearance=normal">strawberry</xt:use>
+    </xt:component>
+  
+  </xt:head>
+  
+  <!-- Optional AXEL Preview Mode -->
+  <link rel="stylesheet" type="text/css" href="Preview.css" />
+  
+  <!-- Place here optional AXEL code for making the template auto-editable -->
+
+</head>
+<body>
+  <h1>AXEL-FORMS sample with "input" plugin</h1>
+  <p>The "input" plugin is rendered as a native HTML input element with one of the following types: "text", "radio" or "checkbox".</p>
+  <div class="order">
+    <h2>Cart</h2>
+    <xt:use types="t_cart" label="Cart"/>
+    <h2>Billing Information</h2>
+    <xt:use types="t_billing" label="Billing"/>
+    <div class="group">
+        <p class="comment"><xt:use types="text" label="Comment" param="type=textarea;shape=parent;shape=parent-40px" option="unset">Click to enter any comment</xt:use></p>
+    </div>
+  </div>
+  
+</body>
+</html>               
