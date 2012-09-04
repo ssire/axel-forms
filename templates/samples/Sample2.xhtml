@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>AXEL-FORMS sample with "switch" binding</title>
+  
+  <xt:head version="1.1" templateVersion="1.0" label="TestCase">
+  </xt:head>
+
+  <style type="text/css">
+  </style>
+
+</head>
+<body>
+  
+  <h1>AXEL-FORMS sample with "switch" binding</h1>
+
+  <h2>Click to select a payment method</h2>
+
+  <p>Check that extra information is requested depending on payment method.</p>
+
+  <p id="test-1" data-binding="condition" data-variable="payment">
+    Payment method : 
+      <label><xt:use types="input" label="Payment" param="filter=event;type=radio;name=payment;value=cash;"></xt:use>cash</label>
+      <label><xt:use types="input" label="Payment" param="filter=event;type=radio;name=payment;value=card;checked=true"></xt:use>credit card</label>
+  </p>
+  
+  <p data-avoid-payment="cash">
+    Card number : <xt:use types="input" label="CardNumber" param="filter=optional;type=text">-</xt:use>
+  </p>
+  <!-- <p data-meet-payment="cash">Card number : <xt:use types="input" label="CardNumber">-</xt:use></p> -->
+</body> 
+</html>

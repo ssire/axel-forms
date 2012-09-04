@@ -57,10 +57,10 @@ Author(s) : Stephane Sire
 
   <target name="-flatten" depends="-load.properties, -init.files">
     <concat destfile="${build.dir}/${product.name}-tmp.js" force="no">
+      <filelist refid="files.core"/>
       <filelist refid="files.plugins"/>
       <filelist refid="files.filters"/>
       <filelist refid="files.bindings"/>
-      <filelist refid="files.core"/>
     </concat>
   </target>
 

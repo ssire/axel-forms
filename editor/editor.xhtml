@@ -1,109 +1,38 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger">
+<!DOCTYPE html>
 <!--  
 This file is a stripped down version of the original axel/editor/editor.html
 
-It has been extended to load the axel-forms extensions
+It has been extended to load the AXEL-FORMS extensions (AXEL-MICRO + Plugins + Bindings)
+
+It uses the 'AXEL-TEMPLATE-READY' event to install bindings, 
+so the editor.js (which is imported from AXEL) MUST trigger it.
 
 WARNING: this currently works only if axel-forms is placed as a sibling of axel in your file system
 
 Author: Stephane Sire
 -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger">
   <head>
-    <title>AXEL-FORMS Debug Editor by Oppidoc</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
-    <meta http-equiv="X-UA-Compatible" content="IE=8;"></meta>
-    <meta name="description" content="XTiger XML based authoring application"></meta>
-    <meta name="keywords" content="template, XTiger, XML"></meta>
+    <title>AXEL-FORMS editor</title>
 
-    <!-- Dependency for some filters -->
-    <script src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js" type="text/javascript"></script>
-    
-    <!-- Dependency for 'date' filter -->
+    <!-- JQuery, jQuery UI dependencies-->
     <link rel="stylesheet" href="../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css" type="text/css" charset="utf-8" />
+    <script src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js" type="text/javascript"></script>
     <script src="../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 
-    <!-- BEGIN XTiger Library Loading -->
-    <script type="text/javascript" src="../../axel/src/core/loader.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/dom.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/parser.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/domdatasource.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/defaultbrowser.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/iebrowser.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/filterable.js"></script>
-    <script type="text/javascript" src="../../axel/src/core/domlogger.js"></script>   
-    <script type="text/javascript" src="../../axel/src/core/forms.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/generator.js"></script>
+    <!-- AXEL dependency (see also below)-->
+    <script src="../../axel/axel/axel.js" type="text/javascript"></script>
 
-    <!-- alternative loaders and serializers -->
-    <script type="text/javascript" src="../../axel/src/editor/classical/htmlloader.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/xmlrobustloader.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/htmlserializer.js"></script>
-    
-    <script type="text/javascript" src="../../axel/src/editor/classical/xmlloader.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/xmlserializer.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/repeat.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/choice.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/keyboard.js"></script>
-    <script type="text/javascript" src="../../axel/src/editor/classical/tabgroupmgr.js"></script>
-    
-    <!-- native plugins and devices -->
-    <script type="text/javascript" src="../../axel/src/plugins/text.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/select.js"></script>
-    <script type="text/javascript" src="../../axel/src/devices/popup.js"></script>
-    <script type="text/javascript" src="../../axel/src/devices/text.js"></script>
+    <!-- AXEL-FORMS -->
+    <script src="../src/plugins/input.js" type="text/javascript"></script>
+    <script src="../src/core/binding.js" type="text/javascript"></script>
+    <script src="../src/bindings/interval.js" type="text/javascript"></script>
+    <script src="../src/bindings/condition.js" type="text/javascript"></script>
 
-    <!-- optional devices -->
-    <!-- <script type="text/javascript" src="../../axel/src/devices/lens.js"></script>
-    <script type="text/javascript" src="../../axel/src/devices/upload.js"></script>
-    <script type="text/javascript" src="../../axel/src/devices/autocomplete.js"></script>
-    <script type="text/javascript" src="../../axel/src/devices/trackermenu.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/content.js"></script> -->
-    
-    <!-- optional plugins -->
-    <script type="text/javascript" src="../src/plugins/input.js"></script>
-    <!-- <script type="text/javascript" src="../../axel/src/plugins/layout.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/link.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/richtext.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/video.js"></script>          
-    <script type="text/javascript" src="../../axel/src/plugins/photo.js"></script>
-    <script type="text/javascript" src="../../axel/src/plugins/file.js"></script> -->
-        
-    <!-- optional filters -->
-    <!-- <script type="text/javascript" src="../../axel/src/filters/common.js"></script>         
-    <script type="text/javascript" src="../../axel/src/filters/documentid.js"></script>
-    <script type="text/javascript" src="../../axel/src/filters/wiki.js"></script>
-    <script type="text/javascript" src="../../axel/src/filters/image.js"></script>  
-    <script type="text/javascript" src="../../axel/src/filters/layout.js"></script>         
-    <script type="text/javascript" src="../../axel/src/filters/video.js"></script>      
-    <script type="text/javascript" src="../../axel/src/filters/autocomplete.js"></script>
-    <script type="text/javascript" src="../../axel/src/filters/debug.js"></script>  
-    <script type="text/javascript" src="../../axel/src/filters/service.js"></script>-->
-    <script type="text/javascript" src="../../axel/src/filters/date.js"></script>
-    
-    <!-- contributions -->
-    <script type="text/javascript" src="../../axel/contribs/src/schemas/schemalogger.js"></script>
-    <script type="text/javascript" src="../../axel/contribs/src/schemas/schemaserializer.js"></script>
-    
-    <!-- optional services -->
-    <!-- <script type="text/javascript" src="../../axel/src/filters/signature.js"></script> -->
-    <script type="text/javascript" src="../../axel/src/services/service.js"></script>
-    <!-- <script type="text/javascript" src="../../axel/src/services/common.js"></script>
-    <script type="text/javascript" src="../../axel/src/services/capitalize.js"></script>
-    <script type="text/javascript" src="../../axel/src/services/suggest.js"></script>
-    <script type="text/javascript" src="../../axel/src/services/translate.js"></script>
-    <script type="text/javascript" src="../../axel/src/services/debug.js"></script>
-    <script type="text/javascript" src="../../axel/src/services/date.js"></script> -->
-    
-    <script type="text/javascript" src="../../axel/src/util/ioutils.js"></script>
-    <!-- optional goodies because editor.js uses xtiger.debug.loadDocument -->
-    <script type="text/javascript" src="../../axel/src/util/debug.js"></script>
-    <!-- END XTiger Library Loading -->
-
-    <!-- Demo Viewer Application Loading   -->
+    <!-- Editor application   -->
     <link rel="stylesheet" href="../../axel/editor/extras/editor.css" type="text/css"></link>
 
     <!--[if IE 7]>    
@@ -115,6 +44,7 @@ Author: Stephane Sire
   <![endif]-->
 
     <script type="text/javascript" src="../../axel/editor/extras/editor.js"></script>
+    <script type="text/javascript" src="templates.js"></script>
     <script type="text/javascript">
     var appController;
 
@@ -122,13 +52,34 @@ Author: Stephane Sire
     // FIXME: do something cleaner that does not depend on evaluation order !
     var _INPUT_FILE = '../../axel/editor/extras/input.html';
     var _INTRO_FILE = 'intro.xhtml';
+    
+    function onTemplateTransformed () {
+      var iframeDoc;
+      var iframe = document.getElementById('container');
+      if (iframe.contentDocument) {
+        iframeDoc = iframe.contentDocument;
+      } else if (iframe.contentWindow) { // IE7
+        iframeDoc = iframe.contentWindow.document;      
+      }
+      if (iframeDoc) { 
+        $axel.binding.install(iframeDoc);
+      }
+    }
 
     function initApp () {                       
-      var defaultTemplates = (typeof(getDefaultTemplates) != typeof(undefined))  ? getDefaultTemplates() : [];
+      var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
       appController.setBase('../../axel/axel/bundles')
       appController.setXTigerStylesheet('../../axel/axel/axel.css'); 
+      // FIXME : temporary trick (will be removed)
+      if (xtiger.editor.Plugin.prototype.pluginEditors['input']) {
+        xtiger.editor.Plugin.prototype.pluginEditors['input'].registerFilter('optional', window.axeltmptrick['_OptionalFilter']);
+        xtiger.editor.Plugin.prototype.pluginEditors['input'].registerFilter('event', window.axeltmptrick['_EventFilter']);
+      }
+      
+      // Install Hook to install bindings
+      $(document).bind('AXEL-TEMPLATE-READY', onTemplateTransformed);
     }
     xtdom.addEventListener(window, 'load', initApp, false);
   </script>
@@ -136,43 +87,46 @@ Author: Stephane Sire
   <body>
     <div id="formular">
       <form id="formUrl" action="javascript:alert('Oops, something went wrong !')"
-        onsubmit="return appController.submitPage();">
+            onsubmit="return appController.submitPage();">
+
         <p>
-          <label>Page : <input id="url" type="text" name="url" maxlength="100" value=""/>
+          <label>
+            Page : <input id="url" type="text" name="url" maxlength="100" value=""/>
           </label>
           <input type="button" value="Browse"
             onclick="appController.localFileDialog(&quot;open&quot;, &quot;*.xtd; *.xhtml; *.html; *.xml&quot;, &quot;Select an XTiger Forms template&quot; , &quot;url&quot;)"/>
           <span style="position: absolute; right: 30px; margin-left: 5px">
-            <input type="submit" value="Visualize"/><input type="reset"
-              onclick="appController.resetView()"/>
+            <input type="submit" value="Visualize"/>
+            <input type="reset" onclick="appController.resetView()"/>
           </span>
         </p>
+
         <p>
-          <label>Page shortcut : <select id="templatesList"
-              onchange="appController.updateSelectedTemplate()"> </select>
+          <label>
+            Template : 
+            <select id="foldersList" onchange="appController.updateSelectedFolder()"></select>
           </label>
-          <input type="button" value="Preferences"
-            onclick="appController.setPreferences();"/>
+          <select id="templatesList" onchange="appController.updateSelectedTemplate()"></select>
+          <input type="button" value="Preferences" onclick="appController.setPreferences();"/>
           <span style="position: absolute; left: 46%">
-            <input type="button" id="previewToggle" value="Preview"
-              onclick="appController.doToggleViewMode();"/>
+            <input type="button" id="previewToggle" value="Preview" onclick="appController.doToggleViewMode();"/>
           </span>
           <span style="position: absolute; right: 30px">
             <input type="button" value="Schema" onclick="appController.dumpSchema();"/>
             <input type="button" value="Dump" onclick="appController.dump();"/>
-            <input type="button" value="Input"
-              onclick="appController.inputInstanceData();"/>
-            <input type="button" value="Save"
-              onclick="appController.localSaveInstanceData('fileName');"/>
-            <input type="button" value="Load"
-              onclick="appController.localLoadInstanceData('fileName');"/>
+            <input type="button" value="Input" onclick="appController.inputInstanceData();"/>
+            <input type="button" value="Save" onclick="appController.localSaveInstanceData('fileName');"/>
+            <input type="button" value="Load" onclick="appController.localLoadInstanceData('fileName');"/>
           </span>
         </p>
+
         <p id="titleUrl" class="single-line">...</p>
+
+        <!-- Hidden preferences panel -->
         <div id="preferences">
           <p>
-            <label>Template repository : <input id="templateRepos" type="text"
-                name="templateRepos" maxlength="50" value=""/>
+            <label>Template repository : 
+              <input id="templateRepos" type="text" name="templateRepos" maxlength="50" value=""/>
             </label>
             <input type="button" value="Browse"
               onclick="appController.localFileDialog(&quot;folder&quot;, null, &quot;Select a folder that contains some XTiger Forms templates&quot;, &quot;templateRepos&quot;)"/>
@@ -189,13 +143,13 @@ Author: Stephane Sire
             </span>
           </p>
           <p>
-            <label>File name <i>(paths relative to editor.xhtml)</i>: <input
-                id="fileName" type="text" name="fileName" maxlength="50" value=""/>
+            <label>
+              File name <i>(paths relative to editor.xhtml)</i>: 
+              <input id="fileName" type="text" name="fileName" maxlength="50" value=""/>
             </label>
             <input type="button" value="Save" onclick="appController.saveToFile()"/>
             <input type="button" value="Load" onclick="appController.loadFromFile()"/>
-            <input type="button" value="Dump" onclick="appController.dumpToServer();"
-              disabled="disabled"/>
+            <input type="button" value="Dump" onclick="appController.dumpToServer();" disabled="disabled"/>
             <i>(remote server only)</i>
             <span style="position: absolute; right: 30px">
               <input type="checkbox" value="Profile" name="profile"/>
@@ -205,6 +159,8 @@ Author: Stephane Sire
         </div>
       </form>
     </div>
+
+    <!-- Editor area (template) -->
     <div id="frameContainer">
       <iframe id="container" src="intro.xhtml"> iframe content </iframe>
     </div>
