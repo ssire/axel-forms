@@ -1,16 +1,17 @@
-/* ***** BEGIN LICENSE BLOCK *****
- *
- * @COPYRIGHT@
- *
- * This file is part of the Adaptable XML Editing Library (AXEL), version @VERSION@ 
- *
- * @LICENSE@
- *
- * Web site : http://media.epfl.ch/Templates/
- * 
- * Author(s) : Stephane Sire
- * 
- * ***** END LICENSE BLOCK ***** */
+ /* ***** BEGIN LICENSE BLOCK *****
+  *
+  * Copyright (C) 2012 S. Sire
+  *
+  * This file contains files from the AXEL-FORMS extension to the Adaptable XML Editing Library (AXEL)
+  * Version @VERSION@
+  *
+  * AXEL-FORMS is licensed by Oppidoc SARL 
+  *
+  * Web site : http://www.oppidoc.fr, https://bitbucket.org/ssire/axel-forms
+  * 
+  * Contributors(s) : S. Sire
+  * 
+  * ***** END LICENSE BLOCK ***** */
  
 /*****************************************************************************\
 |                                                                             |
