@@ -19,21 +19,24 @@ Author: Stephane Sire
     <title>AXEL-FORMS editor</title>
 
     <!-- JQuery, jQuery UI dependencies-->
-    <link rel="stylesheet" href="../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css" type="text/css" charset="utf-8" />
-    <script src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js" type="text/javascript"></script>
-    <script src="../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css"
+          href="../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link>
+    <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
 
     <!-- AXEL dependency (see also below)-->
-    <script src="../../axel/axel/axel.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../../axel/axel/axel.js"></script>
 
     <!-- AXEL-FORMS -->
-    <script src="../src/plugins/input.js" type="text/javascript"></script>
-    <script src="../src/core/binding.js" type="text/javascript"></script>
-    <script src="../src/bindings/interval.js" type="text/javascript"></script>
-    <script src="../src/bindings/condition.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../src/plugins/choice.js"></script>
+    <script type="text/javascript" src="../src/plugins/input.js"></script>
+    <script type="text/javascript" src="../src/core/binding.js"></script>
+    <script type="text/javascript" src="../src/bindings/interval.js"></script>
+    <script type="text/javascript" src="../src/bindings/condition.js"></script>
+    <script type="text/javascript" src="../src/bindings/regexp.js"></script>
 
     <!-- Editor application   -->
-    <link rel="stylesheet" href="../../axel/editor/extras/editor.css" type="text/css"></link>
+    <link type="text/css" rel="stylesheet" href="../../axel/editor/extras/editor.css"></link>
 
     <!--[if IE 7]>    
   <style type="text/css">
@@ -64,6 +67,7 @@ Author: Stephane Sire
       if (iframeDoc) { 
         $axel.binding.install(iframeDoc);
       }
+      xtiger.cross.log('debug', 'Post-template transformation setup');
     }
 
     function initApp () {                       
@@ -71,15 +75,11 @@ Author: Stephane Sire
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
       appController.setBase('../../axel/axel/bundles')
-      appController.setXTigerStylesheet('../../axel/axel/axel.css'); 
-      // FIXME : temporary trick (will be removed)
-      if (xtiger.editor.Plugin.prototype.pluginEditors['input']) {
-        xtiger.editor.Plugin.prototype.pluginEditors['input'].registerFilter('optional', window.axeltmptrick['_OptionalFilter']);
-        xtiger.editor.Plugin.prototype.pluginEditors['input'].registerFilter('event', window.axeltmptrick['_EventFilter']);
-      }
-      
+      appController.setXTigerStylesheet('../../axel/axel/axel.css');
+      // late filter registration
+      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
       // Install Hook to install bindings
-      $(document).bind('AXEL-TEMPLATE-READY', onTemplateTransformed);
+      $(document).bind('axel-editor-ready', onTemplateTransformed);
     }
     xtdom.addEventListener(window, 'load', initApp, false);
   </script>
@@ -107,7 +107,7 @@ Author: Stephane Sire
             <select id="foldersList" onchange="appController.updateSelectedFolder()"></select>
           </label>
           <select id="templatesList" onchange="appController.updateSelectedTemplate()"></select>
-          <input type="button" value="Preferences" onclick="appController.setPreferences();"/>
+          <input id="prefs" type="button" value="Preferences" onclick="appController.setPreferences();"/>
           <span style="position: absolute; left: 46%">
             <input type="button" id="previewToggle" value="Preview" onclick="appController.doToggleViewMode();"/>
           </span>
@@ -131,8 +131,6 @@ Author: Stephane Sire
             <input type="button" value="Browse"
               onclick="appController.localFileDialog(&quot;folder&quot;, null, &quot;Select a folder that contains some XTiger Forms templates&quot;, &quot;templateRepos&quot;)"/>
             <input type="button" value="Ok" onclick="appController.savePreferences()"/>
-            <input class="hide" type="button" value="Hide"
-              onclick="appController.hidePreferences()"/>
             <span style="position: absolute; right: 30px">
               <input type="radio" value="standard" name="algorithm" checked="true"/>
               <label for="robust">Std</label>
@@ -162,7 +160,8 @@ Author: Stephane Sire
 
     <!-- Editor area (template) -->
     <div id="frameContainer">
-      <iframe id="container" src="intro.xhtml"> iframe content </iframe>
+      <iframe id="container" src="extras/intro.xhtml"> iframe content </iframe>
     </div>
   </body>
 </html>
+

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>                  
+  <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=8;" />   
+  <meta name="description" content="XTiger XML document template" />
+  <meta name="keywords" content="template, XTiger" />
+
+  <title>AXEL Command test case</title>
+  
+  <style>
+  body {
+    margin: 20px auto;
+    width: 800px;
+  }
+  </style>
+  
+  <!-- jQuery-UI, AXEL stylesheets  -->
+  <!-- <link rel="stylesheet" type="text/css"
+        href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link> -->
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+
+  <!-- jQuery, jQuery-UI, AXEL -->
+  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <!-- <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js">//</script> -->
+  <script type="text/javascript" src="../../../axel/axel/axel.js" data-bundles-path="../../axel">//</script>
+
+  <!-- AXEL-FORMS -->
+  <script type="text/javascript" src="../../src/core/command.js">//</script>
+  <script type="text/javascript" src="../../src/commands/dump.js">//</script>
+
+  <xt:head version="1.1" templateVersion="1.0" label="TestCase">
+  </xt:head>
+</head>
+<body id="editor" data-template="#">
+  <p><button data-command="dump" data-target="editor">DUMP</button></p>
+  <h1>Command test</h1>
+  <p><xt:use types="text" label="Test">click to edit some content</xt:use></p>
+</body>
+</html>               

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>                  
+  <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=8;" />   
+  <meta name="description" content="XTiger XML document template" />
+  <meta name="keywords" content="template, XTiger" />
+
+  <title>AXEL Command test case</title>
+  
+  <style>
+  body {
+    margin: 20px auto;
+    width: 800px;
+  }
+  div.errors {
+    padding: 20px;
+    color: red;
+  }
+  span.text.label {
+    float: left;
+    width: 8em;
+    text-align: right;
+    margin-right: 0.5em;
+  }
+  div.group {
+    padding: 0 15px;
+    width: 400px;
+    float: left;
+  }
+  div.group > p {
+    margin-bottom: 0px;
+  }
+  p.error {
+    display: none;
+    color: red;
+    margin: 0 0 0 8.5em;
+  }
+  div#errors > p {
+    color: red;
+  }
+  /* Forms fields length */
+  p input {
+    width: 250px;
+  }
+  p.radio input {
+    width: auto;
+  }
+  </style>
+  
+  <!-- jQuery-UI, AXEL stylesheets  -->
+  <!-- <link rel="stylesheet" type="text/css"
+        href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link> -->
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+
+  <!-- jQuery, jQuery-UI, AXEL -->
+  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <!-- <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js">//</script> -->
+  <script type="text/javascript" src="../../../axel/axel/axel.js" data-bundles-path="../../axel">//</script>
+
+  <!-- AXEL-FORMS -->
+  <script type="text/javascript" src="../../src/core/binding.js">//</script>
+  <script type="text/javascript" src="../../src/bindings/regexp.js">//</script>
+  <script type="text/javascript" src="../../src/core/command.js">//</script>
+  <script type="text/javascript" src="../../src/commands/save.js">//</script>
+  <script type="text/javascript" src="../../src/plugins/input.js">//</script>
+
+  <xt:head version="1.1" templateVersion="1.0" label="TestCase">
+  </xt:head>
+</head>
+<body id="editor" data-template="#" data-validation="errors">
+
+  <p style="font-size: 80%">
+    This template is not fully functional since when opened in the demonstration editor, the "Save" button
+    should result in a failure to write to the file system using an XHR request. However 
+    the <code>data=command="save"</code> is configured to validate the form fields before submitting data,
+    hence you should try to save incomplete or incorrect form data to actually see some errors.
+  </p>
+  
+  <p><button data-command="save" data-target="editor">Save</button></p>
+  <h1>Command test</h1>
+  <div id="errors">
+  </div>
+  
+  <div class="group">
+    <p class="x-NPA" data-binding="regexp" data-variable="npa" data-regexp="^\s*$|^\d+$">
+      <label><span class="text label">NPA :</span>
+        <xt:use types="input" label="NPA" param="filter=event;type=text;required=true"/>
+      </label>
+    </p>
+    <p data-regexp-error="npa" class="error">entrez un nombre</p>
+  
+    <p id="courriel" data-binding="regexp" data-variable="mail" data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$"><label><span class="text label">Courriel :</span>
+      <xt:use types="input" label="Courriel" param="filter=event;type=text;required=true"/></label>
+    </p>
+    <p data-regexp-error="mail" class="error">adresse de courriel invalide</p>
+  </div>  
+</body>
+</html>               

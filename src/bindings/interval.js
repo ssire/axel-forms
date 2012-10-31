@@ -23,8 +23,8 @@
   }
   
   function Interval (jnode, name, doc ) {
-    var jmin = $('body [data-min-date=' + name + ']', doc || document),
-        jmax = $('body [data-max-date=' + name + ']', doc || document);
+    var jmin = $('[data-min-date=' + name + ']', jnode), // doc || document
+        jmax = $('[data-max-date=' + name + ']', jnode);
     today = $.datepicker.formatDate('dd/mm/yy', new Date()); // FIXME: factorize
     this.min = $axel(jmin.get(0), true);
     this.max = $axel(jmax.get(0), true);

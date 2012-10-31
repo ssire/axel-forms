@@ -4,11 +4,29 @@
 function getDefaultTemplates () {
   return [
     { 
-    name : 'demos', // menu name
-    path : '../templates/demos/', // path to folder (MUST end with '/')
+    name : 'plugins', // menu name
+    path : '../templates/plugins/', // path to folder (MUST end with '/')
     files :  // available template files
       [
+      "Input.xhtml",
+      "Choice.xhtml"
+      ]
+    },
+    {
+    name : 'bindings',
+    path : '../templates/bindings/',
+    files :
+      [
       "Interval.xhtml"
+      ]
+    },
+    { 
+    name : 'commands',
+    path : '../templates/commands/',
+    files :
+      [
+      "Command.xhtml",
+      "Validate.xhtml"
       ]
     },
     {

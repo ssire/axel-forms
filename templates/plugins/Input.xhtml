@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "input" plugin</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    </xt:head>
+
+    <style type="text/css">
+      .axel-core-editable[contenteditable] {
+        border: none !important;
+        outline: 0px solid transparent;
+      }
+      .multi {
+        -moz-column-count: 2;
+        -moz-column-gap: 25px;
+        -webkit-column-count: 2;
+        -webkit-column-gap: 25px;
+      }
+      span.styled {
+        font-size: 120%;
+        font-family: Garamond, Arial;
+        color: brown;
+      }
+    </style>
+    
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+  </head>
+  <body>
+
+    <h1>The <code>"input"</code> plugin</h1>
+
+    <p>The <code>"input"</code> plugin is a facade on a native HTML <code>input</code> element. It's display is the same in static view and in editing view, making it well fitted form traditional form-based interaction.</p>
+
+    <h2>Parameters</h2>
+
+    <ul class="parameters">
+      <li><var>class</var> (<code><i>name</i></code>) : set a class name on the handle</li>
+      <li><var>type</var> (<code><i>name</i></code>) : select ...</li>
+    </ul>
+
+    <h2>Default configuration</h2>
+
+    <div class="demo extract">
+      <p>First name : <xt:use types="input" label="FirstName"/></p>
+      <p><xt:use types="input" label="LastName">Enter last name</xt:use></p>
+      <p><xt:use types="input" label="Nickname" param="filter=optional">Enter nickname</xt:use></p>
+    </div>
+
+    <h2>Example with radio buttons </h2>
+    
+    <div class="demo extract">
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=strawberry;"/>strawberry</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=vanilla;checked=true;"/>vanilla</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=chocolate;"/>chocolate</label>
+    </div>
+
+    <h2>Example with check boxes</h2>
+
+    <div class="demo extract">
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=chips;"/>chips</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=sticks;"/>bread sticks</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=cookie;"/>cookie</label>
+    </div>
+    
+  </body>
+</html>

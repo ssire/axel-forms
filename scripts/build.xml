@@ -37,6 +37,7 @@ Author(s) : Stephane Sire
     <filelist id="files.plugins" dir="${plugins.src.dir}" files="${plugins.lib.files}"/>
     <filelist id="files.filters" dir="${filters.src.dir}" files="${filters.lib.files}"/>
     <filelist id="files.bindings" dir="${bindings.src.dir}" files="${bindings.lib.files}"/>
+    <filelist id="files.commands" dir="${commands.src.dir}" files="${commands.lib.files}"/>
   </target>
 
   <!-- "revision.number" property initialization
@@ -61,6 +62,7 @@ Author(s) : Stephane Sire
       <filelist refid="files.plugins"/>
       <filelist refid="files.filters"/>
       <filelist refid="files.bindings"/>
+      <filelist refid="files.commands"/>
     </concat>
   </target>
 
