@@ -17,7 +17,13 @@
 (function ($axel) {
 
   var _Generator = function ( aContainer, aXTUse, aDocument ) {
-    var _handle = xtdom.createElement(aDocument, 'input');
+    var _handle = xtdom.createElement(aDocument, 'input'),
+        pstr = aXTUse.getAttribute('param'); // IE < 9 does not render 'radio' or 'checkbox' when set afterwards
+    if (pstr.indexOf("type=radio") !== -1) {
+      xtdom.setAttribute(_handle, 'type', 'radio');
+    } else if (pstr.indexOf("type=checkbox") !== -1) {
+      xtdom.setAttribute(_handle, 'type', 'checkbox');
+    }
     aContainer.appendChild(_handle);
     return _handle;
   };
@@ -209,7 +215,7 @@
         name = editor.getParam('name');
     this._editor = editor;
     this._type = aType;
-    xtdom.setAttribute(h, 'type', aType);
+    // xtdom.setAttribute(h, 'type', aType); (done in Generator because of IE < 9)
     if (name || (aType === 'radio')) {
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);

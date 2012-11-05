@@ -10,16 +10,16 @@
 |                                                                             |
 \*****************************************************************************/
 (function ($axel) {
-  
+
   function Condition ( jnode, name, doc ) {
     this.doc = doc;
     this.avoidstr = 'data-avoid-' + name;
     this.editor = $axel(jnode.get(0));
     jnode.bind('axel-update', $.proxy(Condition.prototype.updateConditionals, this));
   }
-  
+
   Condition.prototype = {
-  
+
     updateConditionals : function  (ev, data) {
       var curval = this.editor.text();
       var fullset = $('body [' + this.avoidstr + ']', this.doc || document);
@@ -36,12 +36,12 @@
      init : function (jnode, doc) {
        var name = jnode.attr('data-variable');
        if (name) {
-         new Condition(jnode, name, doc);         
+         new Condition(jnode, name, doc);
        } else {
          xtiger.cross.log('error', 'Missing attribute "data-variable" to install "condition" binding');
        }
      }
   };
 
-  $axel.binding.register('condition', factory)
+  $axel.binding.register('condition', factory);
 }($axel));

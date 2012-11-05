@@ -60,7 +60,7 @@
           '<p>Vous devez corriger les champs suivants : ' + valid.join(', ') + '</p>'
         );
       }
-      return (err.length === 0) && (valid.length === 0)
+      return (err.length === 0) && (valid.length === 0);
     }
 
     function isResponseAnOppidumError (xhr) {
@@ -154,7 +154,7 @@
       } else if (isResponseAnOppidumError(xhr)) {
         // Oppidum may generate 500 Internal error, 400, 401, 404
         $axel.command.logError(getOppidumErrorMsg(xhr), this.errTarget);
-      } else if (xhr.responseText.search('Error</title>') != -1) { // eXist-db error (empirical)
+      } else if (xhr.responseText.search('Error</title>') !== -1) { // eXist-db error (empirical)
         $axel.command.logError(getExistErrorMsg(xhr), this.errTarget);
       } else if (e) {
         $axel.command.logError('Exception : ' + e.name + ' / ' + e.message + "\n" + ' (line ' + e.lineNumber + ')', this.errTarget);

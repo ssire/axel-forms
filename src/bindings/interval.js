@@ -38,17 +38,17 @@
   Interval.prototype = {
     
     beforeShowMinDate : function ( input, picker ) {
-      return { 'maxDate' : parseDate(this.max.text(), today) }
+      return { 'maxDate' : parseDate(this.max.text(), today) };
     },
   
     beforeShowMaxDate : function ( input, picker ) {
-      return { 'minDate' : parseDate(this.min.text(), null) }
+      return { 'minDate' : parseDate(this.min.text(), null) };
     },
   
     minDateChanged : function ( ev, editor ) {
       var cur, max = today;
-      try { cur = $.datepicker.parseDate('dd/mm/yy', editor.getData()); } catch (e) {}
-      try { max = $.datepicker.parseDate('dd/mm/yy', this.max.getData()); } catch (e) {}
+      try { cur = $.datepicker.parseDate('dd/mm/yy', editor.getData()); } catch (e1) {}
+      try { max = $.datepicker.parseDate('dd/mm/yy', this.max.getData()); } catch (e2) {}
       if (cur && (cur > max)) {
         this.max._setData(editor.getData());
       }
@@ -56,8 +56,8 @@
 
     maxDateChanged : function ( ev, editor ) {
       var cur, min = today;
-      try { cur = $.datepicker.parseDate('dd/mm/yy', editor.getData()); } catch (e) {}
-      try { min = $.datepicker.parseDate('dd/mm/yy', this.min.getData()); } catch (e) {}
+      try { cur = $.datepicker.parseDate('dd/mm/yy', editor.getData()); } catch (e1) {}
+      try { min = $.datepicker.parseDate('dd/mm/yy', this.min.getData()); } catch (e2) {}
       if (cur && (cur < min)) {
         this.min._setData(editor.getData());
       }

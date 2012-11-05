@@ -64,9 +64,9 @@
     if (this.templateUrl) {
       // 1. adds a class named after the template on 'body' element
       // FIXME: could be added to the div domContainer instead ?
-      if (this.templateUrl != '#') {
+      if (this.templateUrl !== '#') {
         name = this.templateUrl.substring(this.templateUrl.lastIndexOf('/') + 1);
-        if (name.indexOf('?') != -1) {
+        if (name.indexOf('?') !== -1) {
           name = name.substring(0, name.indexOf('?'));
         }
         $('body').addClass('edition').addClass(name);

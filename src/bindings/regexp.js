@@ -47,5 +47,5 @@
      }
   };
 
-  $axel.binding.register('regexp', factory)
+  $axel.binding.register('regexp', factory);
 }($axel));

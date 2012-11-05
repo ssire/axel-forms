@@ -42,7 +42,7 @@
    function createOptions ( that, values, labels ) {
      var i, o, t, handle = that.getHandle(),
          doc = that.getDocument();
-     for (var i = 0; i < values.length; i++) {
+     for (i = 0; i < values.length; i++) {
        o = xtdom.createElement(doc, 'option');
        t = xtdom.createTextNode(doc, labels[i]);
        xtdom.setAttribute(o, 'value', values[i]);
@@ -140,7 +140,7 @@
 
        isFocusable : function () {
          return true;
-       },
+       }
 
      },
 
@@ -180,7 +180,7 @@
          if (this.isOptional()) {
            this.unset(doPropagate);
          }
-       },
+       }
      }
    };
   }());
