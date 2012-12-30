@@ -104,14 +104,14 @@ Author: Stephane Sire
       var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
-      appController.setBase('../../axel/axel/axel/bundles')
+      appController.setBase('../../axel/axel/bundles')
       appController.setXTigerStylesheet('../../axel/axel/axel.css');
       // late filter registration
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
       // Install Hook to install bindings
       $(document).bind('axel-editor-ready', onTemplateTransformed);
       // configure command for templates with embedded transformation command
-      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../axel/axel/axel/bundles'))
+      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../axel/axel/bundles'))
     }
     xtdom.addEventListener(window, 'load', initApp, false);
   </script>
