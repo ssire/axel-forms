@@ -38,6 +38,17 @@ To clone the AXEL-FORMS distribution from its bitbucket repo run :
 
 `git clone git@bitbucket.org:ssire/axel-forms.git`.
 
+How to test it ?
+----------------
+
+This repository is also published as the [AXEL-FORMS web site](http://ssire.github.com/axel-forms/) 
+thanks to the Git Hub project pages mechanism. From the web site you can directly
+test AXEL-FORMS inside your browser without any preliminary software installation.
+Follow the instructions of the section "For the impatient". 
+
+The web site is regularly updated, however to really get the latest version checkout 
+the repository.
+
 Where to start ?
 ----------------
 
