@@ -85,7 +85,7 @@ Author: Stephane Sire
             // TODO: currently manages only 1 AXEL editor per document
             xtiger.cross.log('debug', 'binding installation (post-template transformation)');
             $axel.binding.install(iframeDoc);
-            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../axel/axel/axel/axel.css'));
+            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../axel/axel/axel.css'));
             appController.curForm = ed[0].form;
             appController.log('Template with embedded transformation transformed with success', 0);
           } else {
@@ -105,7 +105,7 @@ Author: Stephane Sire
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
       appController.setBase('../../axel/axel/axel/bundles')
-      appController.setXTigerStylesheet('../../axel/axel/axel/axel.css');
+      appController.setXTigerStylesheet('../../axel/axel/axel.css');
       // late filter registration
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
       // Install Hook to install bindings
