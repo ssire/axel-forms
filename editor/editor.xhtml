@@ -20,12 +20,12 @@ Author: Stephane Sire
 
     <!-- JQuery, jQuery UI dependencies-->
     <link rel="stylesheet" type="text/css"
-          href="../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link>
-    <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
+          href="../../../axel/axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link>
+    <script type="text/javascript" src="../../../axel/axel/3rd-part/jquery/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="../../../axel/axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
 
     <!-- AXEL dependency (see also below)-->
-    <script type="text/javascript" src="../../axel/axel/axel.js"></script>
+    <script type="text/javascript" src="../../../axel/axel/axel/axel.js"></script>
 
     <!-- AXEL-FORMS -->
     <!-- plugins -->
@@ -48,7 +48,7 @@ Author: Stephane Sire
     <script type="text/javascript" src="../src/bindings/required.js"></script>
 
     <!-- Editor application   -->
-    <link type="text/css" rel="stylesheet" href="../../axel/editor/extras/editor.css"></link>
+    <link type="text/css" rel="stylesheet" href="../../../axel/axel/editor/extras/editor.css"></link>
 
     <!--[if IE 7]>
   <style type="text/css">
@@ -58,14 +58,14 @@ Author: Stephane Sire
   </style>
   <![endif]-->
 
-    <script type="text/javascript" src="../../axel/editor/extras/editor.js"></script>
+    <script type="text/javascript" src="../../../axel/axel/editor/extras/editor.js"></script>
     <script type="text/javascript" src="templates.js"></script>
     <script type="text/javascript">
     var appController;
 
-    // overrides the ones in ../../axel/editor/extras/editor.jf
+    // overrides the ones in ../../../axel/axel/editor/extras/editor.js
     // FIXME: do something cleaner that does not depend on evaluation order !
-    var _INPUT_FILE = '../../axel/editor/extras/input.html';
+    var _INPUT_FILE = '../../../axel/axel/editor/extras/input.html';
     var _INTRO_FILE = 'intro.xhtml';
 
     function onTemplateTransformed () {
@@ -84,7 +84,7 @@ Author: Stephane Sire
             // TODO: currently manages only 1 AXEL editor per document
             xtiger.cross.log('debug', 'binding installation (post-template transformation)');
             $axel.binding.install(iframeDoc);
-            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../axel/axel/axel.css'));
+            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../../axel/axel/axel/axel.css'));
             appController.curForm = ed[0].form;
             appController.log('Template with embedded transformation transformed with success', 0);
           } else {
@@ -103,14 +103,14 @@ Author: Stephane Sire
       var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
-      appController.setBase('../../axel/axel/bundles')
-      appController.setXTigerStylesheet('../../axel/axel/axel.css');
+      appController.setBase('../../../axel/axel/axel/bundles')
+      appController.setXTigerStylesheet('../../../axel/axel/axel/axel.css');
       // late filter registration
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
       // Install Hook to install bindings
       $(document).bind('axel-editor-ready', onTemplateTransformed);
       // configure command for templates with embedded transformation command
-      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../axel/axel/bundles'))
+      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../../axel/axel/axel/bundles'))
     }
     xtdom.addEventListener(window, 'load', initApp, false);
   </script>
