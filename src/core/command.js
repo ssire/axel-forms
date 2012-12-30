@@ -49,10 +49,11 @@
   /////////////////////////////////////////////////
   // <div> Hosted editor
   /////////////////////////////////////////////////
-  function Editor (identifier, node, axelPath ) {
+  function Editor (identifier, node, doc, axelPath ) {
     var spec = $(node),
         name;
-
+    
+    this.doc = doc;
     this.axelPath = axelPath;
     this.key = identifier;
     this.templateUrl = spec.attr('data-template');
@@ -69,7 +70,7 @@
         if (name.indexOf('?') !== -1) {
           name = name.substring(0, name.indexOf('?'));
         }
-        $('body').addClass('edition').addClass(name);
+        $('body', doc).addClass('edition').addClass(name);
       } // otherwise special case with document as template
 
       // 2. loads and transforms template and optionnal data
@@ -78,13 +79,14 @@
       // 3. registers optionnal unload callback if transactionnal style
       if (this.cancelUrl) {
         $(window).bind('unload', $.proxy(this, 'reportCancel'));
+        // FIXME: works only if self-transformed
       }
     } else {
       $axel.command.logError('Missing data-template attribute to generate the editor "' + this.key + '"');
     }
 
     // 4. triggers completion event
-    $(document).triggerHandler('AXEL-TEMPLATE-READY', [this]);
+    $(doc).triggerHandler('AXEL-TEMPLATE-READY', [this]);
   }
 
   Editor.prototype = {
@@ -97,15 +99,15 @@
       var errLog = new xtiger.util.Logger(),
           template, data, dataFeed;
       if (this.templateUrl === "#") {
-        template = document;
+        template = this.doc;
       } else {
         template = xtiger.debug.loadDocument(this.templateUrl, errLog);
       }
       if (template) {
         this.form = new xtiger.util.Form(this.axelPath);
         this.form.setTemplateSource(template);
-        if (template !== document) {
-          this.form.setTargetDocument(document, this.key, true); // FIXME: "untitled" does not work
+        if (template !== this.doc) {
+          this.form.setTargetDocument(this.doc, this.key, true); // FIXME: "untitled" does not work
         }
         // FIXME: currently "#" notation limited to body (document is the template)
         // because setTemplateSource only accept a document
@@ -167,13 +169,21 @@
   var sindex = 0, cindex = 0;
   var registry = {}; // Command class registry to instantiates commands
   var editors = {}; //
+  var params = {};
 
   var  _Command = {
+    
+      configure : function (key, value) {
+        params[key] = value;
+      },
+    
       // Reports error to the user either in a predefined DOM node (jQuery selector) or as an alert
       logError : function (msg, optSel) {
         var log = optSel ? $(optSel) : undefined;
         if (log && (log.length > 0)) {
           log.text(msg);
+        } else if (typeof params.logError === "function") {
+          params.logError(msg);
         } else {
           alert(msg);
         }
@@ -194,13 +204,15 @@
   };
 
   // Creates a new editor from a DOM node and the path to use with AXEL
-  function _createEditor (node, axelPath) {
-    var key = $(node).attr('id') || ('untitled' + (sindex++));
-    editors[key] = new Editor(key, node, axelPath);
+  function _createEditor (node, doc, axelPath) {
+    var key = $(node).attr('id') || ('untitled' + (sindex++)),
+        res = new Editor(key, node, doc, axelPath);
+    editors[key] = res;
+    return res;
   }
 
   // Creates a new command from a DOM node
-  function _createCommand (node) {
+  function _createCommand (node, doc) {
     var type = $(node).attr('data-command'), // e.g. 'save', 'submit'
         key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
         record = registry[type];
@@ -210,32 +222,35 @@
             if (node.disabled) { // activates trigger
               node.disabled = false;
             }
-            new registry[type].factory(key, node); // command constructor should register to trigger event
+            new registry[type].factory(key, node, doc); // command constructor should register to trigger event
         } else {
           node.disabled = true; // unactivates trigger
           $axel.command.logError('Missing or invalid data-target attribute in ' + type + ' command ("' + key + '")');
         }
       } else {
-        new registry[type].factory(key, node); // command constructor should register to trigger event
+        new registry[type].factory(key, node, doc); // command constructor should register to trigger event
       }
     } else {
       $axel.command.logError('Attempt to create an unkown command "' + type + '"');
     }
   }
 
-  function _installCommands () {
+  function _installCommands (doc) {
     var axelPath = $('script[data-bundles-path]').attr('data-bundles-path'),
-        editors = $('div[data-template]').add('body[data-template="#"]');
+        editors = $('div[data-template]', doc).add('body[data-template="#"]', doc),
+        accu = [];
 
     // FIXME: use micro-format for that or solve load sequence ordering issue (?)
-    $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+    if (axelPath) { // self-transformed document
+      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+    }
 
     // creates editors (div with 'data-template')
     if (editors.length > 0) {
-      if (axelPath) {
+      if (axelPath || params.axelPath) {
         editors.each(
           function (index, elt) {
-            _createEditor(elt, axelPath);
+            accu.push(_createEditor(elt, doc, axelPath || params.axelPath));
           }
         );
       } else {
@@ -244,19 +259,23 @@
     }
     
     // creates commands
-    $('*[data-command]').each(
+    $('*[data-command]', doc).each(
       function (index, elt) {
-        _createCommand(elt);
+        _createCommand(elt, doc);
       }
     );
     
     // FIXME: use micro-format for that or solve load sequence ordering issue (?)
-    $axel.binding.install(document); // FIXME: narrow to installed editors
+    if (axelPath) { // self-transformed document
+      $axel.binding.install(document); // FIXME: narrow to installed editors
+    }
+    return accu;
   }
 
   // exports module
   $axel.command = _Command;
+  $axel.command.install = _installCommands;
 
-  // document ready handler to install commands
-  jQuery(function() { _installCommands(); });
+  // document ready handler to install commands (self-transformed documents only)
+  jQuery(function() { _installCommands(document); });
 }($axel));

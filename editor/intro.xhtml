@@ -24,10 +24,30 @@
   </style>
 </head>
 <body>
-  <h1>AXEL-FORMS Debug Editor</h1>
-  <p>This is a version of the AXEL demonstration editor configured to work with AXEL-FORMS.</p>
-  <p>You can use it directly from your local file system (URL starting with <tt>file:///</tt>) with Firefox.</p> 
-  <p>See the original AXEL demonstration editor in the AXEL distribution for more instruction.</p>
-  <p id="copyright">AXEL-FORMS editor, by Stéphane Sire, <a href="http://mwww.oppidoc.fr" target="_new">Oppidoc</a></p>
+    <h1>AXEL-FORMS demonstration Editor</h1>
+    <p style="font-size:120%;text-align:center;color:navy">Select a template file then click on <code>Visualize</code> to generate the corresponding document editor</p>
+    <p>This application can be run either from a web server or directly from your local file system (URL starting with <tt>file:///</tt>).</p>
+    <p>If you open the editor from the local file system you need to authorize access to local URL from the XMLHTTPRequest object. For <strong>Firefox</strong> type <tt>about:config</tt> in the URL bar then click on <tt>security.fileuri.strict_origin_policy</tt>
+      to set it to <tt>false</tt> (source: <a href="http://kb.mozillazine.org/Security.fileuri.strict_origin_policy"
+      target="blank">mozillazine.org</a>). We didn't find how to do it with other browsers, so if you know let us know.</p>
+  <p>If you open the editor from a web server (URL starting with <tt>http://</tt>), including a WebDav server, it should work
+    on most browsers.</p>
+    <ul>
+      <li>Page : enter a file URL (or a file path if you launched the application directly from your file system) to transform a template file into a live editor</li>
+      <li>Template : select directly a predefined template file</li>
+      <li>[Visualize] : open the selected template file</li>
+      <li>[Preview] : hide / show user interface controls to edit document structure</li>
+      <li>[Source] : open a window with the current template source code (Firefox only)</li>
+      <li>[Dump] : dump the XML content of the current document inside a popup window</li>
+      <li>[Input] : enter XML data from a popup window to the current document</li>
+    </ul>
+    <p>The [Preferences] button opens a pannel with more commands :</p>
+    <ul>
+      <li>Template repository [Ok] : enter the path of a folder containing templates, the files will be listed in the Template popup menu</li>
+    </ul>
+    <p>The template files listed in the "Template" popup menu are stored inside the "templates" folder, however if the browser cannot read the directory listing the menu will be initialized from the script in <code>template.js</code>.</p>
+
+    <p id="copyright">AXEL-FORMS editor, by Stéphane Sire, <a href="http://www.oppidoc.fr" target="_new">Oppidoc</a> and <a href="http://media.epfl.ch" target="_new">Media research group</a></p>
+      
 </body>
 </html>

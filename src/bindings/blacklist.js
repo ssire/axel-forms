@@ -1,8 +1,8 @@
 /*****************************************************************************\
 |                                                                             |
-|  AXEL 'condition' binding                                                   |
+|  AXEL 'blacklist' binding                                                   |
 |                                                                             |
-|  Implements data-avoid-{variable} to disable fields on given data values    |
+|  Implements list of values to avoid                                         |
 |  Applies to AXEL 'input' plugin                                             |
 |                                                                             |
 |*****************************************************************************|
@@ -11,31 +11,34 @@
 \*****************************************************************************/
 (function ($axel) {
 
-  var _Regexp = {
+  var _Blacklist = {
 
     onInstall : function ( host ) {
-      this.re = new RegExp(this.getParam('regexp') || '');
+      this.terms = this.getParam('blacklist').split(' ');
       this.editor = $axel(host);
-      host.bind('axel-update', $.proxy(this.checkRegexp, this));
-      $axel.binding.setValidation(this.editor.get(0), $.proxy(this.checkRegexp, this));
+      host.bind('axel-update', $.proxy(this.filter, this));
+      $axel.binding.setValidation(this.editor.get(0), $.proxy(this.filter, this));
     },
 
     methods : {
 
-      checkRegexp : function  () {
-        var valid = this.re.test(this.editor.text());
+      filter : function  () {
+        var i, cur = this.editor.text(), valid = true;
+        for (i = 0; i < this.terms.length; i++) {
+          if (cur === this.terms[i]) {
+            valid = false;
+            break;
+          }
+        }
         return this.toggleError(valid, this.editor.get(0).getHandle(true));
       }
     }
   };
 
-  $axel.binding.register('regexp',
+  $axel.binding.register('blacklist',
     { error : true  }, // options
-    { 'regexp' : $axel.binding.REQUIRED }, // parameters
-    _Regexp
+    { 'blacklist' : $axel.binding.REQUIRED }, // parameters
+    _Blacklist
   );
 
 }($axel));
-
-
-

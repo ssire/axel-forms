@@ -48,7 +48,7 @@
           <xt:use types="t_ice_cream" label="IceCream"/>
         </xt:repeat>
         <p><b>Extras</b></p>
-        <p><span class="form">Please select some extras :</span><xt:use types="t_extras" label="Extras"/></p>
+        <p data-binding="select clear" data-variable="extras"><span class="form">Please select some extras :</span><xt:use types="t_extras" label="Extras"/> <sup data-select="extras" style="margin-left: 10px">all</sup><sup data-clear="extras" style="margin-left: 10px">none</sup></p>
       </div>
     </xt:component> 
     
@@ -58,16 +58,16 @@
     </xt:component>
 
     <xt:component name="t_flavors">
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=strawberry;"/>strawberry</label>
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=vanilla;checked=true;"/>vanilla</label>
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=chocolate;"/>chocolate</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;cardinality=3;name=flavor;value=strawberry;"/>strawberry</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;cardinality=3;name=flavor;value=vanilla;checked=true;"/>vanilla</label>
+      <label><xt:use types="input"  label="Flavor" param="type=radio;cardinality=3;name=flavor;value=chocolate;"/>chocolate</label>
     </xt:component>
 
     <xt:component name="t_extras">
-      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=chips;"/>chips</label>
-      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=sticks;"/>bread sticks</label>
-      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=cookie;"/>cookie</label>
-      <!-- <xt:use types="input" id="cookie" label="Extra" param="type=checkbox;value=cookie;">cookie</xt:use> -->
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=chips;filter=event"/>chips</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=sticks;filter=event"/>bread sticks</label>
+      <label><xt:use types="input" label="Extra" param="type=checkbox;name=extra;value=cookie;filter=event"/>cookie</label>
+      <!-- <xt:use types="input" id="cookie" label="Extra" param="type=checkbox;value=cookie;filter=event">cookie</xt:use> -->
     </xt:component>
 
     <xt:component name="t_billing">
@@ -101,12 +101,6 @@
     </xt:component>
   
   </xt:head>
-  
-  <!-- Optional AXEL Preview Mode -->
-  <link rel="stylesheet" type="text/css" href="Preview.css" />
-  
-  <!-- Place here optional AXEL code for making the template auto-editable -->
-
 </head>
 <body>
   <h1>AXEL-FORMS sample with "input" plugin</h1>

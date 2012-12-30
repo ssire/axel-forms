@@ -1,28 +1,42 @@
 AXEL-FORMS Library
 ==================
 
-AXEL-FORMS is an extension to the Adaptable XML Editing Library that 
-defines additional plugins and filters, and a binding mechanism to 
-create form based applications.
+AXEL-FORMS is an extension to the [Adaptable XML Editing
+Library](https://github.com/ssire/axel) that defines additional plugins and
+filters to create forms, a binding mechanism and a command mechanism. Like AXEL, 
+AXEL-FORMS is an open source (LGPL v2.1) library.
 
-AXEL-FORMS also includes the AXEL-MICRO library. This library allows 
-to use simple micro-format instructions to create submission actions 
-and other actions using the AXEL library functionalities, without 
-writing Javascript code.
+With the **binding mechanism** you can dynamically constrain the authoring process
+(e.g. constrain a field input space with a regexp, contrain two dates 
+to follow each other, etc).
+
+With the **command mechanism** you can insert high-level commands such as __save__ 
+(save the open document to a server), or __load__ (load a document into an editor) 
+into a page. This way it is easy to create editing user interfaces.
+
+Both the binding and the command mechanisms rely on microformat instructions 
+to be included into the page markup. The benefit is that you can start using 
+the library without writing Javascript code, in a fully declarative way.
+
+Javascript developers have access to the binding and command mechanisms in the 
+`$axel.binding` and `$axel.command` namespaces. The documented binding API 
+and command API explain how to create and register new bindings and commands.
 
 Pre-requisites
 --------------
 
-AXEL-FORMS and the AXEL-MICRO libraries requires JQuery.
+AXEL-FORMS requires JQuery.
 
-You must use this library as a sibling folder to the AXEL source 
+You must checkout this repository into a sibling directory of the AXEL
 code distribution available at [https://github.com/ssire/axel]().
 
-To clone the AXEL distribution from its git repo run `git
-clone git://github.com/ssire/axel.git`.
+To clone the AXEL distribution from its git repo run :
 
-To clone the AXEL-FORMS distribution from its bitbucket repo run `git
-clone git@bitbucket.org:ssire/axel-forms.git`.
+`git clone git://github.com/ssire/axel.git`.
+
+To clone the AXEL-FORMS distribution from its bitbucket repo run :
+
+`git clone git@bitbucket.org:ssire/axel-forms.git`.
 
 Where to start ?
 ----------------
@@ -30,8 +44,7 @@ Where to start ?
 This repository contains some sample templates in the `templates` folder.
 You can open those templates using the editor in the `editor` folder. 
 To launch the editor just open the `editor/editor.xhtml` file inside 
-your browser (Firefox recommended, see the security note displayed by 
-the original AXEL editor).
+your browser (Firefox recommended, see the security note displayed in the launch screen).
 
 If you are just interested in using and deploying AXEL-FORMS, all you need 
 to do is to build the library (see below) and to copy the `dist/axel-forms.js`
@@ -60,7 +73,30 @@ together, so you can use it without installing the compressor.
 How to contribute to the library ? 
 ----------------------------------
 
-AXEL-FORMS is a proprietary extension to AXEL developped and maintained 
-by S. Sire at [Oppidoc SARL](http://www.oppidoc.fr). 
+AXEL-FORMS is an extension to AXEL developped and maintained 
+by S. Sire at [Oppidoc](http://www.oppidoc.fr). 
 
 Please [contact us](mailto:contact@oppidoc.fr) for further inquiries.
+
+Coding Guidelines 
+-----------------
+                                          
+We currently do not have strong coding conventions as you will see by yourself
+when browsing the source code, however respect at least these ones :
+
+* soft tabs
+* 2 spaces per tab
+* remove spaces at the end of lines (you may use a filter such as `sed -E 's/[ ]+$//g'`)
+* test source files with jslint
+
+Each plugin should be documented in a self-describing template file inside 
+the `templates/plugins` folder.
+
+Each filter should be documented in a self-describing template file inside
+the `templates/filters` folder.
+
+Each binding should be documented in a self-describing template file inside
+the `templates/bindings` folder.
+
+Each command should be documented in a self-describing template file inside
+the `templates/commands` folder.

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!--  
+<!--
 This file is a stripped down version of the original axel/editor/editor.html
 
 It has been extended to load the AXEL-FORMS extensions (AXEL-MICRO + Plugins + Bindings)
 
-It uses the 'AXEL-TEMPLATE-READY' event to install bindings, 
+It uses the 'AXEL-TEMPLATE-READY' event to install bindings,
 so the editor.js (which is imported from AXEL) MUST trigger it.
 
 WARNING: this currently works only if axel-forms is placed as a sibling of axel in your file system
@@ -28,17 +28,29 @@ Author: Stephane Sire
     <script type="text/javascript" src="../../axel/axel/axel.js"></script>
 
     <!-- AXEL-FORMS -->
+    <!-- plugins -->
     <script type="text/javascript" src="../src/plugins/choice.js"></script>
     <script type="text/javascript" src="../src/plugins/input.js"></script>
+    <!-- commands -->
+    <script type="text/javascript" src="../src/core/command.js">//</script>
+    <script type="text/javascript" src="../src/commands/dump.js">//</script>
+    <script type="text/javascript" src="../src/commands/save.js">//</script>
+    <script type="text/javascript" src="../src/commands/validate.js">//</script>
+    <!-- bindings -->
     <script type="text/javascript" src="../src/core/binding.js"></script>
     <script type="text/javascript" src="../src/bindings/interval.js"></script>
     <script type="text/javascript" src="../src/bindings/condition.js"></script>
     <script type="text/javascript" src="../src/bindings/regexp.js"></script>
+    <script type="text/javascript" src="../src/bindings/unique.js"></script>
+    <script type="text/javascript" src="../src/bindings/blacklist.js"></script>
+    <script type="text/javascript" src="../src/bindings/select.js"></script>
+    <script type="text/javascript" src="../src/bindings/clear.js"></script>
+    <script type="text/javascript" src="../src/bindings/required.js"></script>
 
     <!-- Editor application   -->
     <link type="text/css" rel="stylesheet" href="../../axel/editor/extras/editor.css"></link>
 
-    <!--[if IE 7]>    
+    <!--[if IE 7]>
   <style type="text/css">
   #frameContainer {
     height: 85%;
@@ -55,22 +67,39 @@ Author: Stephane Sire
     // FIXME: do something cleaner that does not depend on evaluation order !
     var _INPUT_FILE = '../../axel/editor/extras/input.html';
     var _INTRO_FILE = 'intro.xhtml';
-    
+
     function onTemplateTransformed () {
-      var iframeDoc;
+      var iframeDoc, ed;
       var iframe = document.getElementById('container');
       if (iframe.contentDocument) {
         iframeDoc = iframe.contentDocument;
       } else if (iframe.contentWindow) { // IE7
-        iframeDoc = iframe.contentWindow.document;      
+        iframeDoc = iframe.contentWindow.document;
       }
-      if (iframeDoc) { 
-        $axel.binding.install(iframeDoc);
+      if (iframeDoc &amp;&amp; ($('script[data-bundles-path]').length === 0)) { // not a self-transformed document
+        if (! appController.curForm) { // template with embedded transformation skipped by editor.js
+          xtiger.cross.log('debug', 'command installation (post-template transformation)');
+          ed = $axel.command.install(iframeDoc);
+          if (ed.length >= 1) {
+            // TODO: currently manages only 1 AXEL editor per document
+            xtiger.cross.log('debug', 'binding installation (post-template transformation)');
+            $axel.binding.install(iframeDoc);
+            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../axel/axel/axel.css'));
+            appController.curForm = ed[0].form;
+            appController.log('Template with embedded transformation transformed with success', 0);
+          } else {
+            appController.log('Template with embedded transformation failed, no editor has been generated', 1);
+          }
+        } else {
+          xtiger.cross.log('debug', 'binding installation (post-template transformation)');
+          $axel.binding.install(iframeDoc);
+        }
+      } else {
+        xtiger.cross.log('debug', 'command and binding installation skipped (self-transformed template) ');
       }
-      xtiger.cross.log('debug', 'Post-template transformation setup');
     }
 
-    function initApp () {                       
+    function initApp () {
       var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
       // Application controller
       appController = new viewerApp("../templates/", defaultTemplates);
@@ -80,6 +109,8 @@ Author: Stephane Sire
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
       // Install Hook to install bindings
       $(document).bind('axel-editor-ready', onTemplateTransformed);
+      // configure command for templates with embedded transformation command
+      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../axel/axel/bundles'))
     }
     xtdom.addEventListener(window, 'load', initApp, false);
   </script>
@@ -89,30 +120,31 @@ Author: Stephane Sire
       <form id="formUrl" action="javascript:alert('Oops, something went wrong !')"
             onsubmit="return appController.submitPage();">
 
-        <p>
+        <p style="position: relative">
           <label>
-            Page : <input id="url" type="text" name="url" maxlength="100" value=""/>
+            Page : <input id="url" type="text" name="url" maxlength="150" value=""/>
           </label>
           <input type="button" value="Browse"
             onclick="appController.localFileDialog(&quot;open&quot;, &quot;*.xtd; *.xhtml; *.html; *.xml&quot;, &quot;Select an XTiger Forms template&quot; , &quot;url&quot;)"/>
-          <span style="position: absolute; right: 30px; margin-left: 5px">
+          <span style="float: right;margin-right: 25px">
             <input type="submit" value="Visualize"/>
             <input type="reset" onclick="appController.resetView()"/>
           </span>
         </p>
 
-        <p>
+        <p style="position: relative">
           <label>
-            Template : 
+            Template :
             <select id="foldersList" onchange="appController.updateSelectedFolder()"></select>
           </label>
           <select id="templatesList" onchange="appController.updateSelectedTemplate()"></select>
           <input id="prefs" type="button" value="Preferences" onclick="appController.setPreferences();"/>
-          <span style="position: absolute; left: 46%">
+          <span style="margin-left: 20px">
             <input type="button" id="previewToggle" value="Preview" onclick="appController.doToggleViewMode();"/>
+            <input type="button" id="previewToggle" value="Source" onclick="javascript:appController.viewTemplateSource(event)"/>
           </span>
-          <span style="position: absolute; right: 30px">
-            <input type="button" value="Schema" onclick="appController.dumpSchema();"/>
+          <span style="float: right;margin-right: 25px">
+            <!-- <input type="button" value="Schema" onclick="appController.dumpSchema();"/> -->
             <input type="button" value="Dump" onclick="appController.dump();"/>
             <input type="button" value="Input" onclick="appController.inputInstanceData();"/>
             <input type="button" value="Save" onclick="appController.localSaveInstanceData('fileName');"/>
@@ -125,8 +157,8 @@ Author: Stephane Sire
         <!-- Hidden preferences panel -->
         <div id="preferences">
           <p>
-            <label>Template repository : 
-              <input id="templateRepos" type="text" name="templateRepos" maxlength="50" value=""/>
+            <label>Template repository :
+              <input id="templateRepos" type="text" name="templateRepos" maxlength="150" value=""/>
             </label>
             <input type="button" value="Browse"
               onclick="appController.localFileDialog(&quot;folder&quot;, null, &quot;Select a folder that contains some XTiger Forms templates&quot;, &quot;templateRepos&quot;)"/>
@@ -142,7 +174,7 @@ Author: Stephane Sire
           </p>
           <p>
             <label>
-              File name <i>(paths relative to editor.xhtml)</i>: 
+              File name <i>(paths relative to editor.xhtml)</i>:
               <input id="fileName" type="text" name="fileName" maxlength="50" value=""/>
             </label>
             <input type="button" value="Save" onclick="appController.saveToFile()"/>
@@ -160,7 +192,7 @@ Author: Stephane Sire
 
     <!-- Editor area (template) -->
     <div id="frameContainer">
-      <iframe id="container" src="extras/intro.xhtml"> iframe content </iframe>
+      <iframe id="container" src="intro.xhtml"> iframe content </iframe>
     </div>
   </body>
 </html>

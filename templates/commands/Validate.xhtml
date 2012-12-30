@@ -1,23 +1,37 @@
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
-<head>                  
+<head>
   <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=8;" />   
+  <meta http-equiv="X-UA-Compatible" content="IE=8;" />
   <meta name="description" content="XTiger XML document template" />
   <meta name="keywords" content="template, XTiger" />
 
   <title>AXEL Command test case</title>
-  
+
   <style>
   body {
     margin: 20px auto;
     width: 800px;
   }
-  div.errors {
-    padding: 20px;
+  div#errors {
     color: red;
+  }
+  div.group {
+    padding: 0 15px;
+    width: 600px;
+    float: left;
+  }
+  p#commands {
+   clear:both; 
+   float:left;
+   text-align: center; 
+   margin-top: 2em;
+   width: 600px;
+  }
+  div.group > p {
+    margin-bottom: 0;
   }
   span.text.label {
     float: left;
@@ -25,77 +39,85 @@
     text-align: right;
     margin-right: 0.5em;
   }
-  div.group {
-    padding: 0 15px;
-    width: 400px;
-    float: left;
-  }
-  div.group > p {
-    margin-bottom: 0px;
-  }
   p.error {
     display: none;
     color: red;
     margin: 0 0 0 8.5em;
   }
-  div#errors > p {
-    color: red;
-  }
   /* Forms fields length */
   p input {
-    width: 250px;
+    width: 30em;
   }
   p.radio input {
     width: auto;
   }
   </style>
-  
-  <!-- jQuery-UI, AXEL stylesheets  -->
-  <!-- <link rel="stylesheet" type="text/css"
-        href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link> -->
-  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
 
-  <!-- jQuery, jQuery-UI, AXEL -->
-  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
-  <!-- <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js">//</script> -->
-  <script type="text/javascript" src="../../../axel/axel/axel.js" data-bundles-path="../../axel">//</script>
-
-  <!-- AXEL-FORMS -->
-  <script type="text/javascript" src="../../src/core/binding.js">//</script>
-  <script type="text/javascript" src="../../src/bindings/regexp.js">//</script>
-  <script type="text/javascript" src="../../src/core/command.js">//</script>
-  <script type="text/javascript" src="../../src/commands/save.js">//</script>
-  <script type="text/javascript" src="../../src/plugins/input.js">//</script>
-
-  <xt:head version="1.1" templateVersion="1.0" label="TestCase">
+  <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    <xt:component name="t_participant">
+      <fieldset>
+        <legend>Participant <xt:menu-marker/></legend>
+        <p>
+          <label><span class="text label">Name :</span>
+            <xt:use types="input" label="Name" param="type=text;required=true"/>
+          </label>
+        </p>
+        <p class="radio"><span class="text label">Civility :</span>
+          <span data-binding="required" data-variable="civility">
+            <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=M;"/>Mr</label>
+            <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mme;"/>Mrs</label>
+            <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mlle;"/>Ms</label>
+            <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Prof;"/>Prof</label>
+            <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Dr;"/>Dr</label>
+          </span>
+        </p>
+        <p class="radio"><span class="text label">Languages :</span>
+          <span data-binding="required" data-variable="languages">
+            <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=E;"/>English</label>
+            <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=G;"/>German</label>
+            <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=F;"/>French</label>
+            <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=S;"/>Spanish</label>
+            <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=O;"/>Other</label>
+          </span>
+        </p>
+      </fieldset>
+    </xt:component>
   </xt:head>
 </head>
-<body id="editor" data-template="#" data-validation="errors">
+<body id="editor" data-template="#">
 
   <p style="font-size: 80%">
     This template is not fully functional since when opened in the demonstration editor, the "Save" button
-    should result in a failure to write to the file system using an XHR request. However 
+    should result in a failure to write to the file system using an XHR request. However
     the <code>data=command="save"</code> is configured to validate the form fields before submitting data,
     hence you should try to save incomplete or incorrect form data to actually see some errors.
   </p>
-  
-  <p><button data-command="save" data-target="editor">Save</button></p>
-  <h1>Command test</h1>
+
+  <h1>Validation command test</h1>
+
   <div id="errors">
+    <noscript>Activate Javascript to edit that form</noscript>
   </div>
-  
+
   <div class="group">
-    <p class="x-NPA" data-binding="regexp" data-variable="npa" data-regexp="^\s*$|^\d+$">
-      <label><span class="text label">NPA :</span>
-        <xt:use types="input" label="NPA" param="filter=event;type=text;required=true"/>
+
+    <xt:repeat minOccurs="1" maxOccurs="*" label="Participants">
+      <xt:use types="t_participant" label="Participant"/>
+    </xt:repeat>
+
+    <p data-binding="regexp" data-variable="npa" data-regexp="^\s*$|^\d+$">
+      <label><span class="text label">Destination NPA :</span>
+        <xt:use types="input" label="NPA" param="filter=event optional;type=text;required=false"/>
       </label>
     </p>
-    <p data-regexp-error="npa" class="error">entrez un nombre</p>
-  
-    <p id="courriel" data-binding="regexp" data-variable="mail" data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$"><label><span class="text label">Courriel :</span>
-      <xt:use types="input" label="Courriel" param="filter=event;type=text;required=true"/></label>
+    <p data-regexp-error="npa" class="error">enter a number</p>
+
+    <p data-binding="regexp" data-variable="mail" data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$">
+      <label><span class="text label">Contact email :</span>
+      <xt:use types="input" label="Email" param="filter=event;type=text;required=true"/></label>
     </p>
-    <p data-regexp-error="mail" class="error">adresse de courriel invalide</p>
-  </div>  
+    <p data-regexp-error="mail" class="error">invalid email address</p>
+  </div>
+  <p id="commands"><button data-command="validate" data-target="editor" data-validation="errors">Validate</button></p>
 </body>
-</html>               
+</html>

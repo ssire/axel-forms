@@ -31,6 +31,7 @@
   };
 
   var _CACHE= {}; // TODO: define and subscribe to load_begin / load_end events to clear it
+  var _CLOCK= {}; // Trick to generate unique names for radio button groups
 
   // Internal class to manage an HTML input with a 'text' or 'password' type
   var _KeyboardField = function (editor, aType, aData) {
@@ -44,22 +45,33 @@
   };
 
   var _encache = function _encache(name, value) {
-    // window.console.log('encache ', name, '=', value);
+    // xtiger.cross.log('debug', 'encache of ' + name + '=' + value);
     if (!_CACHE[name]) {
       _CACHE[name] = {};
     }
     _CACHE[name][value] = true;
   };
 
-  var _decache = function _decache(name, value) {
-    // window.console.log('decache of ', name, '=', value);
+  var _decache = function _decache (name, value) {
+    // xtiger.cross.log('debug', 'decache of ' + name + '=' + value);
     if (_CACHE[name] && _CACHE[name][value]) {
       delete _CACHE[name][value];
-      // window.console.log('decache success of ', name, '=', value);
+      // xtiger.cross.log('debug', 'decache success of ' + name + '=' + value);
       return true;
     }
-    // window.console.log('decache failure of ', name, '=', value);
+    // xtiger.cross.log('debug', 'decache failure of ' + name + '=' + value);
     return false;
+  };
+  
+  var _getClockCount = function (name, card) {
+    var tmp = parseInt(card),
+        num = ((tmp === 0) || (isNaN(tmp))) ? 1 : tmp; // FIXME: could be stored once into param
+    if (_CLOCK[name] === undefined) {
+      _CLOCK[name] = 0;
+    } else {
+      _CLOCK[name] += 1;
+    }
+    return Math.floor(_CLOCK[name] / num);
   };
 
   _KeyboardField.prototype = {
@@ -132,7 +144,7 @@
       if (aPoint !== -1) {
         value = aDataSrc.getDataFor(aPoint);
         fallback = this._editor.getDefaultData();
-        this._editor.getHandle().value = value || fallback;
+        this._editor.getHandle().value = value || fallback || '';
         this._editor.setModified(value !==  fallback);
         this._editor.set(false);
       } else {
@@ -212,19 +224,25 @@
   };
 
   // Internal class to manage an HTML input with a 'radio' or 'checkbox' type
+  // cardinality is required for radio group when ?
   var _SelectField = function (editor, aType, aStamp) {
     var h = editor.getHandle(), 
-        name = editor.getParam('name');
+        name = editor.getParam('name'),
+        card = editor.getParam('cardinality');
     this._editor = editor;
     this._type = aType;
     // xtdom.setAttribute(h, 'type', aType); (done in Generator because of IE < 9)
     if (name || (aType === 'radio')) {
+      if (card) {
+        aStamp = _getClockCount(name || 'void', card).toString(); // there should be a name
+        window.console.log('clock gave ' + aStamp + ' for ' + name);
+      }
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);
-      editor._param.name = name; // editor.configure('name', name);
+      xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
     }
-    if (editor.getParam('checked')) {
-      xtdom.setAttribute(h, 'checked', editor.getParam('checked'));
+    if (editor.getParam('checked') === 'true') {
+      xtdom.setAttribute(h, 'checked', true); // FIXME: does not work ?
     }
     // FIXME: transpose defaultData (checked attribute ?)
   };
@@ -271,6 +289,7 @@
           this._editor.clear(false);
         }
       } else { // second chance
+        xtiger.cross.log('debug', 'aPoint is -1');
         name = this._editor.getParam('name');
         if (name) {
           ischecked = _decache(name, value);
@@ -283,7 +302,6 @@
         } else { // no checked
           this._editor.clear(false);
         }
-        // this._editor.clear(false);
       }
       // FIXME: isModified is not accurate for this type of field since we do not track update
     },

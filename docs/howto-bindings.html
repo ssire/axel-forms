@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>How to develop a binding in AXEL-FORMS</title>
+  <link rel="stylesheet" type="text/css" href="docu.css" />	
+</head>
+<body>
+<pre>
+-----------------------------------------------------------------------------------
+-------------------- How to develop a binding in AXEL-FORMS  ----------------------
+-----------------------------------------------------------------------------------
+
+Stéphane Sire
+Last update: 2012-12-19
+
+Summary
+=======
+</pre>
+
+<ul>
+<li><a href="#intro">Binding functionalities</a></li>
+<li><a href="#api">Inherited binding methods</a></li>
+<li><a href="#error">Optional inherited error feedback</a></li>
+<li><a href="#registration">Binding registration</a></li>
+<li><a href="#parameters">Binding parameters</a></li>
+<li><a href="#scope">Scope of Bindings</a></li>
+<li><a href="#validation">Validation extension</a></li>
+<li><a href="#skeleton">Binding file skeleton</a></li>
+</ul>
+
+<pre id="intro">
+Binding functionalities
+=======================
+
+A binding is an object that registers callbacks to editing events on an entry field (typically the 'axel-update' event triggered when the user has changed the field's content). Then the binding checks some constraints in the callback and displays a warning somewhere if the constaints is violated or take some other action. To check the constraint the binding uses the <a href="https://github.com/ssire/axel/wiki/Wrapped-set"target="_new">$axel wrapped set</a> to read the value of one or more entry fields.
+
+This simple architecture allows to define single field constraints (such as checking a regular expression, see the 'regexp' binding), or to define constraints over multiple fields (such as checking that repeated fields do not hold twice the same value, see the 'unique' binding).
+
+The '$axel.binding.setValidation' methods allows bindings to extend a primitive editor with an 'isValid' method to validate the field on demand. The underlying architecture allows to chain several validation methods on a single field. This is useful to develop global validation services, for instance to validate a full document before submission as done by the 'save' command.
+
+The "data-binding" attribute declares a binding onto a host element. Usually this is an ancestor of the XTiger element with the primitive editor field to monitor. 
+
+The host element can also define other "data-" attributes to declare parameters for the binding. The convention is to prefix the attribute name with "data-{name}" where '{name}' is the binding identifier used to register the binding.
+
+The binding can also define some "data-" attributes to be set anywhere in the document template, to have side effects.
+
+For instance the optional error feedback module, which can be inherited by a binding class, uses a "data-error-scope" and a "data-{name}-error-" scheme to control where to display error messages associated with a constraint violation in a binding. The 'condition' binding also uses such as scheme to hide / show some document fragments depending on the value of a single entry field.
+</pre>
+
+<pre id="api">
+Inherited binding methods
+=========================
+
+Every binding instance inherits the following methods :
+
+getName()
+~~~~~~~~~
+
+Returns the name under which the binding instance has been registered.
+
+
+getDocument()
+~~~~~~~~~~~~~
+
+Returns the document that contains the binding instance.
+
+getParam(name)
+~~~~~~~~~~~~~~
+
+Returns the value of the parameter or undefined if it does not exists. You must be aware that parameters are parsed as strings when instantiating the binding.
+</pre>
+
+
+<pre id="error">
+Optional inherited error feedback
+=================================
+
+If you declare the {error: true} option when registering the binding, it will inherit the following method :
+
+toggleError(valid, node)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If valid is true, hides the target DOM node error message.
+
+If valid is false, shows the target DOM node error message.
+
+The method returns valid.
+</pre>
+
+<pre id="registration">
+Filter registration
+===================
+
+The $axel.binding.register method takes as parameter a binding identifier ...
+
+<div class="code">
+$axel.binding.register(
+  'identifier',
+  { error : true } | null, // option hash
+  { key : 'value' | $axel.binding.REQUIRED } | null // parameter hash
+  _BindingMethods // method hash
+);
+</div>
+The option hash only supports a single 'error' option.
+
+The parameter hash defines the default values for the extra parameters which can be declared ...
+
+The method hash ...
+
+The "this" object inside methods will refer to the binding instance. Note that it is always possible to use a closure to define binding's private variables and methods.
+</pre>
+
+<pre id="parameters">
+Binding parameters
+==================
+
+</pre>
+
+<pre id="scope">
+Scope of Bindings
+=================
+</pre>
+
+<pre id="skeleton">
+Binding file skeleton
+=====================
+
+The code below can be used as a template for writing a new binding. Note that in all the bindings methods, the this object will refer to the binding instance.
+
+<div class="code">
+(function ($axel) {
+
+  // you may use the closure to declare private objects and methods here
+
+  var _Binding = {
+
+    ///////////////////////////////
+    // Binding Life cycle method //
+    ///////////////////////////////
+    onInstall : function ( host ) {
+      // code to be executed at binding creation
+      // host is a JQuery wrapped set containing the binding host element
+    }
+
+    /////////////////////
+    // Binding methods //
+    /////////////////////
+    methods : {
+      // implements binding functionalities
+    },
+  };
+
+  $axel.binding.register(
+    'name',
+    { error : true } | null, // optional mixin module error
+    { key : 'value' | $axel.binding.REQUIRED } | null, // optional parameters
+    _Binding
+  );
+}($axel));
+</code>
+</pre>
+
+</body>
+</html>
+
+

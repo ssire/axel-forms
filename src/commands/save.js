@@ -15,53 +15,17 @@
 
 // TODO
 // - customize server error decoding for Orbeon 3.8, eXist-DB, etc.
-// - internationalize validation error messages
-// - use class names to customize validation feedbacks
-// - support for cross-document command validation (e.g. when the editor
-//   is stored within an iframe ?)
 
 (function () {
 
-  function SaveCommand ( identifier, node ) {
+  function SaveCommand ( identifier, node, doc ) {
+    this.doc = doc || document;
     this.spec = $(node);
     this.key = identifier;
     this.spec.bind('click', $.proxy(this, 'execute'));
   }
 
   SaveCommand.prototype = (function () {
-
-    function validate (fields, errSel, doc) {
-      var err = [], // required error
-          valid = [];  // validation error
-      fields.apply(
-        function (field) {
-          var label;
-          if ((field.getParam('required') === 'true') && (! field.isModified())) {
-            label = $(field.getHandle()).parent().children('.label').text();
-            err.push(label.substr(0, label.indexOf(':')-1));
-            $(field.getHandle()).css('backgroundColor', 'pink');
-          } else if (field.isValid && (! field.isValid())) {
-            label = $(field.getHandle()).parent().children('.label').text();
-            valid.push(label.substr(0, label.indexOf(':')-1));
-            $(field.getHandle()).css('backgroundColor', 'yellow');
-          } else {
-            $(field.getHandle()).css('backgroundColor', '');
-          }
-        }
-      );
-      $(errSel, doc || document).html('');
-      if (err.length > 0) {
-        $(errSel, doc || document).append(
-          '<p>Vous devez remplir les champs suivants : ' + err.join(', ') + '</p>'
-        );
-      }
-      if (valid.length > 0) {
-        $(errSel, doc || document).append(
-          '<p>Vous devez corriger les champs suivants : ' + valid.join(', ') + '</p>'
-        );
-      }
-      return (err.length === 0) && (valid.length === 0);
-    }
 
     function isResponseAnOppidumError (xhr) {
       return $('error > message', xhr.responseXML).size() > 0;
@@ -171,9 +135,8 @@
           url = editor.attr('data-src') || this.spec.attr('data-src') || '.'; // last case to create a new page in a collection
           if (url) {
             if (editor.attr('data-validation')) {
-              this.errTarget = '#' + editor.attr('data-validation');
               fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
-              valid = validate(fields, this.errTarget);
+              valid = $axel.binding.validate(fields, editor.attr('data-validation'), this.doc);
             }
             if (valid) {
               data = editor.serializeData();

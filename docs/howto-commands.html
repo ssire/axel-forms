@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>How to develop a command in AXEL-FORMS</title>
+  <link rel="stylesheet" type="text/css" href="docu.css" />	
+</head>
+<body>
+<pre>
+-----------------------------------------------------------------------------------
+-------------------- How to develop a command in AXEL-FORMS  ----------------------
+-----------------------------------------------------------------------------------
+
+Stéphane Sire
+Last update: 2012-12-19
+
+Summary
+=======
+</pre>
+
+<ul>
+<li><a href="#intro">Command functionalities</a></li>
+<li><a href="#registration">Command registration</a></li>
+<li><a href="#parameters">Command parameters</a></li>
+<li><a href="#scope">Scope of Commands</a></li>
+<li><a href="#skeleton">Command file skeleton</a></li>
+</ul>
+
+<pre id="intro">
+Command functionalities
+=======================
+
+</pre>
+
+<pre id="registration">
+Command registration
+====================
+
+The $axel.command.register method takes as parameter a command identifier ...
+
+The check option instructs the command module to disable the command host node (by setting its disabled property to true) in case the associated editor pointed to by the data-target attribute does not exist. This is useful if you do not want the command to be enabled in that case (most probable if it depends on the missing editor's content).
+
+<div class="code">
+$axel.command.register(
+  'identifier',
+  { check : true } | null, // option hash
+  _Command
+);
+</div>
+The option hash only supports a single 'error' option.
+
+The parameter hash defines the default values for the extra parameters which can be declared ...
+
+The method hash ...
+
+The "this" object inside methods will refer to the binding instance. Note that it is always possible to use a closure to define binding's private variables and methods.
+</pre>
+
+<pre id="parameters">
+Command parameters
+==================
+
+</pre>
+
+<pre id="scope">
+Scope of Commands
+=================
+</pre>
+
+<pre id="skeleton">
+Command file skeleton
+=====================
+
+The code below can be used as a template for writing a new command class.
+
+<div class="code">
+(function ($axel) {
+
+  // you may use the closure to declare private objects and methods here
+
+  //////////////////////////////////
+  // Command constructor function //
+  //////////////////////////////////
+  function _Command ( identifier, node, doc ) {
+    // identifier is the name of the target editor associated with the command
+    // node is the DOM node that hosts the command declaration
+    // doc is the document where the command is instantiated
+    $(node).bind('click', $.proxy(this, 'execute'));
+  }
+
+  ///////////////////////
+  // Command prototype //
+  ///////////////////////
+  _Command.prototype = {
+    // conventional execute method to trigger command execution
+    execute : function (event) {
+    }
+  };
+
+  $axel.command.register(
+    'name',
+    { check : true } // option hash
+    _Command,
+  );
+}($axel));
+</code>
+</pre>
+
+</body>
+</html>
+
+

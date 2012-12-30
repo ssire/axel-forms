@@ -11,37 +11,32 @@
 \*****************************************************************************/
 (function ($axel) {
 
-  function Condition ( jnode, name, doc ) {
-    this.doc = doc;
-    this.avoidstr = 'data-avoid-' + name;
-    this.editor = $axel(jnode.get(0));
-    jnode.bind('axel-update', $.proxy(Condition.prototype.updateConditionals, this));
-  }
+  var _Condition = {
 
-  Condition.prototype = {
+    onInstall : function ( host ) {
+      this.avoidstr = 'data-avoid-' + this.getVariable();
+      this.editor = $axel(host);
+      host.bind('axel-update', $.proxy(this.updateConditionals, this));
+    },
 
-    updateConditionals : function  (ev, data) {
-      var curval = this.editor.text();
-      var fullset = $('body [' + this.avoidstr + ']', this.doc || document);
-      var onset = fullset.not('[' + this.avoidstr + '*=' + curval + ']');
-      var offset = fullset.filter('[' + this.avoidstr + '*=' + curval + ']');
-      onset.find('input').attr('disabled', null);
-      onset.css('color', 'inherit');
-      offset.find('input').attr('disabled', true);
-      offset.css('color', 'lightgray');
+    methods : {
+
+      updateConditionals : function  (ev, editor) {
+        var curval = this.editor.text();
+        var fullset = $('body [' + this.avoidstr + ']', this.getDocument());
+        var onset = fullset.not('[' + this.avoidstr + '*=' + curval + ']');
+        var offset = fullset.filter('[' + this.avoidstr + '*=' + curval + ']');
+        onset.find('input').attr('disabled', null);
+        onset.css('color', 'inherit');
+        offset.find('input').attr('disabled', true);
+        offset.css('color', 'lightgray');
+      }
     }
   };
 
-  var factory = {
-     init : function (jnode, doc) {
-       var name = jnode.attr('data-variable');
-       if (name) {
-         new Condition(jnode, name, doc);
-       } else {
-         xtiger.cross.log('error', 'Missing attribute "data-variable" to install "condition" binding');
-       }
-     }
-  };
+  $axel.binding.register('condition',
+    null, // no options
+    null, // no parameters on host
+    _Condition);
 
-  $axel.binding.register('condition', factory);
 }($axel));
