@@ -97,6 +97,11 @@
             xtdom.stopPropagation(ev);
             xtdom.preventDefault(ev);
           }, true);
+        xtdom.addEventListener(h, 'mouseup', // needed on Safari to prevent unselection
+          function(ev) {
+            xtdom.stopPropagation(ev);
+            xtdom.preventDefault(ev);
+          }, true);
         xtdom.addEventListener(h, 'blur',
           function(ev) { 
             if (_this.isEditing()) {
@@ -126,11 +131,8 @@
     // AXEL tab group manager API
     // Gives the focus to *this* instance. Called by the tab navigation manager.
     focus : function () {
-      var m = this._editor.isModified();
-      if (m) {
-        this._editor.getHandle().focus();
-      }
-      this.startEditing({shiftKey: !m});
+      this._editor.getHandle().focus();
+      this.startEditing();
     },
 
     // AXEL tab group manager API
@@ -169,7 +171,7 @@
         // registers to keyboard events
         this.kbdHandlers = kbd.register(this, h);
         kbd.grab(this, this._editor); // this._editor for Tab group manager to work
-        if (aEvent.shiftKey || !this._editor.isModified()) {
+        if (!this._editor.isModified()) {
           xtdom.focusAndSelect(h);
         }
       }
