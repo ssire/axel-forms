@@ -252,6 +252,12 @@
   }
 
  $axel.binding = $axel.binding || {};
+ 
+ $axel.binding.list = function () {
+   var key, accu = [];
+   for (key in registry) { accu.push(key); }
+   return accu;
+ };
 
  // exports functions
  $axel.binding.register = _registerBinding;
