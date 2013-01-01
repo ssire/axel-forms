@@ -25,9 +25,9 @@ and command API explain how to create and register new bindings and commands.
 Pre-requisites
 --------------
 
-AXEL-FORMS requires JQuery.
+AXEL-FORMS requires JQuery and AXEL.
 
-You must checkout this repository into a sibling directory of the AXEL
+You must checkout the AXEL-FORMS repository into a sibling directory of the AXEL
 code distribution available at [https://github.com/ssire/axel]().
 
 To clone the AXEL distribution from its git repo run :
@@ -47,7 +47,9 @@ test AXEL-FORMS inside your browser without any preliminary software installatio
 Follow the instructions of the section "For the impatient". 
 
 The web site is regularly updated, however to really get the latest version checkout 
-the repository.
+the repository. The repository contains a `dist/axel-forms.js` file with the extensions.
+As this file is usually rebuilt only for release commits, do not forget to regenerate it
+if you really want to get the latest version (see section below).
 
 Where to start ?
 ----------------
