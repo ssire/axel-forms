@@ -53,7 +53,6 @@
             vals = $axel(set).values(),
             sum = 0, i;
         for (i = 0; i < vals.length; i++) {
-          window.console.log('check ' + val + ' against ' +  vals[i]);
           if (vals[i] === val) {
             if (++sum > 1) {
               break;

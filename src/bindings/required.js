@@ -31,7 +31,6 @@
 
       isModified : function  () {
         var res = (this.editors.text() !== '')
-        window.console.log('Test required ' + res);
         return res;
       },
       

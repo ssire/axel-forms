@@ -235,7 +235,6 @@
     if (name || (aType === 'radio')) {
       if (card) {
         aStamp = _getClockCount(name || 'void', card).toString(); // there should be a name
-        window.console.log('clock gave ' + aStamp + ' for ' + name);
       }
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);
