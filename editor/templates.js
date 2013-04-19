@@ -17,7 +17,8 @@ function getDefaultTemplates () {
     path : '../templates/bindings/',
     files :
       [
-      "Interval.xhtml"
+      "Interval.xhtml",
+      "Required.xhtml"
       ]
     },
     { 
@@ -26,6 +27,7 @@ function getDefaultTemplates () {
     files :
       [
       "Command.xhtml",
+      "Template.xhtml",
       "Validate.xhtml"
       ]
     },

@@ -24,9 +24,9 @@
     float: left;
   }
   p#commands {
-   clear:both; 
+   clear:both;
    float:left;
-   text-align: center; 
+   text-align: center;
    margin-top: 2em;
    width: 600px;
   }
@@ -94,6 +94,10 @@
   </p>
 
   <h1>Validation command test</h1>
+
+  <p>The validate command will check that fields with a <code>required=true</code> parameter have an <code>isModified</code> method returning <tt>true</tt> or that they have an <code>isValid</code> method returning <tt>true</tt>. Usually AXEL plugins have a native <code>isModified</code> method returning <tt>true</tt> if it contains something different than its default value (i.e. user has entered data). The <code>isValid</code> method is added when you place the field under the control of one or more validating binding (e.g. 'regexp').</p>
+
+  <p>You must follow the validation command convention to allow the validator to extract the field name to print in error message : the field must be a sibling of the field label which must be identified by a <code>class</code> attribute containing <code>label</code>).</p>
 
   <div id="errors">
     <noscript>Activate Javascript to edit that form</noscript>
