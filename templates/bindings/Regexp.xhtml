@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>The 'regexp' binding</title>
+
+  <xt:head version="1.1" templateVersion="1.0" label="Demo">
+  </xt:head>
+  
+  <style type="text/css">
+    .af-error {
+      display: none;
+      color: red;
+    }
+  </style>
+
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+</head>
+<body>
+
+  <h1>The 'regexp' binding</h1>
+
+  <p>The <code>"regexp"</code> binding validates a text entry field against a regular expression.</p>
+
+  <h2>Declaration</h2>
+
+  <p>The binding host may be any ancestor of the XTiger XML field to control. The bound field must be unique in its ancestor's scope.</p>
+
+  <h3>Host parameters</h3>
+
+  <ul class="attributes">
+    <li><var>data-binding</var> (<code>regexp</code>)</li>
+    <li><var>data-variable</var> (<code><i>name</i></code>) : variable name given to the bound field</li>
+    <li><var>data-regexp</var> (<code><i>regexp</i></code>) : regular expression to be used for validation</li>
+    <li><var>data-error-scope</var> (<code><i>selector</i></code>) : optional CSS selector to find the closes ancestor to use to define a scope for locating the validation feedback element</li>
+  </ul>
+
+  <h3>Validation feedback element</h3>
+  
+  <p>Place a <code>data-regexp-error="<i>name</i>"</code> instruction on the HTML element to use as a feedback element, where <i>name</i> is the binding variable name. Use a CSS rule to initially hide the validation feedback element.</p>
+  
+  <p>You can scope the validation feedback element using the <var>data-error-scope</var> parameter on the binding host element.</p>
+  
+  <h3>Plugin field compatibility</h3>
+  
+  <p>This binding is compatible with the <code>input</code> plugin with a <code>text</code> type as long as you set an <code>event</code> filer on it.</p>
+
+  <h2>Sample usage with a unique field</h2>
+
+  <p>With a regexp to validate an email address (or the empty email address) :</p>
+  
+  <div class="source"><pre>
+&lt;div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp">
+  &lt;label for="Courriel">Courriel&lt;/label>
+  &lt;xt:use param="filter=event;type=text;id=Courriel" label="Email" types="input"/>
+  &lt;p class="af-error" data-regexp-error="mail">Invalid email address&lt;/p>
+&lt;/div>
+  </pre></div>
+
+  <div class="demo">
+    <div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp">
+      <label for="Courriel">Courriel : </label>
+      <xt:use param="filter=event;type=text;id=Courriel" label="Email" types="input"/>
+      <p class="af-error" data-regexp-error="mail">Invalid email address</p>
+    </div>
+  </div>
+  
+  <h2>Sample usage with a repeated field</h2>
+  
+  <p>In that case you may use the <var>data-error-scope</var> to display validation feedback next to the input field.</p>
+  
+  <div class="source"><pre>
+&lt;xt:repeat minOccurs="0" maxOccurs="*" label="Records">
+  &lt;div class="record">
+    &lt;xt:menu-marker/>
+    &lt;span data-regexp="^\d{1,3}$" data-variable="age" data-binding="regexp" data-error-scope=".record">
+      &lt;label for="Age">Age : &lt;/label>
+      &lt;xt:use param="filter=event;type=text;id=Age" label="Age" types="input"/>
+    &lt;/span>
+    &lt;span class="af-error" data-regexp-error="age">Invalid age enter a number&lt;/span>
+  &lt;/div>
+&lt;/xt:repeat>
+  </pre></div>
+
+  <div class="demo">
+    <xt:repeat minOccurs="0" maxOccurs="*" label="Records">
+      <div class="record">
+        <xt:menu-marker/>
+        <span data-regexp="^\d{1,3}$" data-variable="age" data-binding="regexp" data-error-scope=".record">
+          <label for="Age">Age : </label>
+          <xt:use param="filter=event;type=text;id=Age" label="Age" types="input"/>
+        </span>
+        <span class="af-error" data-regexp-error="age">Invalid age enter a number</span>
+      </div>
+    </xt:repeat>
+  </div>
+</body>
+</html>
