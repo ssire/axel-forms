@@ -18,6 +18,7 @@ function getDefaultTemplates () {
     files :
       [
       "Interval.xhtml",
+      "Regexp.xhtml",
       "Required.xhtml"
       ]
     },
