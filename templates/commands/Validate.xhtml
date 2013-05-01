@@ -19,21 +19,23 @@
     color: red;
   }
   div.group {
+    margin: 2em 0;
     padding: 0 15px;
     width: 600px;
     float: left;
   }
+  .clear {
+    clear:both;
+  }
   p#commands {
-   clear:both;
-   float:left;
    text-align: center;
-   margin-top: 2em;
+   margin: 0;
    width: 600px;
   }
   div.group > p {
     margin-bottom: 0;
   }
-  span.text.label {
+  span.label {
     float: left;
     width: 8em;
     text-align: right;
@@ -51,6 +53,12 @@
   p.radio input {
     width: auto;
   }
+  .af-invalid {
+    background-color: yellow;
+  }
+  .af-required {
+    background-color: pink;
+  }
   </style>
 
   <xt:head version="1.1" templateVersion="1.0" label="Demo">
@@ -58,11 +66,11 @@
       <fieldset>
         <legend>Participant <xt:menu-marker/></legend>
         <p>
-          <label><span class="text label">Name :</span>
+          <label><span class="label">Name :</span>
             <xt:use types="input" label="Name" param="type=text;required=true"/>
           </label>
         </p>
-        <p class="radio"><span class="text label">Civility :</span>
+        <p class="radio"><span class="label">Civility :</span>
           <span data-binding="required" data-variable="civility">
             <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=M;"/>Mr</label>
             <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mme;"/>Mrs</label>
@@ -71,7 +79,7 @@
             <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Dr;"/>Dr</label>
           </span>
         </p>
-        <p class="radio"><span class="text label">Languages :</span>
+        <p class="radio"><span class="label">Languages :</span>
           <span data-binding="required" data-variable="languages">
             <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=E;"/>English</label>
             <label><xt:use types="input" label="Language" param="type=checkbox;name=lang;value=G;"/>German</label>
@@ -83,21 +91,40 @@
       </fieldset>
     </xt:component>
   </xt:head>
+
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
 </head>
 <body id="editor" data-template="#">
 
-  <p style="font-size: 80%">
-    This template is not fully functional since when opened in the demonstration editor, the "Save" button
-    should result in a failure to write to the file system using an XHR request. However
-    the <code>data=command="save"</code> is configured to validate the form fields before submitting data,
-    hence you should try to save incomplete or incorrect form data to actually see some errors.
-  </p>
 
-  <h1>Validation command test</h1>
+  <h1>The 'validate' command</h1>
+
+  <p><b>Goal</b> : check required fields are present and fields bound to validation bindings are valid; print validation feedbacks.</p>
 
   <p>The validate command will check that fields with a <code>required=true</code> parameter have an <code>isModified</code> method returning <tt>true</tt> or that they have an <code>isValid</code> method returning <tt>true</tt>. Usually AXEL plugins have a native <code>isModified</code> method returning <tt>true</tt> if it contains something different than its default value (i.e. user has entered data). The <code>isValid</code> method is added when you place the field under the control of one or more validating binding (e.g. 'regexp').</p>
 
-  <p>You must follow the validation command convention to allow the validator to extract the field name to print in error message : the field must be a sibling of the field label which must be identified by a <code>class</code> attribute containing <code>label</code>).</p>
+  <h2>Parameters</h2>
+
+  <ul class="parameters">
+    <li><var>data-validation-ouput</var> (<code>identifier</code>) : identifier of the element whose content will be replaced by validation messages</li>
+    <li><var>data-validation-label</var> (<code>name</code>) : CSS selector that will be applied to the parent element of the editing field to extract its label to display in validation messages. It defaults to the selector "<code>.af-label</code>". The command will take care of removing the final colon in a label if present.</li>
+  </ul>
+  
+  <h2>CSS class</h2>
+  
+  <p>When validating the command will add a <code>af-required</code> (resp. <code>af-invalid</code>) class each requried input field (resp. invalid input field). Those classes will be removed during the next validation if the field are valid. Note that a missing required field is always valid.</p>
+
+  <p><b>TO BE DONE</b>: internationalize validation messages (currently in French).</p>
+
+  <h2>Sample usage with a <code>button</code> trigger</h2>
+
+  <div class="source"><pre>&lt;div id="errors">
+  &lt;noscript>Activate Javascript to edit that form&lt;/noscript>
+&lt;/div>
+...
+&lt;button data-command="validate" data-target="editor" data-validation-output="errors"
+ data-validation-label="span.label">Validate&lt;/button></pre></div>
 
   <div id="errors">
     <noscript>Activate Javascript to edit that form</noscript>
@@ -110,18 +137,29 @@
     </xt:repeat>
 
     <p data-binding="regexp" data-variable="npa" data-regexp="^\s*$|^\d+$">
-      <label><span class="text label">Destination NPA :</span>
+      <label><span class="label">Destination NPA :</span>
         <xt:use types="input" label="NPA" param="filter=event optional;type=text;required=false"/>
       </label>
     </p>
     <p data-regexp-error="npa" class="error">enter a number</p>
 
     <p data-binding="regexp" data-variable="mail" data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$">
-      <label><span class="text label">Contact email :</span>
+      <label><span class="label">Contact email :</span>
       <xt:use types="input" label="Email" param="filter=event;type=text;required=true"/></label>
     </p>
     <p data-regexp-error="mail" class="error">invalid email address</p>
   </div>
-  <p id="commands"><button data-command="validate" data-target="editor" data-validation="errors">Validate</button></p>
+
+  <div class="demo clear">
+    <p id="commands"><button data-command="validate" data-target="editor" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
+  </div>
+
+  <h2>Adding validation behavior directly to an editor</h2>
+  
+  <p>The validate command behavior can be also be declared onto an editor generated with the 'template' command. For that purpose you only need to add the <var>data-validation-ouput</var> attribute and the optional <var>data-validation-label</var> attribute onto the editor's container element. This will create a validating editor.</p>
+  
+  <p>Every command that serializes data from a validating editor will validate its content using the same algorithm as the 'validate' command before performing their action. They will cancel their action and print error messages with the same feedback mechanism as the 'validate' command if validation fails.</p>
+  
+  <p>This currenlty applies to the 'save' command to create a command that validates data before submission.</p>
 </body>
 </html>

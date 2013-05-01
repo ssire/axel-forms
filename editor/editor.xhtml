@@ -15,6 +15,9 @@ Author: Stephane Sire
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Template-driven document editor done with AXEL-FORMS (Adaptable XML Editing Library)"></meta>
+    <meta name="keywords" content="editor, authoring application, template, XTiger, XML, AXEL"></meta>
+    <meta name="author" content="Stéphane Sire"></meta>
 
     <title>AXEL-FORMS editor</title>
 
@@ -26,6 +29,12 @@ Author: Stephane Sire
 
     <!-- AXEL dependency (see also below)-->
     <script type="text/javascript" src="../../axel/axel/axel.js"></script>
+
+    <!-- alternative loaders and serializers -->
+    <!-- <script type="text/javascript" src="../src/editor/classical/htmlloader.js"></script>
+    <script type="text/javascript" src="../src/editor/classical/xmlrobustloader.js"></script>
+    <script type="text/javascript" src="../src/editor/classical/htmlserializer.js"></script> -->
+    
 
     <!-- AXEL-FORMS -->
     <!-- plugins -->
@@ -49,141 +58,139 @@ Author: Stephane Sire
 
     <!-- Editor application   -->
     <link type="text/css" rel="stylesheet" href="../../axel/editor/extras/editor.css"></link>
-
     <!--[if IE 7]>
-  <style type="text/css">
-  #frameContainer {
-    height: 85%;
-  }
-  </style>
-  <![endif]-->
-
+<style type="text/css">
+#frameContainer {
+  height: 85%;
+}
+</style>
+    <![endif]-->
     <script type="text/javascript" src="../../axel/editor/extras/editor.js"></script>
     <script type="text/javascript" src="templates.js"></script>
-    <script type="text/javascript">
-    var appController;
-
-    // overrides the ones in ../../axel/editor/extras/editor.jf
-    // FIXME: do something cleaner that does not depend on evaluation order !
-    var _INPUT_FILE = '../../axel/editor/extras/input.html';
-    var _INTRO_FILE = 'intro.xhtml';
-
-    function onTemplateTransformed () {
-      var iframeDoc, ed;
-      var iframe = document.getElementById('container');
-      if (iframe.contentDocument) {
-        iframeDoc = iframe.contentDocument;
-      } else if (iframe.contentWindow) { // IE7
-        iframeDoc = iframe.contentWindow.document;
-      }
-      if (iframeDoc &amp;&amp; ($('script[data-bundles-path]').length === 0)) { // not a self-transformed document
-        if (! appController.curForm) { // template with embedded transformation skipped by editor.js
-          xtiger.cross.log('debug', 'command installation (post-template transformation)');
-          ed = $axel.command.install(iframeDoc);
-          if (ed.length >= 1) {
-            // TODO: currently manages only 1 AXEL editor per document
-            xtiger.cross.log('debug', 'binding installation (post-template transformation)');
-            $axel.binding.install(iframeDoc);
-            ed[0].form.injectStyleSheet(xttMakeLocalURLFor('../../axel/axel/axel.css'));
-            appController.curForm = ed[0].form;
-            appController.log('Template with embedded transformation transformed with success', 0);
-          } else {
-            appController.log('Template with embedded transformation failed, no editor has been generated', 1);
-          }
-        } else {
-          xtiger.cross.log('debug', 'binding installation (post-template transformation)');
-          $axel.binding.install(iframeDoc);
-        }
-      } else {
-        xtiger.cross.log('debug', 'command and binding installation skipped (self-transformed template) ');
-      }
-    }
-
-    function initApp () {
-      var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
-      // Application controller
-      appController = new viewerApp("../templates/", defaultTemplates);
-      appController.setBase('../../axel/axel/bundles')
-      appController.setXTigerStylesheet('../../axel/axel/axel.css');
-      // late filter registration
-      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
-      // Install Hook to install bindings
-      $(document).bind('axel-editor-ready', onTemplateTransformed);
-      // configure command for templates with embedded transformation command
-      $axel.command.configure('axelPath', xttMakeLocalURLFor('../../axel/axel/bundles'))
-    }
-    xtdom.addEventListener(window, 'load', initApp, false);
-  </script>
+    <script type="text/javascript" charset="utf-8">
+      (function () {
+         var appController;
+         function onTemplateTransformed () {
+           var iframeDoc, ed;
+           var iframe = document.getElementById('container');
+           if (iframe.contentDocument) {
+             iframeDoc = iframe.contentDocument;
+           } else if (iframe.contentWindow) { // IE7
+             iframeDoc = iframe.contentWindow.document;
+           }
+           if (iframeDoc &amp;&amp; ($('script[data-bundles-path]').length === 0)) { // not a self-transformed document
+             if (! appController.curForm) { // template with embedded transformation skipped by editor.js
+               xtiger.cross.log('debug', 'command installation (post-template transformation)');
+               ed = $axel.command.install(iframeDoc);
+               if (ed.length >= 1) {
+                 // TODO: currently manages only 1 AXEL editor per document
+                 xtiger.cross.log('debug', 'binding installation (post-template transformation)');
+                 $axel.binding.install(iframeDoc);
+                 ed[0].form.injectStyleSheet(appController.xttMakeLocalURLFor('../../axel/axel/axel.css'));
+                 appController.curForm = ed[0].form;
+                 appController.log('Template with embedded transformation transformed with success', 0);
+                 appController.activateDocumentCommands();
+               } else {
+                 appController.log('Template with embedded transformation failed, no editor has been generated', 1);
+               }
+             } else {
+               xtiger.cross.log('debug', 'binding installation (post-template transformation)');
+               $axel.binding.install(iframeDoc);
+             }
+           } else {
+             xtiger.cross.log('debug', 'command and binding installation skipped (self-transformed template) ');
+           }
+         }
+         function initApp () {
+           var defaultTemplates = window.getDefaultTemplates ? getDefaultTemplates() : {};
+           appController = new document.AxelDemoEditor("../templates/", defaultTemplates);
+           appController.configure({
+             baseUrl : '../../axel/axel/bundles',
+             xtStylesheet : '../../axel/axel/axel.css',
+             path2inputDlg : '../../axel/editor/extras/input.html',
+             path2dumpDlg : '../../axel/editor/extras/dump.html',
+             path2intro : 'intro.xhtml'
+           })
+           // late filter registration
+           $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+           // Install Hook to install bindings
+           $(document).bind('axel-editor-ready', onTemplateTransformed);
+           // configure command for templates with embedded transformation command
+           $axel.command.configure('axelPath', appController.xttMakeLocalURLFor('../../axel/axel/bundles'))
+           appController.run();
+         }
+         jQuery(function() { initApp(); });
+       }());
+    </script>
   </head>
-  <body>
+  <body class="axel-forms">
     <div id="formular">
-      <form id="formUrl" action="javascript:alert('Oops, something went wrong !')"
-            onsubmit="return appController.submitPage();">
+      <form id="formUrl" action="javascript:alert('Oops, something went wrong !')">
 
         <p style="position: relative">
           <label>
-            Page : <input id="url" type="text" name="url" maxlength="150" value=""/>
+            Template file : <input id="url" type="text" name="url" maxlength="100" value=""/>
           </label>
-          <input type="button" value="Browse"
-            onclick="appController.localFileDialog(&quot;open&quot;, &quot;*.xtd; *.xhtml; *.html; *.xml&quot;, &quot;Select an XTiger Forms template&quot; , &quot;url&quot;)"/>
-          <span style="float: right;margin-right: 25px">
-            <input type="submit" value="Visualize"/>
-            <input type="reset" onclick="appController.resetView()"/>
+
+          <input id="transform" type="submit" value="Transform"/>
+          <span style="float: right; margin-right: 20px">
+            <input id="reset" type="button" value="Reset"/>
+            <input id="browseTemplate" class="mozilla" type="button" value="Browse"/>
           </span>
         </p>
 
         <p style="position: relative">
-          <label>
-            Template :
-            <select id="foldersList" onchange="appController.updateSelectedFolder()"></select>
-          </label>
-          <select id="templatesList" onchange="appController.updateSelectedTemplate()"></select>
-          <input id="prefs" type="button" value="Preferences" onclick="appController.setPreferences();"/>
+          <label>Preselection : <select id="foldersList"></select></label> <select id="templatesList"></select>
           <span style="margin-left: 20px">
-            <input type="button" id="previewToggle" value="Preview" onclick="appController.doToggleViewMode();"/>
-            <input type="button" id="previewToggle" value="Source" onclick="javascript:appController.viewTemplateSource(event)"/>
+            Template :
+            <input id="sourceTemplate" class="editing" type="button" value="Source"/>
+            <input id="dumpSchema" class="editing" type="button" value="Schema"/>
           </span>
-          <span style="float: right;margin-right: 25px">
-            <!-- <input type="button" value="Schema" onclick="appController.dumpSchema();"/> -->
-            <input type="button" value="Dump" onclick="appController.dump();"/>
-            <input type="button" value="Input" onclick="appController.inputInstanceData();"/>
-            <input type="button" value="Save" onclick="appController.localSaveInstanceData('fileName');"/>
-            <input type="button" value="Load" onclick="appController.localLoadInstanceData('fileName');"/>
+          <span style="margin-left: 20px">
+            Document :
+            <input id="preview" class="editing" style="margin-right: 10px" type="button" value="Preview"/>
+            <input id="dump" class="editing" type="button" value="Dump"/>
+            <input id="download" class="editing" type="button" value="Download"/>
+            <input id="input" class="editing" style="margin-left: 10px" type="button" value="Input"/>
+            <input id="load" class="editing" type="button" value="Load"/><input type="file" id="fileToLoad" accept=".xml,.xhtml,application/xhtml+xml,text/xml"/>
+            <input id="new" class="editing" style="margin-left: 10px" type="button" value="New"/>
           </span>
         </p>
 
-        <p id="titleUrl" class="single-line">...</p>
+        <div style="float: right;margin-right: 20px; font-size: 80%">
+          Preferences : <input id="preferences" type="button" value="Show" style="font-size: 60%"/>
+        </div>
+
+        <p id="titleUrl" class="hint">Enter a template file path in the input field above or preselect one then hit [Transform] to generate the editor</p>
 
         <!-- Hidden preferences panel -->
-        <div id="preferences">
+        <div id="prefsPanel">
           <p>
-            <label>Template repository :
-              <input id="templateRepos" type="text" name="templateRepos" maxlength="150" value=""/>
+            <label>Template folder :
+              <input id="templateRepos" type="text" name="templateRepos" maxlength="100" value=""/>
             </label>
-            <input type="button" value="Browse"
-              onclick="appController.localFileDialog(&quot;folder&quot;, null, &quot;Select a folder that contains some XTiger Forms templates&quot;, &quot;templateRepos&quot;)"/>
-            <input type="button" value="Ok" onclick="appController.savePreferences()"/>
+            <input id="setTemplateFolder" type="button" value="Set"/>
+            <input id="browseTemplateFolder" class="mozilla" type="button" value="Browse"/>
             <span style="position: absolute; right: 30px">
+              <input type="checkbox" value="Profile" name="profile"/>
+              <label for="profile">Profile</label>
+            </span>
+          </p>
+          <p>
+            <label>
+              XHR output file :
+              <input id="fileName" type="text" name="fileName" maxlength="100" value=""/>
+            </label>
+            <input id="write" class="editing" type="button" value="Write"/>
+            <input id="read" class="editing" type="button" value="Read"/>
+            <span style="position: absolute; right: 30px">
+              Serialization :
               <input type="radio" value="standard" name="algorithm" checked="true"/>
               <label for="robust">Std</label>
               <input type="radio" value="html" name="algorithm"/>
               <label for="html">Html</label>
               <input type="radio" value="robust" name="algorithm"/>
               <label for="robust">Robust</label>
-            </span>
-          </p>
-          <p>
-            <label>
-              File name <i>(paths relative to editor.xhtml)</i>:
-              <input id="fileName" type="text" name="fileName" maxlength="50" value=""/>
-            </label>
-            <input type="button" value="Save" onclick="appController.saveToFile()"/>
-            <input type="button" value="Load" onclick="appController.loadFromFile()"/>
-            <input type="button" value="Dump" onclick="appController.dumpToServer();" disabled="disabled"/>
-            <i>(remote server only)</i>
-            <span style="position: absolute; right: 30px">
-              <input type="checkbox" value="Profile" name="profile"/>
-              <label for="profile">Profile</label>
             </span>
           </p>
         </div>
@@ -196,4 +203,3 @@ Author: Stephane Sire
     </div>
   </body>
 </html>
-
