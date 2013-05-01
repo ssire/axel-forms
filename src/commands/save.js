@@ -8,8 +8,9 @@
 |  - data-target : id of the editor's container                               |
 |                                                                             |
 |  Optional attributes :                                                      |
-|  - data-validation (on the target editor): instructs command to validate    |
-|    data before saving, contains the id of the validation error's container  |
+|  - data-validation-output (on the target editor): identifier of a target    |
+|    element to use as a container for showing validation error messages,     |
+|    the presence of this attributes causes validation                        |
 |                                                                             |
 \*****************************************************************************/
 
@@ -134,9 +135,9 @@
         if (editor) {
           url = editor.attr('data-src') || this.spec.attr('data-src') || '.'; // last case to create a new page in a collection
           if (url) {
-            if (editor.attr('data-validation')) {
+            if (editor.attr('data-validation-output')) {
               fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
-              valid = $axel.binding.validate(fields, editor.attr('data-validation'), this.doc);
+              valid = $axel.binding.validate(fields, editor.attr('data-validation-output'), this.doc, editor.attr('data-validation-label'));
             }
             if (valid) {
               data = editor.serializeData();

@@ -240,7 +240,7 @@
       }
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);
-      xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
+      // xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
     }
     if (editor.getParam('checked') === 'true') {
       xtdom.setAttribute(h, 'checked', true); // FIXME: does not work ?
@@ -290,7 +290,7 @@
           this._editor.clear(false);
         }
       } else { // second chance
-        xtiger.cross.log('debug', 'aPoint is -1');
+        // xtiger.cross.log('debug', 'aPoint is -1');
         name = this._editor.getParam('name');
         if (name) {
           ischecked = _decache(name, value);
@@ -345,8 +345,9 @@
         this._delegate = new _SelectField(this, type, aRepeater ? aRepeater.getClockCount() : undefined);
       } else {
         xtdom.addClassName(this._handle, 'axel-generator-error');
-        xtdom.setAttribute(this._handle, readonly, '1');
-        xtdom.setAttribute(this._handle, value, 'ERROR: type "' + type + '" not recognized by plugin "input"');
+        xtdom.setAttribute(this._handle, 'readonly', '1');
+        xtdom.setAttribute(this._handle, 'value', 'ERROR: type "' + type + '" not recognized by plugin "input"');
+        alert('Form generation failed : fatal error in "input" plugin declaration')
       }
       if (this.getParam('hasClass')) {
         xtdom.addClassName(this._handle, this.getParam('hasClass'));

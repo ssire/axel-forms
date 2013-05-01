@@ -10,6 +10,10 @@
 |  Limitations:                                                               |
 |  Can be used only once (only one set) per document at that time             |
 |                                                                             |
+|  TODO:                                                                      |
+|  data-unique-scope                                                          |
+|  recompute set state on ALL life cycle events                               |
+|                                                                             |
 \*****************************************************************************/
 (function ($axel) {
 
@@ -17,49 +21,57 @@
 
     onInstall : function ( host ) {
       this.editor = $axel(host);
+      host.get(0).axel_binding_unique = this;
       host.bind('axel-update', $.proxy(this.checkSet, this));
-      // extends editor with a new isValid function (for validation before submission)
-      // this.editor.get(0).isValid = $.proxy(this.checkOne, this);
-      this.editor.get(0).axel_binding_unique = this;
       $axel.binding.setValidation(this.editor.get(0), $.proxy(this.checkOne, this));
-      this.checkSet(); // FIXME: maybe skip this if called as a result of loading XML data ?
+      this.checkOne(); // just check this one to avoid too much iterations when loading XML
     },
 
     methods : {
-      // same as calling checkUnique on every unique binding in the set but more optimized
+      // updates the uniqueness constraint on every element into the set
+      // the alternative would be to have the legacy value in 'axel-update' callback
       checkSet : function  (ev, data) {
         var i, j, curval, sum,
-            set = $('body [data-binding~="unique"]', this.getDocument()), // TODO: data-unique-scope
-            editors = $axel(set),
-            vals = editors.values(),
-            max = editors.length();
+        set = $('body [data-binding~="unique"]', this.getDocument()).filter(function() { return $(this).is(':visible')}),
+        editors = $axel(set),
+        vals = editors.values(),
+        max = editors.length(),
+        inerror = new Array(max);
         for (i = 0; i < max; i++) {
+          if (inerror[i]) { // small optimization
+            continue;
+          }
           sum = 0;
           curval = vals[i];
-          for (j = 0; j < max; j++) {
-            if (vals[j] === curval) {
-              if (++sum > 1) {
-                break;
-              }
+          for (j = i + 1; j < max; j++) {
+            if (!inerror[j] && (vals[j] === curval)) {
+              inerror[i] = inerror[j] = true;
             }
           }
-          editors.get(i).axel_binding_unique.toggleError((sum <= 1), editors.get(i).getHandle(true));
+        }
+        for (i = 0; i < max; i++) { // applies result
+          try {
+            set.get(i).axel_binding_unique.toggleError(!inerror[i], set.get(i));
+          } catch (e) { }
         }
       },
-
       checkOne : function  (ev, data) {
-        var set = $('body [data-binding~="unique"]', this.getDocument()), // TODO: data-unique-scope
+        var set = $('body [data-binding~="unique"]', this.getDocument()).filter(function() { return $(this).is(':visible')}),
+            editors = $axel(set),
+            self = this.editor.get(0),
             val = this.editor.text(),
-            vals = $axel(set).values(),
-            sum = 0, i;
+            vals = editors.values(),
+            valid = true, i;
         for (i = 0; i < vals.length; i++) {
-          if (vals[i] === val) {
-            if (++sum > 1) {
-              break;
-            }
+          if ((vals[i] === val) && (editors.get(i) !== self)) {
+            try {
+              set.get(i).axel_binding_unique.toggleError(false, set.get(i));
+            } catch (e) { }
+            valid = false;
+            break;
           }
         }
-        return this.toggleError((sum === 1), this.editor.get(0).getHandle(true));
+        return this.toggleError(valid, this.editor.get(0).getHandle(true));
       }
     }
   };

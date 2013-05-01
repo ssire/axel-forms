@@ -111,23 +111,38 @@
   }
   
   // FIXME: internationalize validation error messages
-  function _validate (fields, errid, doc) {
+  function _validate (fields, errid, doc, cssrule) {
     var errsel = '#' + errid,
+        labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
-    fields.apply(
+      fields.apply(
       function (field) {
-        var label;
-        if ((field.getParam('required') === 'true') && (! field.isModified())) {
-          label = $(field.getHandle()).parent().children('.label').text();
-          err.push(label.substr(0, label.indexOf(':')-1));
-          $(field.getHandle()).css('backgroundColor', 'pink');
-        } else if (field.isValid && (! field.isValid())) {
-          label = $(field.getHandle()).parent().children('.label').text();
-          valid.push(label.substr(0, label.indexOf(':')-1));
-          $(field.getHandle()).css('backgroundColor', 'yellow');
-        } else {
-          $(field.getHandle()).css('backgroundColor', '');
+        // we consider failure to meet required implies field is valid
+        var rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
+            vsuccess = (!rsuccess) || (!field.isValid || field.isValid()), 
+            f = $(field.getHandle()),
+            label, i;
+        if (rsuccess) {
+          f.removeClass('af-required');
+        }
+        if (vsuccess) {
+          f.removeClass('af-invalid');
+        }
+        if (!rsuccess || !vsuccess) {
+          label = $(field.getHandle()).parent().children(labsel).text();
+          i = label.lastIndexOf(':');
+          if (i != -1) {
+            label = label.substr(0, i);
+          }
+          label = $.trim(label);
+          if (!rsuccess) {
+            f.addClass('af-required');
+            err.push(label);
+          } else {
+            f.addClass('af-invalid');
+            valid.push(label);
+          }
         }
       }
     );
