@@ -91,6 +91,34 @@ by S. Sire at [Oppidoc](http://www.oppidoc.fr).
 
 Please [contact us](mailto:contact@oppidoc.fr) for further inquiries.
 
+Simple web server
+-----------------
+
+You can run the demonstration editor directly from the file system, 
+however this may lead to some problems transforming the templates and/or loading 
+XML data on some browsers. This is because they will not allow the editor to transform 
+a template loaded inside an iframe, and/or to read files from the file system because 
+of a strict application of security policies.
+
+An alternative solution is to access the AXEL distribution from a web server. 
+
+For instance, if you have ruby installed you may run a one line command into 
+a terminal to start a web server serving the current directory and below
+(at http://localhost:3000 on the example below) :
+
+    ruby -r webrick -e "m = WEBrick::HTTPUtils::DefaultMimeTypes; m.update({'xhtml' => 'application/xhtml+xml'}); s = WEBrick::HTTPServer.new(:Port => 3000, :DocumentRoot => Dir.pwd, :MimeTypes => m); trap('INT') { s.shutdown }; s.start"
+    
+_You need to start the web server from the AXEL-FORMS parent directory where you 
+have copied an AXEL distribution too._
+
+Don't forget to configure the server to serve XTiger XML template files with 
+the 'application/xhtml+xml' MIME-TYPE, otherwise the browser will propose to save 
+them as external documents and not transform them. 
+
+
+Such commands exist with other languages (e.g. python).
+
+
 Coding Guidelines 
 -----------------
                                           
