@@ -170,6 +170,7 @@
         } else {
           $axel.command.logError('There is no editor associated with this command');
         }
+        return false;
       }
     };
   }());
