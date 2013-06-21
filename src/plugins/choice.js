@@ -17,6 +17,7 @@
   // Plugin static view: span showing current selected option
   var _Generator = function ( aContainer, aXTUse, aDocument ) {
    var viewNode = xtdom.createElement (aDocument, 'select');
+   xtdom.addClassName(viewNode,'axel-choice');
    aContainer.appendChild(viewNode);
    return viewNode;
   };
@@ -51,6 +52,22 @@
      }
    }
 
+    // compute if new state is significative (i.e. leads to some non empty XML output)
+   //  meaningful iff there is no default selection (i.e. there is a placeholder)
+   function _calcChange (defval, model) {
+     var res = true;
+     if (! defval) {
+       if (typeof model === "string") { // single
+         res = model !== defval;
+       } else { // multiple
+         if (!model || ((model.length === 1) && !model[0])) {
+           res = false;
+         }
+       }
+     }
+     return res;
+   }
+
    return {
 
      ////////////////////////
@@ -58,48 +75,97 @@
      ////////////////////////
 
      onInit : function ( aDefaultData, anOptionAttr, aRepeater ) {
-       var handle, values = this.getParam('values');
+       var values = this.getParam('values');
        if (this.getParam('hasClass')) {
          xtdom.addClassName(this._handle, this.getParam('hasClass'));
+       }
+       if (this.getParam('multiple') === 'yes') {
+         $(this._handle).attr('multiple', 'multiple');
        }
        // builds options if not cloned from a repeater
        if (! aRepeater) {
           createOptions(this, this.getParam('values'), this.getParam('i18n'));
        }
-       this._setData(aDefaultData);
      },
 
      onAwake : function () {
-       var _this = this;
+       var  _this = this,
+            defval = this.getDefaultData(),
+            pl = this.getParam("placeholder");
+       if (pl || (! defval)) {
+         pl = pl || "";
+         // inserts placeholder option
+         $(this._handle).prepend('<option class="axel-choice-placeholder" selected="selected" value="">' + (pl || "") + '</option>');
+         // creates default selection
+         if (!defval) {
+           this._param.values.splice(0,0,pl);
+           if (this._param.i18n !== this._param.values) { // FIXME: check its correct
+             this._param.i18n.splice(0,0,pl);
+           }
+           $(this._handle).addClass("axel-choice-placeholder");
+         }
+       }
        xtdom.addEventListener(this._handle, 'change',
         function (ev) {
-          var rank = xtdom.getSelectedOpt(_this.getHandle()),
-              values = _this.getParam('values');
-          _this.update(values[rank]);
+          _this.update($(this).val());
+          if($(this).val() === "") {
+            $(this).addClass("axel-choice-placeholder");
+          } else {
+            $(this).removeClass("axel-choice-placeholder");
+          }
         }, true);
+        this._setData(defval);
      },
 
      onLoad : function (aPoint, aDataSrc) {
-       var value, fallback;
-       if (aPoint !== -1) {
-         value = aDataSrc.getDataFor(aPoint);
-         fallback = this.getDefaultData();
-         if (value) {
+       var value, defval, option, xval,tmp;
+       if (aDataSrc.isEmpty(aPoint)) {
+         this.clear(false);
+       } else {
+         xval = this.getParam('xvalue');
+         if (xval) { // custom label
+           value = [];
+           option = aDataSrc.getVectorFor(xval, aPoint);
+           while (option !== -1) {
+             tmp = aDataSrc.getDataFor(option);
+             if (tmp) {
+               value.push(tmp);
+             }
+             option = aDataSrc.getVectorFor(xval, aPoint);
+           }
+           this._setData(value.length > 0 ? value : ""); // "string" and ["string"] are treated as equals by jQuery's val()
+         } else { // comma separated list
+           defval = this.getDefaultData();
+           value = (aDataSrc.getDataFor(aPoint) || defval).split(",");
            this._setData(value);
-         } else {
-           this._setData(fallback);
          }
          this.set(false);
-         this.setModified(value !==  fallback);
-       } else {
-         this.clear(false);
+         this.setModified(_calcChange(defval,value));
        }
      },
 
      onSave : function (aLogger) {
+       var tag, data, i;
        if ((!this.isOptional()) || this.isSet()) {
-         if (this._data !== "---") { // FIXME: getParam("noselect")
-           aLogger.write(this._data);
+         if (this._data && (this._data !== this.getParam('placeholder'))) {
+           tag = this.getParam('xvalue');
+           if (tag) {
+             if (typeof this._data === "string") {
+               aLogger.openTag(tag);
+               aLogger.write(this._data);
+               aLogger.closeTag(tag);
+             } else {
+               for (i=0;i<this._data.length;i++) {
+                 if (this._data[i] !== "") { // avoid empty default (i.e. placeholder)
+                   aLogger.openTag(tag);
+                   aLogger.write(this._data[i]);
+                   aLogger.closeTag(tag);
+                 }
+               }
+             }
+           } else {
+             aLogger.write(this._data.toString().replace(/^,/,''));
+           }
          }
        } else {
          aLogger.discardNodeIfEmpty();
@@ -126,16 +192,9 @@
              i18n = aXTNode.getAttribute('i18n'),
              _values = values ? _split(values) : ['undefined'],
              _i18n = i18n ? _split(i18n) : undefined;
-         if (! defval) { // creates default selection if undefined
-           _values.splice(0,0,"---"); // FIXME: getParam("noselect")
-           if (_i18n) {
-             _i18n.splice(0,0,"---");
-           }
-           defval = "---";
-         }
          this._param.values = _values; // FIXME: validate both are same lenght
          this._param.i18n = _i18n || _values;
-         this._content = defval;
+         this._content = defval || "";
        },
 
        isFocusable : function () {
@@ -152,14 +211,9 @@
 
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
        _setData : function ( value, withoutSideEffect ) {
-         var i, values = this.getParam('values');
-         this._data =  value;
+         this._data =  value || "";
          if (! withoutSideEffect) {
-           for (i = 0; i < values.length; i++) {
-             if (value === values[i]) {
-               xtdom.setSelectedOpt (this.getHandle(), i);
-             }
-           }
+           $(this.getHandle()).val(value);
          }
        },
 
@@ -167,12 +221,14 @@
          return this._data;
        },
 
-       // aData is the universal value and not the localized one
+      // Updates the data model consecutively to user input
+      // single: aData should be "" or any string value
+      // multiple: aData should be null or [""] or any array of strings
        update : function (aData) {
+         var meaningful = _calcChange(this.getDefaultData(), aData);
+         this.setModified(meaningful);
          this._setData(aData, true);
-         // updates isModified, a priori this is meaningful only in case of an empty default selection
-         this.setModified (aData !== this.getDefaultData());
-         this.set(true);
+         this.set(meaningful);
        },
 
        clear : function (doPropagate) {

@@ -101,7 +101,7 @@
       if (this.templateUrl === "#") {
         template = this.doc;
       } else {
-        template = xtiger.debug.loadDocument(this.templateUrl, errLog);
+        template = xtiger.cross.loadDocument(this.templateUrl, errLog);
       }
       if (template) {
         this.form = new xtiger.util.Form(this.axelPath);

@@ -35,11 +35,14 @@
 
   // Internal class to manage an HTML input with a 'text' or 'password' type
   var _KeyboardField = function (editor, aType, aData) {
-    var h = editor.getHandle();
+    var h = editor.getHandle(), size;
     this._editor = editor;
     this.isEditable = !editor.getParam('noedit');
     this.defaultData = aData || '';
     xtdom.setAttribute(h, 'type', aType);
+    if (size = editor.getParam('size')) {
+      xtdom.setAttribute(h, 'style', 'width:' + size + 'em');
+    }
     h.value = this.defaultData;
     // FIXME: placeholder if HTML5 (?)
   };
@@ -265,7 +268,7 @@
     },
 
     isFocusable : function () {
-      return false;
+      return true;
     },
 
     load : function (aPoint, aDataSrc) {
@@ -324,8 +327,14 @@
   
     clear : function () {
       this._editor.getHandle().checked = false;
+    },
+    
+    focus : function () {
+      this._editor.getHandle().focus();
+    },
+
+    unfocus : function () {
     }
-  
   };
   
   // you may add a closure to define private properties / methods

@@ -12,6 +12,14 @@ function getDefaultTemplates () {
       "Choice.xhtml"
       ]
     },
+    { 
+    name : 'filters', // menu name
+    path : '../templates/filters/', // path to folder (MUST end with '/')
+    files :  // available template files
+      [
+      "Select2.xhtml"
+      ]
+    },
     {
     name : 'bindings',
     path : '../templates/bindings/',
