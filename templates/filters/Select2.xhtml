@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "select2" filter</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    </xt:head>
+
+    <!-- <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet"></link>
+    <link rel="stylesheet" type="text/css" href="../../3rd-part/bootstrap-select/bootstrap-select.css"></link> -->
+
+    <link rel="stylesheet" type="text/css" href="../../3rd-part/select2/select2.css"></link>
+    
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <!-- <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.js"></script> -->
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+    
+    <style type="text/css" media="screen">
+      select.axel-choice {
+        width: 150px;
+      }
+      select.axel-choice.districts {
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>The <samp>"select2"</samp> filter</h1>
+
+    <p>The <code>"select2"</code> filter turns a "choice" into a <a href="http://ivaynberg.github.io/select2/" target="_blank">select2</a> combo box.</p>
+
+    <h2>Parameters</h2>
+    
+    <p>See <a href="editor.xhtml#plugins/Choice">"choice"</a> plugin parameters</p>
+
+    <h2>Basic usage</h2>
+    
+    <p>With a default selection.</p>
+
+    <div class="demo extract">
+      <p>
+        I prefer <xt:attribute types="choice" name="SeasonWithDefault" default="Autumn" param="filter=select2" values="Winter Spring Summer Autumn"/>
+        <!-- in <xt:attribute types="choice" name="continent" default="Europe" param="filter=select2" values="Africa America Europe Oceania" option="unset"/>. -->
+      </p>
+    </div>
+
+    <p>Without default selection and with a placeholder.</p>
+
+    <div class="demo extract">
+      <p>
+        I prefer <xt:use types="choice" label="SeasonPlaceHolder" param="filter=select2;placeholder=Choose..." values="Winter Spring Summer Autumn"/>
+        <!-- in <xt:attribute types="choice" name="continent" default="Europe" param="filter=select2" values="Africa America Europe Oceania" option="unset"/>. -->
+      </p>
+    </div>
+
+    <!-- <h3>As an element (and with i18n labels)</h3>
+
+    <div class="demo extract">
+      <p>
+        I prefer to pay with <xt:use types="choice" label="Currency" param="filter=select2" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc">USD</xt:use>.
+      </p>
+    </div> -->
+    
+    <h2>Multiple choices</h2>
+    
+    <p>The <var>xvalue</var> parameter is used to serialize the selected options in XML elements instead of a comma-separated list of options.</p>
+        
+        <div class="demo extract">
+          <p>
+            Please select one or more Swiss canton <xt:use types="choice" label="Districts"
+            param="multiple=yes;xvalue=District;typeahead=yes;filter=select2;placeholder=Choose something...;class=districts"
+            values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+            i18n="Argovie Appenzell\ Interieur Appenzell\ Exterieur Berne Bale-Campagne Bale-Ville Fribourg Geneve Glaris Grisons Jura Lucerne Neuchatel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"></xt:use>
+          </p>
+    </div>
+    
+  </body>
+</html>

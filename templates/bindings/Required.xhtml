@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>The 'required' binding</title>
+
+  <xt:head version="1.1" templateVersion="1.0" label="TestCase">
+    <xt:component name="t_civility">
+      <p><span class="text label">Civility :</span>
+        <span data-binding="required" data-variable="civility">
+          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=M;"/>Mr</label>
+          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mme;"/>Mrs</label>
+          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mlle;"/>Ms</label>
+          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Prof;"/>Prof</label>
+          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Dr;"/>Dr</label>
+        </span>
+      </p>
+    </xt:component>
+  </xt:head>
+
+  <style>
+  body {
+    margin: 20px auto;
+    width: 800px;
+  }
+  div#errors {
+    color: red;
+  }
+  </style>
+</head>
+<body id="editor" data-template="#">
+
+  <h1>The 'required' binding</h1>
+
+  <p><b>Goal</b> : makes a group of radio buttons or checkboxes required in a form; compatible with the 'input' plugin of type 'radio' or 'checkbox'</p>
+
+  <p>You must follow the validation command convention to allow the validator to extract the field name to print in error message (i.e. the binding host must be a sibling of the field label which must be identified with a <code>class</code> set to <code>label</code>).</p>
+
+  <p><b>Declaration</b> :</p>
+
+  <ul>
+    <li>Parent's host : <code>data-binding="required"</code>, <code>data-variable="<i>name</i>"</code></li>
+  </ul>
+
+  <div id="errors">
+    <noscript>Activate Javascript to edit that form</noscript>
+  </div>
+
+  <h2>Usage</h2>
+
+  <p>In this example there is no value checked by default; the validation will print an error message as long as the user does not select any.</p>
+
+  <div class="demo extract">
+    <xt:use types="t_civility"/>
+  </div>
+
+  <p id="commands"><button data-command="validate" data-target="editor" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
+</body>
+</html>

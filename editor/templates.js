@@ -12,12 +12,22 @@ function getDefaultTemplates () {
       "Choice.xhtml"
       ]
     },
+    { 
+    name : 'filters', // menu name
+    path : '../templates/filters/', // path to folder (MUST end with '/')
+    files :  // available template files
+      [
+      "Select2.xhtml"
+      ]
+    },
     {
     name : 'bindings',
     path : '../templates/bindings/',
     files :
       [
-      "Interval.xhtml"
+      "Interval.xhtml",
+      "Regexp.xhtml",
+      "Required.xhtml"
       ]
     },
     { 
@@ -26,6 +36,7 @@ function getDefaultTemplates () {
     files :
       [
       "Command.xhtml",
+      "Template.xhtml",
       "Validate.xhtml"
       ]
     },

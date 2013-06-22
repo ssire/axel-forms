@@ -35,11 +35,14 @@
 
   // Internal class to manage an HTML input with a 'text' or 'password' type
   var _KeyboardField = function (editor, aType, aData) {
-    var h = editor.getHandle();
+    var h = editor.getHandle(), size;
     this._editor = editor;
     this.isEditable = !editor.getParam('noedit');
     this.defaultData = aData || '';
     xtdom.setAttribute(h, 'type', aType);
+    if (size = editor.getParam('size')) {
+      xtdom.setAttribute(h, 'style', 'width:' + size + 'em');
+    }
     h.value = this.defaultData;
     // FIXME: placeholder if HTML5 (?)
   };
@@ -240,7 +243,7 @@
       }
       name = (name || '').concat(aStamp || '');
       xtdom.setAttribute(h, 'name', name);
-      xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
+      // xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
     }
     if (editor.getParam('checked') === 'true') {
       xtdom.setAttribute(h, 'checked', true); // FIXME: does not work ?
@@ -265,7 +268,7 @@
     },
 
     isFocusable : function () {
-      return false;
+      return true;
     },
 
     load : function (aPoint, aDataSrc) {
@@ -290,7 +293,7 @@
           this._editor.clear(false);
         }
       } else { // second chance
-        xtiger.cross.log('debug', 'aPoint is -1');
+        // xtiger.cross.log('debug', 'aPoint is -1');
         name = this._editor.getParam('name');
         if (name) {
           ischecked = _decache(name, value);
@@ -324,8 +327,14 @@
   
     clear : function () {
       this._editor.getHandle().checked = false;
+    },
+    
+    focus : function () {
+      this._editor.getHandle().focus();
+    },
+
+    unfocus : function () {
     }
-  
   };
   
   // you may add a closure to define private properties / methods
@@ -345,8 +354,9 @@
         this._delegate = new _SelectField(this, type, aRepeater ? aRepeater.getClockCount() : undefined);
       } else {
         xtdom.addClassName(this._handle, 'axel-generator-error');
-        xtdom.setAttribute(this._handle, readonly, '1');
-        xtdom.setAttribute(this._handle, value, 'ERROR: type "' + type + '" not recognized by plugin "input"');
+        xtdom.setAttribute(this._handle, 'readonly', '1');
+        xtdom.setAttribute(this._handle, 'value', 'ERROR: type "' + type + '" not recognized by plugin "input"');
+        alert('Form generation failed : fatal error in "input" plugin declaration')
       }
       if (this.getParam('hasClass')) {
         xtdom.addClassName(this._handle, this.getParam('hasClass'));

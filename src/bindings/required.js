@@ -35,8 +35,8 @@
       },
       
       isFocusable : function () {
-        var relay = this.editors.get(0);
-        return relay ? relay.isFocusable() : false;
+        var relay = this.editors.get(1); // 1 not 0 because the 1st one is the binding itsel faking a primitive editor
+        return (relay && (relay !== this)) ? relay.isFocusable() : false;
       },
       
       focus : function () {

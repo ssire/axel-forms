@@ -13,6 +13,19 @@
     <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
     <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
     <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+
+    <style type="text/css">
+      select.axel-choice-placeholder, option.axel-choice-placeholder {
+        font-style: italic !important;
+      }
+      select.axel-choice > option {
+        font-style: normal;
+      }
+      select.district {
+        height: 300px;
+        vertical-align:top;
+      }
+    </style>
   </head>
   <body>
 
@@ -37,8 +50,13 @@
     <h2>Parameters</h2>
 
     <ul class="parameters">
-      <li><var>choice_noselect</var> (<code><b>---</b></code>) : option label to display when there is no default selection defined.</li>
+      <li><var>placeholder</var> (string) : if you do not define a default selection the placeholder sets the message to display as the first selected option, if the user does not change it it will be serialized as the empty string (or not serialized at all if <var>xvalue</var> is defined)</li>
+      <li><var>multiple</var> (yes | <b>no</b>) : multiple choices allowed when set to yes</li>
+      <li><var>xvalue</var> (tag name) : drives XML serialization of the content, default value means the selected option(s) is(are) exported as plain text (comma separated list of values), if it contains any other string the string will be used to generate an element in the target content model for each option with its text content set to the value</li>
+      <li><var>typehead</var> (yes|<b>no</b>) : when set to yes the list of options can be filtered with keyboard shortcuts</li>
     </ul>
+    
+    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2".</p>
 
     <h2>Basic usage</h2>
 
@@ -59,17 +77,45 @@
       </p>
     </div>
     
+    <h2>Multiple Choices</h2>
+
+    <div class="demo extract">
+      <p>
+        I have visited <xt:use types="choice" label="Districts1" param="multiple=yes;class=district;placeholder=Choose..."
+        values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+        i18n="Argovie Appenzell\ Intérieur Appenzell\ Extérieur Berne Bâle-Campagne Bâle-Ville Fribourg Genève Glaris Grisons Jura Lucerne Neuchâtel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"
+        ></xt:use> in Switzerland.
+      </p>
+    </div>
+
+    <p>With serialization into different XML elements</p>
+
+    <div class="demo extract">
+      <p>
+        I would like to visit <xt:use types="choice" label="Districts2" param="class=district;multiple=yes;xvalue=District;placeholder=Choose..."
+        values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+        i18n="Argovie Appenzell\ Intérieur Appenzell\ Extérieur Berne Bâle-Campagne Bâle-Ville Fribourg Genève Glaris Grisons Jura Lucerne Neuchâtel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"
+        ></xt:use> in Switzerland.
+      </p>
+    </div>
+    
     <h2>Special usage</h2>
     
     <h3>Without default selection</h3>
     
-    <p>In that case the default selection (or empty selection) will be set to <samp>---</samp>, which will be serialized as the empy string if the user does not change it.</p>
-
-    <p>You can change the empty selection prompt by setting the <code>noselect</code> parameter to whatever string you want to display (NOT IMPLEMENTED YET).</p>
+    <p>In that case the default selection (or empty selection) will be set to the empty string, which will be serialized as the empy string if the user does not change it.</p>
     
     <div class="demo extract">
       <p>
         Please select a currency <xt:use types="choice" label="CurrencyOrNot" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc"/>
+      </p>
+    </div>
+
+    <p>You can change the empty selection prompt by setting the <code>placeholder</code> parameter to whatever string you want to display in that case.</p>
+    
+    <div class="demo extract">
+      <p>
+        Please select a currency <xt:use types="choice" label="CurrencyOrNot" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc" param="placeholder=choose..."/>
       </p>
     </div>
 

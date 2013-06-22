@@ -19,7 +19,8 @@
     var jhost = $(host);
     this.doc = doc;
     this.key = identifier;
-    this.errid = jhost.attr('data-validation'); // FIXME: this.getParam('validation') (search param on host then on editor)
+    this.errid = jhost.attr('data-validation-output'); // FIXME: this.getParam('validate-output') (search param on host then on editor)
+    this.cssrule = jhost.attr('data-validation-label');
     if (this.errid) {
       jhost.bind('click', $.proxy(this, 'execute'));
     } else {
@@ -33,7 +34,7 @@
       var err, editor = $axel.command.getEditor(this.key);
       if (editor) {
         fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
-        $axel.binding.validate(fields, this.errid, this.doc);
+        $axel.binding.validate(fields, this.errid, this.doc, this.cssrule);
       }
     }
   };
