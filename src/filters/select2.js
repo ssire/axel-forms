@@ -10,11 +10,26 @@
 |                                                                             |
 |  AXEL 'select2' filter                                                      |
 |                                                                             |
+|  Turns a 'choice' plugin into a select2 ComboBox                            |
+|  See http://ivaynberg.github.io/select2/ for original select2               |
+|  This is compatible with the patched version of select2 available           |
+|  in the 3rd-part folder and/or at https://github.com/ssire/select2          |
+|                                                                             |
 |*****************************************************************************|
-|  Prerequisite: you must include select2.js together with AXEL               |
-|  you must include select2.css with your XTiger XML template file            |
-|  and select2.png and select2x2.png                                          |
+|  Prerequisite: check 3rd-part folder because you must include               |
+|  select2.(min.)js together with AXEL-FORMS, you must also include           |
+|  select2.(min.)css with your XTiger XML template file with select2.png,     |
+|  select2x2.png, select2-spinner.gif available                               |
 \*****************************************************************************/
+
+// FIXME:
+// a- select2 filtering is slow for long lists of options 
+//    see https://github.com/ivaynberg/select2/issues/781
+//    at least we could cache the full query (for static lists)
+//    (see updateResults function)
+// b- .select2-results max-height could be adjusted dynamically depending
+//    on space left to the bottom window on initial opening
+
 (function ($axel) {
 
   var _Filter = {

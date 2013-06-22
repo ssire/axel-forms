@@ -26,7 +26,6 @@ Author: Stephane Sire
           href="../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"></link>
     <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
-
     <!-- AXEL dependency (see also below)-->
     <script type="text/javascript" src="../../axel/axel/axel.js"></script>
 
@@ -34,12 +33,16 @@ Author: Stephane Sire
     <!-- <script type="text/javascript" src="../src/editor/classical/htmlloader.js"></script>
     <script type="text/javascript" src="../src/editor/classical/xmlrobustloader.js"></script>
     <script type="text/javascript" src="../src/editor/classical/htmlserializer.js"></script> -->
-    
+
+    <!-- 3rd party dependencies -->
+    <script type="text/javascript" src="../3rd-part/select2/select2.min.js"></script>
 
     <!-- AXEL-FORMS -->
     <!-- plugins -->
     <script type="text/javascript" src="../src/plugins/choice.js"></script>
     <script type="text/javascript" src="../src/plugins/input.js"></script>
+    <!-- filters -->
+    <script type="text/javascript" src="../src/filters/select2.js"></script>
     <!-- commands -->
     <script type="text/javascript" src="../src/core/command.js">//</script>
     <script type="text/javascript" src="../src/commands/dump.js">//</script>
@@ -129,7 +132,7 @@ Author: Stephane Sire
 
         <p style="position: relative">
           <label>
-            Template file : <input id="url" type="text" name="url" maxlength="100" value=""/>
+            Template file : <input id="url" type="text" name="url" maxlength="200" value=""/>
           </label>
 
           <input id="transform" type="submit" value="Transform"/>
@@ -167,7 +170,7 @@ Author: Stephane Sire
         <div id="prefsPanel">
           <p>
             <label>Template folder :
-              <input id="templateRepos" type="text" name="templateRepos" maxlength="100" value=""/>
+              <input id="templateRepos" type="text" name="templateRepos" maxlength="200" value=""/>
             </label>
             <input id="setTemplateFolder" type="button" value="Set"/>
             <input id="browseTemplateFolder" class="mozilla" type="button" value="Browse"/>
