@@ -22,15 +22,121 @@
 |  select2x2.png, select2-spinner.gif available                               |
 \*****************************************************************************/
 
+// TODO:
+// a- add a select2_ignoreAccents=true to decide wether or not to ignore accents
+//    (now this is always the case)
+// b- integrate filter parameters typing directly into AXEL (?)
+
 // FIXME:
-// a- select2 filtering is slow for long lists of options 
+// a- select2 filtering is slow for long lists of options
 //    see https://github.com/ivaynberg/select2/issues/781
 //    at least we could cache the full query (for static lists)
 //    (see updateResults function)
 // b- .select2-results max-height could be adjusted dynamically depending
-//    on space left to the bottom window on initial opening
+//    on space left to the bottom window on initial opening (using dropdownCss parameter)
 
 (function ($axel) {
+  
+  // conversion table for extras select2 parameters
+  var decodeTypes = {
+    dropdownAutoWidth : 'bool',
+    minimumResultsForSearch : 'int',
+    closeOnSelect : 'bool',
+    width : 'str',
+    maximumSelectionSize : 'int',
+    minimumInputLength : 'int'
+  };
+
+  function translate(source) {
+    var i, cur, pos, res = '',
+        from = 'ÀÁÂÃÄÅÒÓÔÕÕÖØÈÉÊËÇÐÌÍÎÏÙÚÛÜÑŠŸŽ',
+        to = 'AAAAAAOOOOOOOEEEECDIIIIUUUUNSYZ';
+    for (i = 0; i < source.length; i++) {
+      cur = source.charAt(i).toUpperCase();
+      pos = from.indexOf(cur);
+      res += (pos >= 0) ? to.charAt(pos) : cur;
+    }
+    return res;
+  }
+
+  /* Copied and adapted from select2 
+     NOTE: does not call escapeMarkup to preserve &amp;
+  */
+  function markMatch(text, term, markup, escapeMarkup, match) {
+    var tl=term.length;
+    markup.push(text.substring(0, match));
+    markup.push("<span class='select2-match'>");
+    markup.push(text.substring(match, match + tl));
+    markup.push("</span>");
+    markup.push(text.substring(match + tl, text.length));
+  }
+
+  function formatSelection (state, container) {
+    var text = (state && state.text) ? state.text : '',
+        i = text.indexOf('::'),
+        res;
+    if (text) {
+      res = (i != -1) ? text.substr(0, i) : text;
+    }
+    return res
+  }
+
+  function formatResult(state, container, query, escapeMarkup, openTag) {
+    var text = (state && state.text) ? state.text : '',
+        i = text.indexOf('::'),
+        oTag = openTag || ' - <span class="select2-complement">',
+        cTag = '</span>',
+        qTerm = translate(query.term),
+        match, markup;
+    if (text) {
+      markup=[];
+      if (i != -1 ) { // with complement
+        if (query.term.length > 0) {
+          match=translate(text).indexOf(qTerm);
+          //match=$(state.element).data('key').indexOf(qTerm);
+          if (match < i) {
+            markMatch(text.substr(0, i), qTerm, markup, escapeMarkup, match);
+            markup.push(oTag + text.substr(i + 2) + cTag);
+          } else if (match > i+1) {
+            markup.push(text.substr(0, i));
+            markup.push(oTag);
+            markMatch(text.substr(i + 2), qTerm, markup, escapeMarkup, match-i-2);
+            markup.push(cTag);
+          } else {
+            return text.substr(0, i) + oTag + text.substr(i + 2) + cTag;
+          }
+        } else {
+          return text.substr(0, i) + oTag + text.substr(i + 2) + cTag;
+        }
+      } else if (query.term.length > 0) { // w/o complement with term
+        match=translate(text).indexOf(qTerm);
+        //match=$(state.element).data('key').indexOf(qTerm);
+        if (match >= 0) {
+          markMatch(text, qTerm, markup, escapeMarkup, match);
+        } else {
+          return text;
+        }
+      } else {
+        return text;
+      }
+      return markup.join("");
+    }
+  }
+
+  /* special matcher that does not care about latin accents */
+  function accentProofMatcher(term, text, option) {
+    var key = option.data("key");
+    if (! key) {
+      key = translate(text);
+      option.data("key",key);
+    }
+    return key.indexOf(translate(term))>=0;
+  }
+  
+  /* FIXME: to be internationalized */
+  function formatInputTooShort(input, min) { 
+    var n = min - input.length; return "Veuillez entrer " + n + " ou plus caractère" + (n == 1? "" : "s"); 
+  }
 
   var _Filter = {
 
@@ -38,8 +144,29 @@
       var  _this = this,
            defval = this.getDefaultData(),
            pl = this.getParam("placeholder"),
-           params = { myDoc : this.getDocument(), minimumResultsForSearch : 7, closeOnSelect : false, width: 'element' };
-           // closeOnSelect : false  -> bug if then you delete while selecting
+           klass = this.getParam("select2_complement"),
+           tag = klass ? ' - <span class="' + klass + '">' : undefined,
+           formRes = klass ? function (s, c, q, e) { return formatResult(s, c, q, e, tag) } : formatResult,
+           params = {
+             myDoc : this.getDocument(),
+             formatResult: formRes,
+             formatSelection : formatSelection,
+             matcher : accentProofMatcher,
+             formatInputTooShort : formatInputTooShort
+           }, k, curVal, typVal;
+      for (k in decodeTypes) { // FIXME: typing system to be integrated with AXEL
+        curVal = this.getParam('select2_' + k);
+        if (curVal) {
+          if (decodeTypes[k] === 'bool') {
+            typVal = curVal === 'true' ? true : false;
+          } else if (decodeTypes[k] === 'int') {
+            typVal = parseInt(curVal);
+          } else {
+            typVal = curVal;
+          }
+          params[k] = typVal;
+        }
+      }
       if (pl || (! defval)) {
         pl = pl || "";
         // inserts placeholder option
@@ -79,7 +206,14 @@
   $axel.filter.register(
     'select2',
     { chain : [ 'onLoad' ] },
-    null,
+    {
+      select2_dropdownAutoWidth : 'false',
+      select2_minimumResultsForSearch : '7',
+      select2_closeOnSelect : 'false',
+      select2_width : 'element',
+      select2_maximumSelectionSize : '-1',
+      select2_minimumInputLength : undefined,
+    },
     _Filter);
   $axel.filter.applyTo({'select2' : 'choice'});
 }($axel));
