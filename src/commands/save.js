@@ -133,7 +133,7 @@
         var editor = $axel.command.getEditor(this.key),
             valid = true, method, dataUrl, transaction, data, errtarget, fields;
         if (editor) {
-          url = editor.attr('data-src') || this.spec.attr('data-src') || '.'; // last case to create a new page in a collection
+          url = this.spec.attr('data-src') || editor.attr('data-src') || '.'; // last case to create a new page in a collection
           if (url) {
             if (editor.attr('data-validation-output')) {
               fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
