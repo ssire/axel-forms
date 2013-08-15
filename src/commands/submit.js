@@ -20,7 +20,7 @@
       spec.bind('click', $.proxy(this, 'execute'));
     } else {
       node.disabled = true;
-      $axel.command.logError('Missing or invalid data-form attribute in submit command ("' + this.formid + '")');
+      $axel.error('Missing or invalid data-form attribute in submit command ("' + this.formid + '")');
     }
   }
 
@@ -36,7 +36,7 @@
         d.val(editor.serializeData());
         f.submit();
       } else {
-        $axel.command.logError('Missing editor or malformed form element to submit data');
+        $axel.error('Missing editor or malformed form element to submit data');
       }
     }
   };

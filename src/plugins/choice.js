@@ -14,14 +14,6 @@
 
 (function ($axel) {
 
-  // Plugin static view: span showing current selected option
-  var _Generator = function ( aContainer, aXTUse, aDocument ) {
-   var viewNode = xtdom.createElement (aDocument, 'select');
-   xtdom.addClassName(viewNode,'axel-choice');
-   aContainer.appendChild(viewNode);
-   return viewNode;
-  };
-
   var _Editor = (function () {
 
    // Splits string s on every space not preceeded with a backslash "\ "
@@ -73,6 +65,14 @@
      ////////////////////////
      // Life cycle methods //
      ////////////////////////
+
+     // Plugin static view: span showing current selected option
+     onGenerate : function ( aContainer, aXTUse, aDocument ) {
+      var viewNode = xtdom.createElement (aDocument, 'select');
+      xtdom.addClassName(viewNode,'axel-choice');
+      aContainer.appendChild(viewNode);
+      return viewNode;
+     },
 
      onInit : function ( aDefaultData, anOptionAttr, aRepeater ) {
        var values = this.getParam('values');
@@ -247,7 +247,6 @@
     {
      choice : 'value'  // alternative is 'display'
     },
-    _Generator,
     _Editor
   );
 }($axel));

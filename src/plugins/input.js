@@ -16,20 +16,6 @@
  */
 (function ($axel) {
 
-  var _Generator = function ( aContainer, aXTUse, aDocument ) {
-    var _handle = xtdom.createElement(aDocument, 'input'),
-        pstr = aXTUse.getAttribute('param'); // IE < 9 does not render 'radio' or 'checkbox' when set afterwards
-    if (pstr) {
-      if (pstr.indexOf("type=radio") !== -1) {
-        xtdom.setAttribute(_handle, 'type', 'radio');
-      } else if (pstr.indexOf("type=checkbox") !== -1) {
-        xtdom.setAttribute(_handle, 'type', 'checkbox');
-      }
-    }
-    aContainer.appendChild(_handle);
-    return _handle;
-  };
-
   var _CACHE= {}; // TODO: define and subscribe to load_begin / load_end events to clear it
   var _CLOCK= {}; // Trick to generate unique names for radio button groups
 
@@ -304,7 +290,13 @@
             this._editor.set(false);
           }
         } else { // no checked
+          // if ((this._type === 'radio') && (this._editor.getParam('checked') === 'true')) {
+          //   this._editor.getHandle().checked = true;
+          //   this._editor.set(false);
+          //   $(this._editor.getHandle()).trigger('axel-update', this._editor);
+          // } else {
           this._editor.clear(false);
+          // }
         }
       }
       // FIXME: isModified is not accurate for this type of field since we do not track update
@@ -343,6 +335,20 @@
     ////////////////////////
     // Life cycle methods //
     ////////////////////////
+
+    onGenerate : function ( aContainer, aXTUse, aDocument ) {
+      var _handle = xtdom.createElement(aDocument, 'input'),
+          pstr = aXTUse.getAttribute('param'); // IE < 9 does not render 'radio' or 'checkbox' when set afterwards
+      if (pstr) {
+        if (pstr.indexOf("type=radio") !== -1) {
+          xtdom.setAttribute(_handle, 'type', 'radio');
+        } else if (pstr.indexOf("type=checkbox") !== -1) {
+          xtdom.setAttribute(_handle, 'type', 'checkbox');
+        }
+      }
+      aContainer.appendChild(_handle);
+      return _handle;
+    },
 
     onInit : function ( aDefaultData, anOptionAttr, aRepeater ) {
       var type, data;
@@ -464,7 +470,6 @@
       type : 'text'
       // checked : 'false'
     },
-    _Generator,
     _Editor
   );
 }($axel));

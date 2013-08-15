@@ -90,11 +90,11 @@
             $('button[data-command="proceed"]', newblock).bind('click', $.proxy(doDelete, this));
             $('button[data-command="cancel"]', newblock).bind('click', $.proxy(doCancel, this));
           } else {
-            $axel.command.logError('Bad page design to complete delete action ("data-replace-target" error)');
+            $axel.error('Bad page design to complete delete action ("data-replace-target" error)');
           }
         }
       } else {
-        $axel.command.logError('Unexpected response from server (' + xhr.status + '). Delete action may have failed');
+        $axel.error('Unexpected response from server (' + xhr.status + '). Delete action may have failed');
       }
     }
 
@@ -102,16 +102,16 @@
     function errorCb (xhr, status, e) {
       var s;
       if (status === 'timeout') {
-        $axel.command.logError("Delete action taking too much time, it has been aborted, however it is possible that the resource has been deleted", this.errTarget);
+        $axel.error("Delete action taking too much time, it has been aborted, however it is possible that the resource has been deleted", this.errTarget);
       } else if (isResponseAnOppidumError(xhr)) {
         // Oppidum may generate 500 Internal error, 400, 401, 404
-        $axel.command.logError(getOppidumErrorMsg(xhr), this.errTarget);
+        $axel.error(getOppidumErrorMsg(xhr), this.errTarget);
       } else if (xhr.responseText.search('Error</title>') !== -1) { // eXist-db error (empirical)
-        $axel.command.logError(getExistErrorMsg(xhr), this.errTarget);
+        $axel.error(getExistErrorMsg(xhr), this.errTarget);
       } else if (e) {
-        $axel.command.logError('Exception : ' + e.name + ' / ' + e.message + "\n" + ' (line ' + e.lineNumber + ')', this.errTarget);
+        $axel.error('Exception : ' + e.name + ' / ' + e.message + "\n" + ' (line ' + e.lineNumber + ')', this.errTarget);
       } else {
-        $axel.command.logError('Error while talking to server (' + xhr.status + ')', this.errTarget);
+        $axel.error('Error while talking to server (' + xhr.status + ')', this.errTarget);
       }
     }
 
@@ -164,7 +164,7 @@
               error : $.proxy(errorCb, this)
             });
           } else {
-            $axel.command.logError('Missing "data-src" parameter on the editor');
+            $axel.error('Missing "data-src" parameter on the editor');
           }
         }
       }

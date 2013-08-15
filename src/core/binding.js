@@ -112,52 +112,66 @@
   
   // FIXME: internationalize validation error messages
   function _validate (fields, errid, doc, cssrule) {
-    var errsel = '#' + errid,
+    var res, feedback, errsel = '#' + errid,
         labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
       fields.apply(
       function (field) {
         // we consider failure to meet required implies field is valid
-        var rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
+        var rcheck = (field.getParam('required') === 'true'),
+            vcheck = field.isValid,
+            rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
             vsuccess = (!rsuccess) || (!field.isValid || field.isValid()), 
             f = $(field.getHandle()),
+            l = f.parents().children(labsel).first(), // FIXME: too wide ?
             label, i;
-        if (rsuccess) {
+        if (rsuccess && rcheck) {
           f.removeClass('af-required');
+          l.removeClass('af-required');
         }
-        if (vsuccess) {
+        if (vsuccess && vcheck) {
           f.removeClass('af-invalid');
+          l.removeClass('af-invalid');
         }
-        if (!rsuccess || !vsuccess) {
-          label = $(field.getHandle()).parent().children(labsel).text();
+        if ((rcheck || vcheck) && (!rsuccess || !vsuccess)) {
+          label = l.text();
+          // .parent().children(labsel).text();
           i = label.lastIndexOf(':');
           if (i != -1) {
             label = label.substr(0, i);
           }
           label = $.trim(label);
-          if (!rsuccess) {
+          if (!rsuccess && rcheck) {
             f.addClass('af-required');
+            l.addClass('af-required');
             err.push(label);
-          } else {
+          } else if (vcheck) {
             f.addClass('af-invalid');
+            l.addClass('af-invalid');
             valid.push(label);
           }
         }
       }
     );
-    $(errsel, doc).html('');
+    feedback = $(errsel, doc).html('');
     if (err.length > 0) {
-      $(errsel, doc).append(
+      feedback.append(
         '<p>Vous devez remplir les champs suivants : ' + err.join(', ') + '</p>'
       );
     }
     if (valid.length > 0) {
-      $(errsel, doc).append(
+      feedback.append(
         '<p>Vous devez corriger les champs suivants : ' + valid.join(', ') + '</p>'
       );
     }
-    return (err.length === 0) && (valid.length === 0);
+    res = (err.length === 0) && (valid.length === 0);
+    if (!res) {
+      feedback.addClass('af-validation-failed');
+    } else {
+      feedback.removeClass('af-validation-failed');
+    }
+    return res;
   }
   
   // Extends a primitive editor instance with an isValid function 

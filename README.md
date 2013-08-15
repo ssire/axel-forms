@@ -6,21 +6,25 @@ Library](https://github.com/ssire/axel) that defines additional plugins and
 filters to create forms, a binding mechanism and a command mechanism. Like AXEL, 
 AXEL-FORMS is an open source (LGPL v2.1) library.
 
-With the **binding mechanism** you can dynamically constrain the authoring process
+The binding and the command mechanisms define microformat instructions to be included
+directly on the XTiger XML and application page markup. This way you can use them 
+without writing Javascript code, in a fully declarative way.
+
+Use the **binding mechanism** to dynamically constrain the authoring process
 (e.g. constrain a field input space with a regexp, contrain two dates 
-to follow each other, etc).
+to follow each other, etc). This is targeted at XTiger XML authors.
 
-With the **command mechanism** you can insert high-level commands such as __save__ 
+Use the **command mechanism** to associate high-level commands such as __save__ 
 (save the open document to a server), or __load__ (load a document into an editor) 
-into a page. This way it is easy to create editing user interfaces.
-
-Both the binding and the command mechanisms rely on microformat instructions 
-to be included into the page markup. The benefit is that you can start using 
-the library without writing Javascript code, in a fully declarative way.
+with user interface controls such as buttons into a page. This way it is easy 
+to create editing user interfaces. This is targeted at web application developers. 
+Some commands may be redundant with functionalities exposed by the **$axel** wrapped 
+set object, however they do not require writing Javascript code and thus are easy 
+to render in markup generation tool chains such as XSLT transformations.
 
 Javascript developers have access to the binding and command mechanisms in the 
-`$axel.binding` and `$axel.command` namespaces. The documented binding API 
-and command API explain how to create and register new bindings and commands.
+`$axel.binding` and `$axel.command` namespaces. Javascript developers can create
+and register new bindings and commands as explained in the documenation.
 
 Pre-requisites
 --------------

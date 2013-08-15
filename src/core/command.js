@@ -29,8 +29,6 @@
 |             register a new command constructor                              |
 |                                                                             |
 |  Generic methods:                                                           |
-|    logError( msg )                                                          |
-|             display an error message                                        |
 |    getEditor( id )                                                          |
 |             returns an editor object associated with a div containing       |
 |             the result of a template transformation. The editor object      |
@@ -41,152 +39,25 @@
 // - factorize mandatory attributes checking (add an array of mandatory to check when calling register ?)
 // - rendre id obligatoire sur Editor
 // - si pas de data-target, prendre le nom du 1er Editor disponible (? legacy avec data-role ?)
-// - detecter le cas du template pré-chargé dans une iframe (tester sur le tag name iframe) 
-//   et dans ce cas transformer le contenu de la iframe (?)
 
 (function ($axel) {
-
-  /////////////////////////////////////////////////
-  // <div> Hosted editor
-  /////////////////////////////////////////////////
-  function Editor (identifier, node, doc, axelPath ) {
-    var spec = $(node),
-        name;
-    
-    this.doc = doc;
-    this.axelPath = axelPath;
-    this.key = identifier;
-    this.templateUrl = spec.attr('data-template');
-    this.dataUrl = spec.attr('data-src');
-    this.cancelUrl = spec.attr('data-cancel');
-    this.transaction = spec.attr('data-transaction');
-    this.spec = spec;
-
-    if (this.templateUrl) {
-      // 1. adds a class named after the template on 'body' element
-      // FIXME: could be added to the div domContainer instead ?
-      if (this.templateUrl !== '#') {
-        name = this.templateUrl.substring(this.templateUrl.lastIndexOf('/') + 1);
-        if (name.indexOf('?') !== -1) {
-          name = name.substring(0, name.indexOf('?'));
-        }
-        $('body', doc).addClass('edition').addClass(name);
-      } // otherwise special case with document as template
-
-      // 2. loads and transforms template and optionnal data
-      this.initialize();
-
-      // 3. registers optionnal unload callback if transactionnal style
-      if (this.cancelUrl) {
-        $(window).bind('unload', $.proxy(this, 'reportCancel'));
-        // FIXME: works only if self-transformed
-      }
-    } else {
-      $axel.command.logError('Missing data-template attribute to generate the editor "' + this.key + '"');
-    }
-
-    // 4. triggers completion event
-    $(doc).triggerHandler('AXEL-TEMPLATE-READY', [this]);
-  }
-
-  Editor.prototype = {
-
-    attr : function (name) {
-      return this.spec.attr(name);
-    },
-
-    initialize : function () {
-      var errLog = new xtiger.util.Logger(),
-          template, data, dataFeed;
-      if (this.templateUrl === "#") {
-        template = this.doc;
-      } else {
-        template = xtiger.cross.loadDocument(this.templateUrl, errLog);
-      }
-      if (template) {
-        this.form = new xtiger.util.Form(this.axelPath);
-        this.form.setTemplateSource(template);
-        if (template !== this.doc) {
-          this.form.setTargetDocument(this.doc, this.key, true); // FIXME: "untitled" does not work
-        }
-        // FIXME: currently "#" notation limited to body (document is the template)
-        // because setTemplateSource only accept a document
-        this.form.enableTabGroupNavigation();
-        this.form.transform(errLog);
-        if (this.dataUrl) {
-          // loads XML data inside the editor
-          data = xtiger.cross.loadDocument(this.dataUrl, errLog);
-          if (data) {
-            if ($('error > message', data).size() > 0) {
-              $axel.command.logError($('error > message', data).text());
-              // FIXME: disable commands targeted at this editor ?
-            } else {
-              dataFeed = new xtiger.util.DOMDataSource(data);
-              this.form.loadData(dataFeed, errLog);
-            }
-          }
-        }
-      }
-      if (errLog.inError()) {
-        $axel.command.logError(errLog.printErrors());
-      }
-    },
-
-    // Removes all data in the editor and starts a new editing session
-    // Due to limitations in AXEL it reloads the templates and transforms it again
-    reset : function () {
-      var errLog = new xtiger.util.Logger();
-      if (this.form) {
-        this.form.transform(errLog);
-      }
-      if (errLog.inError()) {
-        $axel.command.logError(errLog.printErrors());
-      }
-    },
-
-    serializeData : function () {
-      var logger, res;
-      if (this.form) {
-        logger = new xtiger.util.DOMLogger();
-        this.form.serializeData(logger);
-        res = logger.dump();
-      }
-      return res;
-    },
-
-    reportCancel : function (event) {
-      if (! this.hasBeenSaved) { // trick to avoid cancelling a transaction that has been saved
-        $.ajax({
-          url : this.cancelUrl,
-          data : { transaction : this.transaction },
-          type : 'GET',
-          async : false
-          });
-      }
-    }
-  };
 
   var sindex = 0, cindex = 0;
   var registry = {}; // Command class registry to instantiates commands
   var editors = {}; //
-  var params = {};
 
   var  _Command = {
-    
+
+      // FIXME: replace with $axel.defaults ?
+      defaults : {},
+
       configure : function (key, value) {
-        params[key] = value;
+        this.defaults[key] = value;
       },
-    
-      // Reports error to the user either in a predefined DOM node (jQuery selector) or as an alert
-      logError : function (msg, optSel) {
-        var log = optSel ? $(optSel) : undefined;
-        if (log && (log.length > 0)) {
-          log.text(msg);
-        } else if (typeof params.logError === "function") {
-          params.logError(msg);
-        } else {
-          alert(msg);
-        }
+
+      // DEPRECATED : replace with $axel.error instead
+      logError : function (msg, opt) {
+        $axel.error(msg, opt);
       },
 
       // Adds a new command factory
@@ -203,15 +74,17 @@
       }
   };
 
-  // Creates a new editor from a DOM node and the path to use with AXEL
-  function _createEditor (node, doc, axelPath) {
+  // Creates 'transform' commands, note that implicit ones
+  // (i.e. w/o an associated data-command='transform') will immediately generate an editor
+  function _createEditor (node, doc) {
     var key = $(node).attr('id') || ('untitled' + (sindex++)),
-        res = new Editor(key, node, doc, axelPath);
+        res = new registry['transform'].factory(key, node, doc);
     editors[key] = res;
     return res;
   }
 
   // Creates a new command from a DOM node
+  // FIXME: data-command='template' exception (exclusion or handle it properly)
   function _createCommand (node, doc) {
     var type = $(node).attr('data-command'), // e.g. 'save', 'submit'
         key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
@@ -225,50 +98,54 @@
             new registry[type].factory(key, node, doc); // command constructor should register to trigger event
         } else {
           node.disabled = true; // unactivates trigger
-          $axel.command.logError('Missing or invalid data-target attribute in ' + type + ' command ("' + key + '")');
+          $axel.error('Missing or invalid data-target attribute in ' + type + ' command ("' + key + '")');
         }
       } else {
         new registry[type].factory(key, node, doc); // command constructor should register to trigger event
       }
     } else {
-      $axel.command.logError('Attempt to create an unkown command "' + type + '"');
+      $axel.error('Attempt to create an unkown command "' + type + '"');
     }
   }
 
   function _installCommands (doc) {
-    var axelPath = $('script[data-bundles-path]').attr('data-bundles-path'),
+    var path = $('script[data-bundles-path]').attr('data-bundles-path'),
         editors = $('div[data-template]', doc).add('body[data-template="#"]', doc),
         accu = [];
 
-    // FIXME: use micro-format for that or solve load sequence ordering issue (?)
-    if (axelPath) { // self-transformed document
+    if (path) { // saves 'data-bundles-path' for self-transformable templates
+      _Command.configure('bundlesPath', path);
+      // FIXME: load sequence ordering issue (?)
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
     }
 
     // creates editors (div with 'data-template')
+    // FIXME: could be merged with other commands creation (?)
     if (editors.length > 0) {
-      if (axelPath || params.axelPath) {
+      if (_Command.defaults.bundlesPath) {
         editors.each(
           function (index, elt) {
-            accu.push(_createEditor(elt, doc, axelPath || params.axelPath));
+            accu.push(_createEditor(elt, doc));
           }
         );
       } else {
-        $axel.command.logError('Cannot start editing because AXEL library path is unspecified');
+        $axel.error('Cannot start editing because AXEL bundles path is unspecified');
       }
     }
-    
+
     // creates commands
     $('*[data-command]', doc).each(
       function (index, elt) {
-        _createCommand(elt, doc);
+        if ($(elt).attr('data-command') !== 'transform') {
+          _createCommand(elt, doc);
+        }
       }
     );
-    
+
     // FIXME: use micro-format for that or solve load sequence ordering issue (?)
-    if (axelPath) { // self-transformed document
-      $axel.binding.install(document); // FIXME: narrow to installed editors
-    }
+    // if (path) { // self-transformed document
+    //   $axel.binding.install(document); // FIXME: narrow to installed editors
+    // }
     return accu;
   }
 
