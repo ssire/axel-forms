@@ -70,7 +70,7 @@
           // 2. loads and transforms template and optionnal data
           config = {
             bundlesPath : $axel.command.defaults.bundlesPath,
-            tabGroupNavigation : true
+            enableTabGroupNavigation : true
           };
           set = (templateUrl === '#') ? $axel(this.spec).transform(config) : $axel(this.spec).transform(templateUrl, config);
 

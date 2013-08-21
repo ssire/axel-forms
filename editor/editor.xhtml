@@ -74,6 +74,19 @@ Author: Stephane Sire
     <script type="text/javascript" charset="utf-8">
       (function () {
          var appController;
+         // Call this method if you didn't include the style sheet in the document you have transformed to a form
+         function injectStyleSheet ( myDoc, url ) {
+           var head = myDoc.getElementsByTagName('head')[0];
+           if (head) {
+             var link = myDoc.createElement('link');
+             link.setAttribute('rel','stylesheet');
+             link.setAttribute('type', 'text/css');
+             link.setAttribute('href', url); 
+             head.appendChild(link);
+           } else {
+             xtiger.cross.log('debug', "cannot inject editor's style sheet because target document has no head section");
+           }
+         }
          function onTemplateTransformed () {
            var iframeDoc, ed;
            var iframe = document.getElementById('container');
@@ -90,8 +103,8 @@ Author: Stephane Sire
                  // TODO: currently manages only 1 AXEL editor per document
                  xtiger.cross.log('debug', 'binding installation (post-template transformation)');
                  $axel.binding.install(iframeDoc);
-                 ed[0].form.injectStyleSheet(appController.xttMakeLocalURLFor('../../axel/axel/axel.css'));
-                 appController.curForm = ed[0].form;
+                 injectStyleSheet(iframeDoc, appController.xttMakeLocalURLFor('../../axel/axel/axel.css'));
+                 appController.curForm = $axel('#container');
                  appController.log('Template with embedded transformation transformed with success', 0);
                  appController.activateDocumentCommands();
                } else {
