@@ -79,6 +79,7 @@
   function _createEditor (node, doc) {
     var key = $(node).attr('id') || ('untitled' + (sindex++)),
         res = new registry['transform'].factory(key, node, doc);
+    xtiger.cross.log('debug','registering editor "' + key + '"' );
     editors[key] = res;
     return res;
   }
@@ -89,6 +90,7 @@
     var type = $(node).attr('data-command'), // e.g. 'save', 'submit'
         key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
         record = registry[type];
+    xtiger.cross.log('debug', 'create command "' + type + '"' + ' on target "' + key + '"');
     if (record) {
       if (record.check) {
         if ($axel.command.getEditor(key)) { // checks editor existence
@@ -106,12 +108,21 @@
     } else {
       $axel.error('Attempt to create an unkown command "' + type + '"');
     }
+    xtiger.cross.log('debug', 'created command "' + type + '"' + ' on target "' + key + '"');
   }
 
-  function _installCommands (doc) {
-    var path = $('script[data-bundles-path]').attr('data-bundles-path'),
-        editors = $('div[data-template]', doc).add('body[data-template="#"]', doc),
+  // when sliceStart/sliceEnd is defined installs on a slice
+  // works with snapshot since execution may change document tree structure
+  function _installCommands ( doc, sliceStart, sliceEnd ) {
+    var i, cur, sel,
+        start = sliceStart || doc,
+        stop = sliceEnd || sliceStart,
+        path = $('script[data-bundles-path]').attr('data-bundles-path'),
+        buffer1 = [],
+        buffer2 = [],
         accu = [];
+
+    xtiger.cross.log('debug', 'installing commands ' + (sliceStart ? 'slice mode' :  'document mode'));
 
     if (path) { // saves 'data-bundles-path' for self-transformable templates
       _Command.configure('bundlesPath', path);
@@ -119,33 +130,43 @@
       $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
     }
 
-    // creates editors (div with 'data-template')
-    // FIXME: could be merged with other commands creation (?)
-    if (editors.length > 0) {
-      if (_Command.defaults.bundlesPath) {
-        editors.each(
-          function (index, elt) {
-            accu.push(_createEditor(elt, doc));
+    // make a snapshot of nodes with data-template command over a slice or over document body
+    sel = sliceStart ? '[data-template]' : '* [data-template]'; // body to avoid head section
+    cur = start;
+    do {
+      $(sel, cur).each( function(index, n) { buffer1.push(n); } );
+      cur = sliceStart ? cur.nextSibling : undefined;
+    } while (cur && (cur !== sliceEnd) && (stop != sliceStart));
+
+    // make a snapshot of nodes with data-command over a slice or over document body
+    sel= '[data-command]';
+    cur = start;
+    do {
+      $(sel, cur).each( 
+        function(index, n) {
+          if ($(n).attr('data-command') !== 'transform') {
+            buffer2.push(n);
+          } else if (! $(n).attr('data-template')) {
+            buffer1.push(n);
           }
-        );
-      } else {
-        $axel.error('Cannot start editing because AXEL bundles path is unspecified');
+        });
+      cur = sliceStart ? cur.nextSibling : undefined;
+    } while (cur && (cur !== sliceEnd) && (stop != sliceStart));
+
+    // create editors - FIXME: merge with other commands (?)
+    if (_Command.defaults.bundlesPath) {
+      for (i = 0; i < buffer1.length; i++) {
+        accu.push(_createEditor(buffer1[i], doc));
       }
+    } else if (buffer1.length > 0) {
+      $axel.error('Cannot start editing because AXEL bundles path is unspecified');
     }
 
-    // creates commands
-    $('*[data-command]', doc).each(
-      function (index, elt) {
-        if ($(elt).attr('data-command') !== 'transform') {
-          _createCommand(elt, doc);
-        }
-      }
-    );
+    // create other commands
+    for (i = 0; i < buffer2.length; i++) {
+      _createCommand(buffer2[i], doc);
+    }
 
-    // FIXME: use micro-format for that or solve load sequence ordering issue (?)
-    // if (path) { // self-transformed document
-    //   $axel.binding.install(document); // FIXME: narrow to installed editors
-    // }
     return accu;
   }
 

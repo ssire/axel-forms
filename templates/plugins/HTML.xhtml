@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "choice" plugin</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    </xt:head>
+
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+
+    <style type="text/css">
+      select.axel-choice-placeholder, option.axel-choice-placeholder {
+        font-style: italic !important;
+      }
+      select.axel-choice > option {
+        font-style: normal;
+      }
+      select.district {
+        height: 300px;
+        vertical-align:top;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>The <samp>"html"</samp> plugin</h1>
+
+    <p>The <code>"html"</code> plugin is a readonly plugin that loads a chunk of HTML.</p>
+    
+    <p>It can be used in conjunction with other read-only input fields to create editors for viewing documents only. This is useful for instance to generate XTiger XML editors that only differ by the plugins to make one version for statically viewing documents with the read-only input fields and the other version for editing documents with real input fields.</p>
+
+    <h2>Parameters</h2>
+
+    <p>None</p>
+    
+    <h2>Basic usage</h2>
+
+    <div class="demo extract">
+      <xt:use types="html" label="Blob"/>
+    </div>
+    
+    <p>Use the <i>Input</i> button of the demonstration editor and paste the following XML content to see the <code>'html'</code> plugin in action :</p>
+    
+    <pre>&lt;Demo>
+  &lt;Blob>
+    &lt;p xmlns="http://www.w3.org/1999/xhtml">Les &lt;strong>tringles de cistres&lt;/strong> tintaient avec un éclat &lt;i>métallique&lt;/i>&lt;/p>
+    &lt;p xmlns="http://www.w3.org/1999/xhtml">et sur cette étrange musique les &lt;strong>zingarellas&lt;/strong> se levaient&lt;/p>
+  &lt;/Blob>
+&lt;/Demo>
+    </pre>
+
+  </body>
+</html>

@@ -259,6 +259,7 @@
   // when sliceStart/sliceEnd is defined installs on a slice
   function _installBindings ( doc, sliceStart, sliceEnd ) {
     var cur = sliceStart || doc,
+        stop = sliceEnd || sliceStart,
         sel = sliceStart ? '[data-binding]' : 'body [data-binding]'; // body to avoid head section
     xtiger.cross.log('debug', 'installing bindings ' + (sliceStart ? 'slice mode' :  'document mode'));
     do {
@@ -277,7 +278,7 @@
         }
       );
       cur = sliceStart ? cur.nextSibling : undefined;
-    } while (cur && (cur !== sliceEnd));
+    } while (cur && (cur !== sliceEnd) && (stop != sliceStart));
   }
 
  $axel.binding = $axel.binding || {};

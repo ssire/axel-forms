@@ -28,13 +28,31 @@
 
   SaveCommand.prototype = (function () {
 
-    function isResponseAnOppidumError (xhr) {
+    function isResponseAnOppidumError (xhr ) {
       return $('error > message', xhr.responseXML).size() > 0;
     }
 
-    function getOppidumErrorMsg (xhr) {
+    function getOppidumErrorMsg (xhr ) {
       var text = $('error > message', xhr.responseXML).text();
       return text || xhr.status;
+    }
+    
+    function unmarshalMessage( xhr ) {
+      var text = $('success > message', xhr.responseXML).text();
+      return text;
+    }
+    
+    function unmarshalPayload( xhr ) {
+      var start = xhr.responseText.indexOf('<payload>'),
+          end,
+          res = xhr.responseText;
+      if (start != -1) {
+        end = xhr.responseText.indexOf('</payload>');
+        if (end != -1) {
+          res = xhr.responseText.substr(start + 9, end - start - 9) ;
+        }
+      }
+      return res;
     }
 
     function doSwap () {
@@ -78,29 +96,34 @@
 
     function saveSuccessCb (response, status, xhr) {
       var loc = xhr.getResponseHeader('Location'),
-          type, fnode;
+          type, fnode, msg;
       if ((xhr.status === 201) || (xhr.status === 200)) {
         if (loc) {
           window.location.href = loc;
         } else {
+          msg = unmarshalMessage(xhr); // side effect message
+          if (msg) {
+            alert(msg); // FIXME: use a reporting function !!!
+          }
           type = this.spec.attr('data-replace-type') || 'all';
           if (type === 'event') {
             // FIXME: adjust editor's trigger method to add arguments...
+            // FIXME: pass xhr.responseXML.getElementsByTagName("payload")[0] instead of xhr ?
             $axel.command.getEditor(this.key).spec.triggerHandler('axel-save-done', [this, xhr]);
           } else {
             fnode = $('#' + this.spec.attr('data-replace-target'));
             if (fnode.length > 0) {
               if (type === 'all') {
-                fnode.replaceWith(xhr.responseText);
+                fnode.replaceWith(unmarshalPayload(xhr));
               } else if (type === 'swap') {
-                this.swap = $(xhr.responseText); // FIXME: document context ?
+                this.swap = $(unmarshalPayload(xhr)); // FIXME: document context ?
                 fnode.after(this.swap);
                 fnode.hide();
                 this.fragment = fnode; // cached to implement data-command="continue"
                 $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
                 $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
               } else if (type === 'append') {
-                fnode.append(xhr.responseText);
+                fnode.append(unmarshalPayload(xhr));
               } // 'prepend', 'before', 'after'
               $axel.command.getEditor(this.key).trigger('axel-save-done', this);
             } else {
@@ -187,5 +210,5 @@
     };
   }());
 
-  $axel.command.register('save', SaveCommand, { check : true });
+  $axel.command.register('save', SaveCommand, { check : false });
 }());

@@ -34,13 +34,24 @@
    // options is an array of the form [labels, values]
    function createOptions ( that, values, labels ) {
      var i, o, t, handle = that.getHandle(),
-         doc = that.getDocument();
+         doc = that.getDocument(),
+         type = that.getParam('multiple') === 'yes' ? 'checkbox' : 'radio',
+         readonly = that.getParam('noedit') === 'true' ? 'disabled="true" ' : '',
+         name = that.getUniqueKey(),
+         full = that.getParam('appearance') === 'full';
      for (i = 0; i < values.length; i++) {
-       o = xtdom.createElement(doc, 'option');
-       t = xtdom.createTextNode(doc, labels[i]);
-       xtdom.setAttribute(o, 'value', values[i]);
-       o.appendChild(t);
-       handle.appendChild(o);
+       if (full) {
+         $(handle).append('<li><label><input ' + readonly + 'type="' + type + '" value="' + values[i] + '" name ="' + name + '"/>' + labels[i] + '</label></li>');
+       } else {
+         o = xtdom.createElement(doc, 'option');
+         t = xtdom.createTextNode(doc, labels[i]);
+         xtdom.setAttribute(o, 'value', values[i]);
+         if (that.getParam('noedit') === 'true') {
+           xtdom.setAttribute(o, 'disabled', true);
+         }
+         o.appendChild(t);
+         handle.appendChild(o);
+       }
      }
    }
 
@@ -68,7 +79,12 @@
 
      // Plugin static view: span showing current selected option
      onGenerate : function ( aContainer, aXTUse, aDocument ) {
-      var viewNode = xtdom.createElement (aDocument, 'select');
+      var viewNode;
+      if (this.getParam('appearance') === 'full') {
+        viewNode= xtdom.createElement (aDocument, 'ul');
+      } else {
+        viewNode= xtdom.createElement (aDocument, 'select');
+      }
       xtdom.addClassName(viewNode,'axel-choice');
       aContainer.appendChild(viewNode);
       return viewNode;
@@ -92,7 +108,7 @@
        var  _this = this,
             defval = this.getDefaultData(),
             pl = this.getParam("placeholder");
-       if (pl || (! defval)) {
+       if ((this.getParam('appearance') !== 'full') && (pl || (! defval))) {
          pl = pl || "";
          // inserts placeholder option
          $(this._handle).prepend('<option class="axel-choice-placeholder" selected="selected" value="">' + (pl || "") + '</option>');
@@ -106,12 +122,21 @@
          }
        }
        xtdom.addEventListener(this._handle, 'change',
-        function (ev) {
-          _this.update($(this).val());
-          if($(this).val() === "") {
-            $(this).addClass("axel-choice-placeholder");
-          } else {
-            $(this).removeClass("axel-choice-placeholder");
+        function (ev, data) {
+          if (!(data && data.synthetic)) { // short circuit if forged event (onLoad)
+            if (_this.getParam('appearance') === 'full') {
+              var accu = [];
+              $('input', _this.getHandle()).each(
+                function(i,e) { 
+                  if (e.checked) {
+                    accu.push($(e).val());
+                  }
+                }
+              );
+              _this.update(accu);
+            } else {
+              _this.update($(this).val());
+            }
           }
         }, true);
         this._setData(defval);
@@ -211,9 +236,32 @@
 
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
        _setData : function ( value, withoutSideEffect ) {
+         var values;
+         if (this.getParam('appearance') !== 'full') {
+           if(!value) {
+             $(this.getHandle()).addClass("axel-choice-placeholder");
+           } else {
+             $(this.getHandle()).removeClass("axel-choice-placeholder");
+           }
+         }
          this._data =  value || "";
          if (! withoutSideEffect) {
-           $(this.getHandle()).val(value);
+           if (this.getParam('appearance') === 'full') {
+             values = typeof this._data === "string" ? [ this._data ] : this._data; // converts to array
+             $('input', this.getHandle()).each(
+               function(i,e) { 
+                 if ($.inArray($(e).val(), values) > -1) {
+                   e.checked = true;
+                   xtdom.removeClassName(e.parentNode,'axel-choice-unset');
+                 } else {
+                   e.checked = false;
+                   xtdom.addClassName(e.parentNode,'axel-choice-unset');
+                 }
+               }
+             );
+           } else {
+             $(this.getHandle()).val(value);
+           }
          }
        },
 

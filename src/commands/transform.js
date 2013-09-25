@@ -30,9 +30,11 @@
     this.key = identifier;
     this.spec = spec;
     if (spec.attr('data-command') !== 'transform') { // implicit command (data-template alone)
+      xtiger.cross.log('debug','Transforming ' + identifier + ' in implicit mode');
       this.transform();
       this.implicit = true;
     } else {
+      xtiger.cross.log('debug','Transforming ' + identifier + ' in explicit mode');
       this.implicit = false;
     }
     this.defaultTpl = this.spec.attr('data-template');
@@ -54,6 +56,7 @@
       var name, set, config,
           templateUrl = tOptUrl || this.spec.attr('data-template'), // late binding
           dataUrl = dOptUrl || this.spec.attr('data-src'); // late binding
+      xtiger.cross.log('debug', 'transforming physical editor ' + this.key);
       if ((templateUrl === this.spec.attr('data-template')) && this.ready) {
         this.reset();
       } else {
@@ -88,7 +91,12 @@
           // 4. triggers completion event
           if (set.transformed()) {
             if (! this.implicit) {
+              xtiger.cross.log('debug', '[[[ installing bindings from "transform" command');
               $axel.binding.install(this.doc, this.spec.get(0), this.spec.get(0));
+              xtiger.cross.log('debug', ']]] installed bindings from "transform" command');
+              xtiger.cross.log('debug', '<<< installing commands from "transform" command');
+              $axel.command.install(this.doc, this.spec.get(0).firstChild, this.spec.get(0).lastChild);
+              xtiger.cross.log('debug', '>>> installed commands from "transform" command');
             }
             this.spec.attr('data-template', templateUrl);
             this.spec.addClass('edition').addClass(name); // FIXME: remove .xhtml
@@ -96,6 +104,7 @@
             this.ready = true;
           } else {
             this.spec.triggerHandler('axel-transform-error', [this]);
+            this.ready = false;
           }
         } else {
           $axel.error('Missing data-template attribute to generate the editor "' + this.key + '"');
@@ -113,6 +122,8 @@
         this.transform(this.defaultTpl);
       } else {
         $axel(this.spec).load('<Reset/>'); // trick
+        $('*[class*="af-invalid"]', this.spec.get(0)).removeClass('af-invalid');
+        $('*[class*="af-required"]', this.spec.get(0)).removeClass('af-required');
       }
     },
 

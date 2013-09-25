@@ -22,5 +22,5 @@
     }
   };
 
-  $axel.command.register('trigger', TriggerCommand, { check : true });
+  $axel.command.register('trigger', TriggerCommand, { check : false });
 }());

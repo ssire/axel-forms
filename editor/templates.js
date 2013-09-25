@@ -9,7 +9,8 @@ function getDefaultTemplates () {
     files :  // available template files
       [
       "Input.xhtml",
-      "Choice.xhtml"
+      "Choice.xhtml",
+      "HTML.xhtml"
       ]
     },
     { 
@@ -17,7 +18,8 @@ function getDefaultTemplates () {
     path : '../templates/filters/', // path to folder (MUST end with '/')
     files :  // available template files
       [
-      "Select2.xhtml"
+      "Select2.xhtml",
+      "AutoFill.xhtml"
       ]
     },
     {

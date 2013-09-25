@@ -135,7 +135,7 @@
   
   /* FIXME: to be internationalized */
   function formatInputTooShort(input, min) { 
-    var n = min - input.length; return "Veuillez entrer " + n + " ou plus caractère" + (n == 1? "" : "s"); 
+    var n = min - input.length; return "Entrez au moins " + n + " caractère" + (n == 1? "" : "s"); 
   }
 
   var _Filter = {
@@ -190,16 +190,18 @@
       }
       this._setData(defval);
       $(this._handle).select2(params).change(
-        function (ev) {
-         // FIXME: detect if called from onLoad to cancel
-          _this.update($(this).val()); // to update model
+        function (ev, data) {
+         if (!(data && data.synthetic)) { // short circuit if forged event (onLoad)
+           _this.update($(this).val()); // tells 'choice' instance to update its model
+         }
         }
       );
     },
 
+     // Triggers DOM 'change' event to tell model has changed to select2 implementation
      onLoad : function (aPoint, aDataSrc) {
        this.__select2__onLoad(aPoint,aDataSrc);
-       $(this._handle).trigger("change");
+       $(this._handle).trigger("change", { synthetic : true });
      }
   };
 

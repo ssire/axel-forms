@@ -51,9 +51,8 @@ test AXEL-FORMS inside your browser without any preliminary software installatio
 Follow the instructions of the section "For the impatient". 
 
 The web site is regularly updated, however to really get the latest version checkout 
-the repository. The repository contains a `dist/axel-forms.js` file with the extensions.
-As this file is usually rebuilt only for release commits, do not forget to regenerate it
-if you really want to get the latest version (see section below).
+the repository. The *master* branch is where we push AXEL-FORMS more stable releases while
+the *devel* branch is where we prepare the next release.
 
 Where to start ?
 ----------------
@@ -66,6 +65,12 @@ your browser (Firefox recommended, see the security note displayed in the launch
 If you are just interested in using and deploying AXEL-FORMS, all you need 
 to do is to build the library (see below) and to copy the `dist/axel-forms.js`
 file to your Web server. You must also have deployed AXEL onto your server.
+
+The rule of thumb is that if you checkout the *master* branch it will contain
+a built of the `dist/axel-forms.js` library file lined up with the code. Be aware that if
+you checkout the *devel* branch, you will need to rebuild the `dist/axel-forms.js` file 
+following the instructions of the next section.
+
 
 How to build the library ?
 --------------------------
@@ -82,7 +87,7 @@ on your system, which is already the case on many operating systems.
 This requires that you install the Yahoo UI compressor onto your machine, and
 that you edit the `scripts/ant.properties` file to point to it.
 
-You can get the Yahoo UI compressor at [http://developer.yahoo.com/yui/compressor/]()
+You can get the Yahoo UI compressor at [http://developer.yahoo.com/yui/compressor/](http://developer.yahoo.com/yui/compressor/)
 
 Alternatively the `build.debug` target simply concatenates source files
 together, so you can use it without installing the compressor.

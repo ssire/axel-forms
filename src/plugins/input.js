@@ -233,6 +233,10 @@
     }
     if (editor.getParam('checked') === 'true') {
       xtdom.setAttribute(h, 'checked', true); // FIXME: does not work ?
+    } else {
+      if (editor.getParam('noedit') === 'true') {
+        xtdom.addClassName(h, 'axel-input-unset');
+      }
     }
     // FIXME: transpose defaultData (checked attribute ?)
   };
@@ -258,8 +262,10 @@
     },
 
     load : function (aPoint, aDataSrc) {
-      var found, value, ischecked = false;
-      value = this._editor.getParam('value');
+      var found,
+          h = this._editor.getHandle(),
+          ischecked = false,
+          value = this._editor.getParam('value');
       if (-1 !== aPoint) { 
         found = aDataSrc.getDataFor(aPoint);
         ischecked = (found === value);
@@ -271,9 +277,12 @@
           } // otherwise anonymous checkbox with unique XML tag
         }
         if (ischecked) { // checked
-          if (! this._editor.getHandle().checked) {
-            this._editor.getHandle().checked = true;
+          if (! h.checked) {
+            h.checked = true;
             this._editor.set(false);
+            if (this._editor.getParam('noedit') === 'true') {
+              xtdom.removeClassName(h, 'axel-input-unset');
+            }
           }
         } else { // no checked
           this._editor.clear(false);
@@ -285,18 +294,15 @@
           ischecked = _decache(name, value);
         } // otherwise anonymous checkbox with unique XML tag
         if (ischecked) { // checked
-          if (! this._editor.getHandle().checked) {
-            this._editor.getHandle().checked = true;
+          if (! h.checked) {
+            h.checked = true;
             this._editor.set(false);
+            if (this._editor.getParam('noedit') === 'true') {
+              xtdom.removeClassName(h, 'axel-input-unset');
+            }
           }
         } else { // no checked
-          // if ((this._type === 'radio') && (this._editor.getParam('checked') === 'true')) {
-          //   this._editor.getHandle().checked = true;
-          //   this._editor.set(false);
-          //   $(this._editor.getHandle()).trigger('axel-update', this._editor);
-          // } else {
           this._editor.clear(false);
-          // }
         }
       }
       // FIXME: isModified is not accurate for this type of field since we do not track update
@@ -319,6 +325,9 @@
   
     clear : function () {
       this._editor.getHandle().checked = false;
+      if (this._editor.getParam('noedit') === 'true') {
+        xtdom.addClassName(h, 'axel-input-unset');
+      }
     },
     
     focus : function () {
@@ -345,6 +354,9 @@
         } else if (pstr.indexOf("type=checkbox") !== -1) {
           xtdom.setAttribute(_handle, 'type', 'checkbox');
         }
+      }
+      if (this.getParam('noedit') === 'true') {
+        _handle.disabled = true;
       }
       aContainer.appendChild(_handle);
       return _handle;
