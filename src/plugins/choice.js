@@ -297,4 +297,6 @@
     },
     _Editor
   );
+  
+  $axel.filter.applyTo({'event' : ['choice']});
 }($axel));
