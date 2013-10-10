@@ -4,7 +4,7 @@ This file is a stripped down version of the original axel/editor/editor.html
 
 It has been extended to load the AXEL-FORMS extensions (AXEL-MICRO + Plugins + Bindings)
 
-It uses the 'AXEL-TEMPLATE-READY' event to install bindings,
+It uses the '__AXEL_DEMO_EDITOR_READY' event to install bindings,
 so the editor.js (which is imported from AXEL) MUST trigger it.
 
 WARNING: this currently works only if axel-forms is placed as a sibling of axel in your file system
@@ -133,7 +133,7 @@ Author: Stephane Sire
            // late filter registration
            $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
            // Install Hook to install bindings
-           $(document).bind('axel-editor-ready', onTemplateTransformed);
+           $(document).bind('__AXEL_DEMO_EDITOR_READY', onTemplateTransformed);
            // configure command for templates with embedded transformation command
            $axel.command.configure('bundlesPath', appController.xttMakeLocalURLFor('../../axel/axel/bundles'))
            appController.run();

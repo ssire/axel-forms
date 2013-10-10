@@ -100,15 +100,12 @@
             }
             this.spec.attr('data-template', templateUrl);
             this.spec.addClass('edition').addClass(name); // FIXME: remove .xhtml
-            this.spec.triggerHandler('AXEL-TEMPLATE-READY', [this]); // FIXME: targeted at AXEL demo editor (?)
             this.ready = true;
           } else {
-            this.spec.triggerHandler('axel-transform-error', [this]);
             this.ready = false;
           }
         } else {
           $axel.error('Missing data-template attribute to generate the editor "' + this.key + '"');
-          this.spec.triggerHandler('axel-transform-error', [this]);
         }
       }
     },

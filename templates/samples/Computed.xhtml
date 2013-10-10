@@ -28,6 +28,8 @@
 
   function init() {
     $('body').bind('axel-update', function () {$('#total').text(_updated()) });  
+    $('body').bind('axel-add', function () {$('#total').text(_updated()) });  
+    $('body').bind('axel-remove', function () {$('#total').text(_updated()) });  
   }
 
   jQuery(function() { init(); });
