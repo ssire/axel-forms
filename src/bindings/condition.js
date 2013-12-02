@@ -8,6 +8,8 @@
 |*****************************************************************************|
 |  Prerequisites: jQuery, AXEL, AXEL-FORMS                                    |
 |                                                                             |
+|  Limitations: one editor per page since it uses $('body') selector          |
+|                                                                             |
 \*****************************************************************************/
 (function ($axel) {
 
@@ -17,18 +19,24 @@
       this.avoidstr = 'data-avoid-' + this.getVariable();
       this.editor = $axel(host);
       host.bind('axel-update', $.proxy(this.updateConditionals, this));
+      // command installation is post-rendering, hence we can change editor's state
+      this.updateConditionals();
+      // FIXME: should be optional (condition_container=selector trick as 'autofill' ?)
+      $(document).bind('axel-content-ready', $.proxy(this, 'updateConditionals'));
+      
     },
 
     methods : {
 
       updateConditionals : function  (ev, editor) {
+        var onset, offset;
         var curval = this.editor.text();
         var fullset = $('body [' + this.avoidstr + ']', this.getDocument());
-        var onset = fullset.not('[' + this.avoidstr + '*=' + curval + ']');
-        var offset = fullset.filter('[' + this.avoidstr + '*=' + curval + ']');
-        onset.find('input').attr('disabled', null);
+        onset = (curval != '') ? fullset.not('[' + this.avoidstr + '*="' + curval + '"]') : fullset.not('[' + this.avoidstr + '=""]');
+        offset = (curval != '') ? fullset.filter('[' + this.avoidstr + '*="' + curval + '"]') : fullset.filter('[' + this.avoidstr + '=""]');
+        onset.find('input').removeAttr('disabled');
         onset.css('color', 'inherit');
-        offset.find('input').attr('disabled', true);
+        offset.find('input').attr('disabled', 'disabled');
         offset.css('color', 'lightgray');
       }
     }

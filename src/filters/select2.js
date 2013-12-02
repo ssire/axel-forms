@@ -140,6 +140,14 @@
 
   var _Filter = {
 
+    // trick to prevent cloning 'select2' shadow list when instantiated inside a repetition
+    // the guard is needed to persist xttOpenLabel if planted on plugin
+    onGenerate : function ( aContainer, aXTUse, aDocument ) {
+     var res = this.__select2__onGenerate(aContainer, aXTUse, aDocument);
+     $(res).wrap('<span class="axel-guard"/>');
+     return res;
+    },
+
     onAwake : function () {
       var  _this = this,
            defval = this.getDefaultData(),
@@ -196,6 +204,7 @@
          }
         }
       );
+      $(this._handle).prev('.select2-container').get(0).xttNoShallowClone = true; // prevent cloning
     },
 
      // Triggers DOM 'change' event to tell model has changed to select2 implementation
@@ -207,7 +216,7 @@
 
   $axel.filter.register(
     'select2',
-    { chain : [ 'onLoad' ] },
+    { chain : [ 'onGenerate', 'onLoad' ] },
     {
       select2_dropdownAutoWidth : 'false',
       select2_minimumResultsForSearch : '7',

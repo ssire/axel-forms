@@ -118,7 +118,9 @@
            if (this._param.i18n !== this._param.values) { // FIXME: check its correct
              this._param.i18n.splice(0,0,pl);
            }
-           $(this._handle).addClass("axel-choice-placeholder");
+           if (pl) {
+             $(this._handle).addClass("axel-choice-placeholder");
+           }
          }
        }
        xtdom.addEventListener(this._handle, 'change',
@@ -148,6 +150,7 @@
          this.clear(false);
        } else {
          xval = this.getParam('xvalue');
+         defval = this.getDefaultData();
          if (xval) { // custom label
            value = [];
            option = aDataSrc.getVectorFor(xval, aPoint);
@@ -160,8 +163,11 @@
            }
            this._setData(value.length > 0 ? value : ""); // "string" and ["string"] are treated as equals by jQuery's val()
          } else { // comma separated list
-           defval = this.getDefaultData();
-           value = (aDataSrc.getDataFor(aPoint) || defval).split(",");
+           tmp = aDataSrc.getDataFor(aPoint);
+           if (typeof tmp !== 'string') {
+             tmp = '';
+           }
+           value = (tmp || defval).split(",");
            this._setData(value);
          }
          this.set(false);
@@ -238,7 +244,7 @@
        _setData : function ( value, withoutSideEffect ) {
          var values;
          if (this.getParam('appearance') !== 'full') {
-           if(!value) {
+           if(!value && (this.getParam('placeholder'))) {
              $(this.getHandle()).addClass("axel-choice-placeholder");
            } else {
              $(this.getHandle()).removeClass("axel-choice-placeholder");

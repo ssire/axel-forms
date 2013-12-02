@@ -117,19 +117,11 @@
     var i, cur, sel,
         start = sliceStart || doc,
         stop = sliceEnd || sliceStart,
-        path = $('script[data-bundles-path]').attr('data-bundles-path'),
         buffer1 = [],
         buffer2 = [],
         accu = [];
 
     xtiger.cross.log('debug', 'installing commands ' + (sliceStart ? 'slice mode' :  'document mode'));
-
-    if (path) { // saves 'data-bundles-path' for self-transformable templates
-      _Command.configure('bundlesPath', path);
-      // FIXME: load sequence ordering issue (?)
-      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
-    }
-
     // make a snapshot of nodes with data-template command over a slice or over document body
     sel = sliceStart ? '[data-template]' : '* [data-template]'; // body to avoid head section
     cur = start;
@@ -175,5 +167,13 @@
   $axel.command.install = _installCommands;
 
   // document ready handler to install commands (self-transformed documents only)
-  jQuery(function() { _installCommands(document); });
+  jQuery(function() { 
+    var path = $('script[data-bundles-path]').attr('data-bundles-path');
+    if (path) { // saves 'data-bundles-path' for self-transformable templates
+      _Command.configure('bundlesPath', path);
+      // FIXME: load sequence ordering issue (?)
+      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+    }
+    _installCommands(document); 
+    });
 }($axel));
