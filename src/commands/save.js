@@ -8,9 +8,13 @@
 |  - data-target : id of the editor's container                               |
 |                                                                             |
 |  Optional attributes :                                                      |
+|  - data-replace-type : defines what to do with the servers's response       |
+|  - data-event-target : when data-replace-type is 'event' this attribute     |
+|    gives the name of a second editor from which to trigger a copy cat of    |
+|    'axel-save-done' event                                                   |
 |  - data-validation-output (on the target editor): identifier of a target    |
 |    element to use as a container for showing validation error messages,     |
-|    the presence of this attributes causes validation                        |
+|    the presence of this attribute causes validation                         |
 |                                                                             |
 \*****************************************************************************/
 
@@ -96,7 +100,7 @@
 
     function saveSuccessCb (response, status, xhr) {
       var loc = xhr.getResponseHeader('Location'),
-          type, fnode, msg;
+          type, fnode, msg, tmp;
       if ((xhr.status === 201) || (xhr.status === 200)) {
         if (loc) {
           window.location.href = loc;
@@ -110,6 +114,13 @@
             // FIXME: adjust editor's trigger method to add arguments...
             // FIXME: pass xhr.responseXML.getElementsByTagName("payload")[0] instead of xhr ?
             $axel.command.getEditor(this.key).spec.triggerHandler('axel-save-done', [this, xhr]);
+            tmp = this.spec.attr('data-event-target');
+            if (tmp) {
+              tmp = $axel.command.getEditor(tmp);
+              if (tmp) {
+                tmp.spec.triggerHandler('axel-save-done', [this, xhr]);
+              }
+            }
           } else {
             fnode = $('#' + this.spec.attr('data-replace-target'));
             if (fnode.length > 0) {
@@ -183,12 +194,12 @@
                     url = url + '?transaction=' + transaction;
                   }
                   $.ajax({
-                    url : url,
+                    url : $axel.resolveUrl(url),
                     type : method,
                     data : data,
                     dataType : 'xml',
                     cache : false,
-                    timeout : 10000,
+                    timeout : 50000,
                     contentType : "application/xml; charset=UTF-8",
                     success : $.proxy(saveSuccessCb, this),
                     error : $.proxy(saveErrorCb, this)

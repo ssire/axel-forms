@@ -165,6 +165,18 @@
   // exports module
   $axel.command = _Command;
   $axel.command.install = _installCommands;
+  
+  // AXEL extension (FIXME: definitive API ?)
+  $axel.resolveUrl = function resolveUrl ( url ) {
+    if (url.length > 2 && url.charAt(0) === '~' && url.charAt(1) === '/') {
+      if ((window.location.href.charAt(window.location.href.length - 1)) !== '/') {
+        return window.location.href + '/' + url.substr(2);
+      } else {
+        return url.substr(2);
+      }
+    }
+    return url;
+  };
 
   // document ready handler to install commands (self-transformed documents only)
   jQuery(function() { 

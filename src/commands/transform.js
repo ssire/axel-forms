@@ -78,7 +78,7 @@
           set = (templateUrl === '#') ? $axel(this.spec).transform(config) : $axel(this.spec).transform(templateUrl, config);
 
           if (dataUrl) {
-            set.load(dataUrl);
+            set.load($axel.resolveUrl(dataUrl));
             this.spec.attr('data-src', dataUrl);
           }
 
@@ -123,8 +123,15 @@
         $('*[class*="af-required"]', this.spec.get(0)).removeClass('af-required');
       }
     },
+    
+    reload : function () {
+      var url = this.spec.attr('data-src');
+      if (url) {
+        $axel(this.spec).load($axel.resolveUrl(url));
+      }
+    },
 
-    // Triggers an event
+    // Triggers an event on the host node only (no bubbling)
     trigger : function (name, source) {
       this.spec.triggerHandler(name, [this, source]);
     },
