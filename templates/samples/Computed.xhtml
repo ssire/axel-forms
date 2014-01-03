@@ -8,7 +8,7 @@
 
     <xt:head version="1.1" templateVersion="1.0" label="Root">
     </xt:head>
-  
+
     <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
     <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
     <script src="../../../axel/axel/axel.js">//</script>
@@ -16,20 +16,35 @@
 
 <script type="text/javascript" charset="utf-8">
 (function () {
-  function _updated () {
+  function _ready (ev) {
+    $('li.row').each(
+      function (i,e) {
+        var row = $axel(e);
+        $('.subtotal',e).text(row.peek('Item') * row.peek('Quantity'));
+      }
+    );
+    $('#total').text(_updated());
+  }
+  function _updated (ev) {
     var rates = {
                   'EUR' : { 'EUR' : 1, 'CHF' : 0.8 },
                   'CHF' : { 'EUR' : 1.2, 'CHF' : 1 }
                   },
-        changes = rates[$axel('body').peek('Current')];
-    var res = $axel('#shopping-list').vector('Item').vector('Quantity').product().vector('Currency', function(v) { return changes[v] || 1 }).product().sum();
+        changes = rates[$axel('body').peek('Current')],
+        res, row;
+    if (ev &amp;&amp; (ev.type === 'axel-update')) {
+      row = $axel(ev.target.parentNode);
+      $('.subtotal',ev.target.parentNode).text(row.peek('Item') * row.peek('Quantity'));
+    }
+    res = $axel('#shopping-list').vector('Item').vector('Quantity').product().vector('Currency', function(v) { return changes[v] || 1 }).product().sum();
     return res;
   };
 
   function init() {
-    $('body').bind('axel-update', function () {$('#total').text(_updated()) });  
-    $('body').bind('axel-add', function () {$('#total').text(_updated()) });  
-    $('body').bind('axel-remove', function () {$('#total').text(_updated()) });  
+    $('body').bind('axel-update', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').bind('axel-add', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').bind('axel-remove', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').bind('axel-content-ready', _ready);
   }
 
   jQuery(function() { init(); });
@@ -40,10 +55,10 @@
     <h1>Sample computed value demonstration</h1>
 
     <p>Total : <span id="total">0</span> <xt:use types="choice" label="Current" values="EUR CHF" param="filter=event;noxml=true">EUR</xt:use></p>
-      
+
     <ul id="shopping-list">
       <xt:repeat minOccurs="1" maxOccurs="*" label="Repetition">
-        <li>Product price <xt:use types="text" label="Item" param="filter=event">price</xt:use> x Quantity: <xt:use types="text" label="Quantity" param="filter=event">1</xt:use> in Currency <xt:use types="choice" label="Currency" values="EUR CHF" param="filter=event;">EUR</xt:use><xt:menu-marker/></li>
+        <li class="row">Product price <xt:use types="text" label="Item" param="filter=event">price</xt:use> x Quantity: <xt:use types="text" label="Quantity" param="filter=event">1</xt:use> in Currency <xt:use types="choice" label="Currency" values="EUR CHF" param="filter=event;">EUR</xt:use> (total: <span class="subtotal">-</span>)<xt:menu-marker/></li>
       </xt:repeat>
     </ul>
   </body>
