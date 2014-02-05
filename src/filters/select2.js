@@ -60,15 +60,14 @@
   }
 
   /* Copied and adapted from select2 
-     NOTE: does not call escapeMarkup to preserve &amp;
   */
   function markMatch(text, term, markup, escapeMarkup, match) {
     var tl=term.length;
-    markup.push(text.substring(0, match));
+    markup.push(escapeMarkup(text.substring(0, match)));
     markup.push("<span class='select2-match'>");
-    markup.push(text.substring(match, match + tl));
+    markup.push(escapeMarkup(text.substring(match, match + tl)));
     markup.push("</span>");
-    markup.push(text.substring(match + tl, text.length));
+    markup.push(escapeMarkup(text.substring(match + tl, text.length)));
   }
 
   function formatSelection (state, container) {
