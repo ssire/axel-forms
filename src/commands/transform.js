@@ -30,11 +30,11 @@
     this.key = identifier;
     this.spec = spec;
     if (spec.attr('data-command') !== 'transform') { // implicit command (data-template alone)
-      xtiger.cross.log('debug','Transforming ' + identifier + ' in implicit mode');
+      // xtiger.cross.log('debug','Transforming ' + identifier + ' in implicit mode');
       this.transform();
       this.implicit = true;
     } else {
-      xtiger.cross.log('debug','Transforming ' + identifier + ' in explicit mode');
+      // xtiger.cross.log('debug','Transforming ' + identifier + ' in explicit mode');
       this.implicit = false;
     }
     this.defaultTpl = this.spec.attr('data-template');
@@ -43,6 +43,10 @@
   }
 
   TransformCommand.prototype = {
+
+    getDefaultTemplate : function () { return  this.defaultTpl; },
+
+    getDefaultSrc : function () { return  this.defaultData; },
 
     attr : function (name) {
       if (arguments.length >1) {
@@ -56,7 +60,7 @@
       var name, set, config,
           templateUrl = tOptUrl || this.spec.attr('data-template'), // late binding
           dataUrl = dOptUrl || this.spec.attr('data-src'); // late binding
-      xtiger.cross.log('debug', 'transforming physical editor ' + this.key);
+      // xtiger.cross.log('debug', 'transforming physical editor ' + this.key);
       if ((templateUrl === this.spec.attr('data-template')) && this.ready) {
         this.reset();
       } else {
@@ -91,12 +95,12 @@
           // 4. triggers completion event
           if (set.transformed()) {
             if (! this.implicit) {
-              xtiger.cross.log('debug', '[[[ installing bindings from "transform" command');
+              // xtiger.cross.log('debug', '[[[ installing bindings from "transform" command');
               $axel.binding.install(this.doc, this.spec.get(0), this.spec.get(0));
-              xtiger.cross.log('debug', ']]] installed bindings from "transform" command');
-              xtiger.cross.log('debug', '<<< installing commands from "transform" command');
+              // xtiger.cross.log('debug', ']]] installed bindings from "transform" command');
+              // xtiger.cross.log('debug', '<<< installing commands from "transform" command');
               $axel.command.install(this.doc, this.spec.get(0).firstChild, this.spec.get(0).lastChild);
-              xtiger.cross.log('debug', '>>> installed commands from "transform" command');
+              // xtiger.cross.log('debug', '>>> installed commands from "transform" command');
             }
             this.spec.attr('data-template', templateUrl);
             this.spec.addClass('edition').addClass(name); // FIXME: remove .xhtml
@@ -114,11 +118,17 @@
     // If hard is true and the command was holding a data-template, restores it
     // FIXME: replace by $axel(this.spec).reset() with builtin reset algorithm
     reset : function (hard) {
+      var src;
       if (hard && this.defaultTpl && (this.defaultTpl !== this.spec.attr('data-template'))) { // last test to avoid loop
         this.attr('data-src', this.defaultData);
         this.transform(this.defaultTpl);
       } else {
-        $axel(this.spec).load('<Reset/>'); // trick
+        src = this.spec.attr('data-src');
+        if (src) {
+          $axel(this.spec).load($axel.resolveUrl(src));
+        } else {
+          $axel(this.spec).load('<Reset/>'); // trick  
+        }
         $('*[class*="af-invalid"]', this.spec.get(0)).removeClass('af-invalid');
         $('*[class*="af-required"]', this.spec.get(0)).removeClass('af-required');
       }
@@ -132,15 +142,16 @@
     },
 
     // Triggers an event on the host node only (no bubbling)
-    trigger : function (name, source) {
-      this.spec.triggerHandler(name, [this, source]);
+    // FIXME: use a data hash to pass named properties { editor: XXX, source: XXX, xhr: XXX } ?
+    trigger : function (name, source, extra) {
+      this.spec.triggerHandler(name, [this, source, extra]);
     },
 
     // DEPRECATED : use $axel(~data-target~).xml() instead
     serializeData : function () {
       return $axel(this.spec).xml();
     },
-
+    
     reportCancel : function (event) {
       if (! this.hasBeenSaved) { // trick to avoid cancelling a transaction that has been saved
         $.ajax({

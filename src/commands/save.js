@@ -113,12 +113,12 @@
           if (type === 'event') {
             // FIXME: adjust editor's trigger method to add arguments...
             // FIXME: pass xhr.responseXML.getElementsByTagName("payload")[0] instead of xhr ?
-            $axel.command.getEditor(this.key).spec.triggerHandler('axel-save-done', [this, xhr]);
+            $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
             tmp = this.spec.attr('data-event-target');
             if (tmp) {
               tmp = $axel.command.getEditor(tmp);
               if (tmp) {
-                tmp.spec.triggerHandler('axel-save-done', [this, xhr]);
+                tmp.trigger('axel-save-done', this, xhr);
               }
             }
           } else {
@@ -136,7 +136,7 @@
               } else if (type === 'append') {
                 fnode.append(unmarshalPayload(xhr));
               } // 'prepend', 'before', 'after'
-              $axel.command.getEditor(this.key).trigger('axel-save-done', this);
+              $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
             } else {
               xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
             }

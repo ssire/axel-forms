@@ -9,14 +9,21 @@
 |  Prerequisites: jQuery, AXEL, AXEL-FORMS                                    |
 |                                                                             |
 \*****************************************************************************/
+
+// TODO: make data-regexp optional if data-pattern is defined for HTML5 validation only
+
 (function ($axel) {
 
   var _Regexp = {
 
     onInstall : function ( host ) {
+      var pattern = host.attr('data-pattern');
       this.re = new RegExp(this.getParam('regexp') || '');
       this.editor = $axel(host);
       host.bind('axel-update', $.proxy(this.checkRegexp, this));
+      if (pattern) {
+        host.find('input').attr("pattern", pattern); // adds HTML5 pattern attribute on input
+      }
       $axel.binding.setValidation(this.editor.get(0), $.proxy(this.checkRegexp, this));
     },
 

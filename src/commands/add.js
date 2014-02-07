@@ -41,10 +41,10 @@
           ed.attr('data-src', ''); // to prevent XML data loading
         }
       }
-      if (!this.done) {
-        $axel.command.getEditor(this.key).transform();
+      if (!this.done || !ed.getDefaultTemplate()) { // most probably a shared editor
+        ed.transform(this.spec.attr('data-with-template'));
       } else if (this.cleanOnShow) {
-        $axel.command.getEditor(this.key).reset();
+        ed.reset();
         this.cleanOnShow = false;
       }
       if ($axel('#' + this.key).transformed()) { // assumes synchronous transform()
