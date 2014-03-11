@@ -33,7 +33,7 @@
       }
     </style>
   </head>
-  <body>
+  <body xmlns:xt="http://ns.inria.org/xtiger">
 
     <h1>The <samp>"select2"</samp> filter</h1>
 
@@ -41,7 +41,7 @@
 
     <h2>Requirements</h2>
 
-    <p>You must copy the <code>/3rd-part/select2</code> folder to your server. It contains the original <i>select2</i> code that we patched for use with AXEL-FORMS. Our patched version is available on Github at <a href="https://github.com/ssire/select2" target="_blank">https://github.com/ssire/select2</a>.</p>
+    <p>You must copy the <code>/3rd-part/select2</code> folder to your server. It contains the original <i>select2</i> code that we patched for use with AXEL-FORMS. Our patched version is available on Github at <a href="https://github.com/ssire/select2" target="_blank">https://github.com/ssire/select2</a> (see the original <a href="http://ivaynberg.github.io/select2/index.html" target="_blank">documentation</a>).</p>
 
     <p>The page invoking the editor generation code (i.e the page containing the AXEL, AXEL-FORMS and jQuery libraries) must include <code>/3rd-part/select2/select2.min.js</code> file.</p>
 
@@ -115,5 +115,37 @@
       </p>
     </div>
 
+    <h2>Single choice with free text entry</h2>
+
+    <p>The <var>select2_tags</var> parameter uses the <i>tags</i> parameter of the select2 library to create a combo list with free text entry to enter new tag-like options. In that case the plugin will serialize current selection as either the new free text entry or as the display value (localized label) of the corresponding predefined option, excluding any complement appearing after <tt>::</tt>. For that reason if you declare the predefined options label inside the <var>i18n</var> attribute of the <code>xt:use</code> element, you may omit the <var>values</var> attribute.</p>
+    
+    <p>Using <var>select2_tags</var> implies that the <var>appearance</var> parameter is set to <i>compact</i> (generated as a drop down list, which is the default) and that the <var>multiple</var> parameter is set to <i>no</i> (which is the default).</p>
+    
+    <p>Currently <var>select2_tags</var> must be declared with the <i>yes</i> value.</p>
+
+    <div class="demo extract">
+      <p>
+        Please choose a nickname <xt:use types="choice" label="Nickname"
+        param="filter=select2;select2_tags=yes;select2_width=250px;typeahead=yes;select2_minimumInputLength=2;select2_complement=town;required=true"
+
+        i18n="Fast::popular Furious Quick::very\ popular Rapid Slow"></xt:use>
+      </p>
+      <p>
+        You may select an already existing one to create a new duplicate
+      </p>
+    </div>
+    
+    <h2>Ampersand character in option</h2>
+
+    <p>You can use ampersand characters to label options with the corresponding entity <code>&amp;amp;</code> in the <i>i18n</i> attribute.</p>
+
+    <div class="demo extract">
+      <p>Choose a professionnal category :
+        <xt:use types="choice" values="1 2 3 4 5" label="CategoryRef"
+          i18n="Accountability Research&amp;Development Engineering Consultancy&amp;Planing Other"                   
+          param="select2_dropdownAutoWidth=true;select2_width=250px;select2_minimumResultsForSearch=2;filter=select2;multiple=no;typeahead=yes"
+          >1</xt:use>
+      </p>
+    </div>
   </body>
 </html>

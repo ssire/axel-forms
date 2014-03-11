@@ -71,12 +71,14 @@
   }
 
   function formatSelection (state, container) {
-    var text = (state && state.text) ? state.text : '',
-        i = text.indexOf('::'),
-        res;
-    if (text) {
-      res = (i != -1) ? text.substr(0, i) : text;
+    var text, i, res;
+    if ($.isArray(state) && state[0]) { // tags option for free text entry
+      text = state[0].text || ''; // currently only multiple = 'no' supported
+    } else {
+      text = (state && state.text) ? state.text : '';
     }
+    i = text.indexOf('::');      
+    res = (i != -1) ? text.substr(0, i) : text;
     return res
   }
 
@@ -122,12 +124,19 @@
     }
   }
 
-  /* special matcher that does not care about latin accents */
+  // Special matcher that does not care about latin accents 
+  // uses a caching mechanism in case of option based selector
+  // FIXME: update select2 to version 3.4.5 with stripDiacritics function
   function accentProofMatcher(term, text, option) {
-    var key = option.data("key");
-    if (! key) {
+    var key;
+    if (option) {
+      key = option.data("key");
+      if (! key) {
+        key = translate(text);
+        option.data("key",key);
+      }
+    } else {
       key = translate(text);
-      option.data("key",key);
     }
     return key.indexOf(translate(term))>=0;
   }
@@ -139,12 +148,19 @@
 
   var _Filter = {
 
-    // trick to prevent cloning 'select2' shadow list when instantiated inside a repetition
+    // rick to prevent cloning 'select2' shadow list when instantiated inside a repetition
     // the guard is needed to persist xttOpenLabel if planted on plugin
     onGenerate : function ( aContainer, aXTUse, aDocument ) {
-     var res = this.__select2__onGenerate(aContainer, aXTUse, aDocument);
-     $(res).wrap('<span class="axel-guard"/>');
-     return res;
+      var res;
+      if (this.getParam("select2_tags")) { // do not take appearance into account
+        res = xtdom.createElement (aDocument, 'input');
+        window.console.log('TAGS');
+      } else {
+        res = this.__select2__onGenerate(aContainer, aXTUse, aDocument);
+      }
+      aContainer.appendChild(res);
+      $(res).wrap('<span class="axel-guard"/>');
+      return res;
     },
 
     onAwake : function () {
@@ -152,6 +168,7 @@
            defval = this.getDefaultData(),
            pl = this.getParam("placeholder"),
            klass = this.getParam("select2_complement"),
+           freetext = this.getParam("select2_tags"),
            tag = klass ? ' - <span class="' + klass + '">' : undefined,
            formRes = klass ? function (s, c, q, e) { return formatResult(s, c, q, e, tag) } : formatResult,
            params = {
@@ -174,25 +191,31 @@
           params[k] = typVal;
         }
       }
-      if (pl || (! defval)) {
-        pl = pl || "";
-        // inserts placeholder option
-        if (this.getParam('multiple') !== 'yes') {
-          $(this._handle).prepend('<option></option>');
-        }
-        // creates default selection
-        if (!defval) {
-          this._param.values.splice(0,0,pl);
-          if (this._param.i18n !== this._param.values) { // FIXME: check its correct
-            this._param.i18n.splice(0,0,pl);
+      if (freetext) { // not compatible with placeholder
+        params.multiple = false;
+        params.tags = this.getParam('i18n');
+        delete params.minimumResultsForSearch;
+      } else {
+        if (pl || (! defval)) {
+          pl = pl || "";
+          // inserts placeholder option
+          if (this.getParam('multiple') !== 'yes') {
+            $(this._handle).prepend('<option></option>');
           }
+          // creates default selection
+          if (!defval) {
+            this._param.values.splice(0,0,pl);
+            if (this._param.i18n !== this._param.values) { // FIXME: check its correct
+              this._param.i18n.splice(0,0,pl);
+            }
+          }
+          params.allowClear = true;
+          params.placeholder = pl;
         }
-        params.allowClear = true;
-        params.placeholder = pl;
-      }
-      if (this.getParam('multiple') !== 'yes') {
-        if (this.getParam('typeahead') !== 'yes') {
-          params.minimumResultsForSearch = -1; // no search box
+        if (this.getParam('multiple') !== 'yes') {
+          if (this.getParam('typeahead') !== 'yes') {
+            params.minimumResultsForSearch = -1; // no search box
+          }
         }
       }
       this._setData(defval);
@@ -210,12 +233,45 @@
      onLoad : function (aPoint, aDataSrc) {
        this.__select2__onLoad(aPoint,aDataSrc);
        $(this._handle).trigger("change", { synthetic : true });
-     }
+     },
+     
+     ////////////////////////////////
+     // Overwritten plugin methods //
+     ////////////////////////////////
+     
+     api : {
+       
+       update : function (aData) {
+         var _this = this;
+         this.__select2__update(aData);
+         setTimeout(function() {$(_this._handle).select2('focus');}, 50);
+       },
+
+       focus : function () {
+         $(this._handle).select2('focus');
+       }
+     },
+     
+     methods : {
+     
+       _setData : function ( value, withoutSideEffect ) {
+         var newkey = this.getParam('select2_tags'), 
+             filtered = value,
+             i;
+         if (newkey) { // remove complement from input if present as in formatSelection
+           i = value.indexOf('::');
+           if (i != -1) {
+             filtered = value.substr(0, i);
+           }
+         }
+         this.__select2___setData(filtered, withoutSideEffect);
+       }
+      }
   };
 
   $axel.filter.register(
     'select2',
-    { chain : [ 'onGenerate', 'onLoad' ] },
+    { chain : [ 'update', 'onGenerate', 'onLoad', '_setData' ] },
     {
       select2_dropdownAutoWidth : 'false',
       select2_minimumResultsForSearch : '7',

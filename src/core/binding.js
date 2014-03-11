@@ -135,7 +135,7 @@
           l.removeClass('af-invalid');
         }
         if ((rcheck || vcheck) && (!rsuccess || !vsuccess)) {
-          label = l.text();
+          label = l.contents(':not(span)').text(); // filters inner span (useful to skip hints)
           // .parent().children(labsel).text();
           i = label.lastIndexOf(':');
           if (i != -1) {
@@ -248,7 +248,7 @@
         }
         // call life cycle method
         binding.onInstall(host); 
-        xtiger.cross.log('debug', 'installed binding "' + spec.name + '"');
+        // xtiger.cross.log('debug', 'installed binding "' + spec.name + '"');
         return binding;
       }
     } else {
@@ -261,7 +261,7 @@
     var cur = sliceStart || doc,
         stop = sliceEnd || sliceStart,
         sel = sliceStart ? '[data-binding]' : 'body [data-binding]'; // body to avoid head section
-    xtiger.cross.log('debug', 'installing bindings ' + (sliceStart ? 'slice mode' :  'document mode'));
+    // xtiger.cross.log('debug', 'installing bindings ' + (sliceStart ? 'slice mode' :  'document mode'));
     do {
       $(sel, cur).each(
         function(index, n) {
@@ -269,7 +269,7 @@
               names = el.attr('data-binding').split(' ');
           for (i = 0; i < names.length; i++) {
             if (registry[names[i]]) {
-              xtiger.cross.log('debug', 'installing binding "' + names[i] + '"');
+              // xtiger.cross.log('debug', 'installing binding "' + names[i] + '"');
               _installBinding(registry[names[i]], el, doc);
             } else {
               xtiger.cross.log('error', 'unregistered binding "' + names[i] + '"');
