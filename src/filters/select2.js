@@ -152,9 +152,8 @@
     // the guard is needed to persist xttOpenLabel if planted on plugin
     onGenerate : function ( aContainer, aXTUse, aDocument ) {
       var res;
-      if (this.getParam("select2_tags")) { // do not take appearance into account
+      if (this.getParam("select2_tags") === 'yes') { // do not take appearance into account
         res = xtdom.createElement (aDocument, 'input');
-        window.console.log('TAGS');
       } else {
         res = this.__select2__onGenerate(aContainer, aXTUse, aDocument);
       }
@@ -168,7 +167,6 @@
            defval = this.getDefaultData(),
            pl = this.getParam("placeholder"),
            klass = this.getParam("select2_complement"),
-           freetext = this.getParam("select2_tags"),
            tag = klass ? ' - <span class="' + klass + '">' : undefined,
            formRes = klass ? function (s, c, q, e) { return formatResult(s, c, q, e, tag) } : formatResult,
            params = {
@@ -191,7 +189,7 @@
           params[k] = typVal;
         }
       }
-      if (freetext) { // not compatible with placeholder
+      if (this.getParam("select2_tags") === 'yes') { // not compatible with placeholder
         params.multiple = false;
         params.tags = this.getParam('i18n');
         delete params.minimumResultsForSearch;
@@ -244,7 +242,8 @@
        update : function (aData) {
          var _this = this;
          this.__select2__update(aData);
-         setTimeout(function() {$(_this._handle).select2('focus');}, 50);
+         setTimeout(function() { $(_this._handle).select2('focus'); }, 50);
+         // keeps focus to be able to continue tabbing after drop list closing
        },
 
        focus : function () {
@@ -255,10 +254,8 @@
      methods : {
      
        _setData : function ( value, withoutSideEffect ) {
-         var newkey = this.getParam('select2_tags'), 
-             filtered = value,
-             i;
-         if (newkey) { // remove complement from input if present as in formatSelection
+         var filtered = value, i;
+         if (this.getParam("select2_tags")) { // remove complement (see formatSelection)
            i = value.indexOf('::');
            if (i != -1) {
              filtered = value.substr(0, i);

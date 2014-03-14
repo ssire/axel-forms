@@ -7,13 +7,16 @@
  *
  * Synopsis :
  *  - <xt:use types="input" param="type=(text|password|radio|checkbox|date)[;placeholder=string]">default value</xt:use>
- *  - placeholder parameter is only for a 'text' input
+ *  - placeholder parameter is only for a 'text' or 'date' input
  *
  * Limitations :
+ * - you can set only one 'beforeShow' calback at a time (cf. bindings/interval.js)
  * - 'date' sub-type is only available if jQuery datepicker mdule is loaded in the SAME window as the transformed template
+ * - 'date' not really inserted in AXEL tabbing (don't register to keyboard manager)
  *
  * TODO :
  *  - load empty values (undefined)
+ *  - placeholder=clear
  *  - detect if HTML5 and use placeholder for 'text' input hint instead of default content
  *
  */
@@ -62,7 +65,6 @@
 
   var _KeyboardMixinK = {
 
-    // FIXME: s'abonner aussi sur focus (navigation au clavier avec accessibilité ?)
     subscribe : function (handle) {
       var _this = this;
       var _StartEditingMixin = function(ev) {
@@ -73,8 +75,8 @@
         xtdom.preventDefault(ev);
       };
       if (this.isEditable) {
+        // 'focus' event triggered either when landing from keyboard tab navigation or from 'click' event
         xtdom.addEventListener(handle, 'focus', _StartEditingMixin, true);
-        xtdom.addEventListener(handle, 'click', _StartEditingMixin, true);
         xtdom.addEventListener(handle, 'mouseup', // needed on Safari to prevent unselection
           function(ev) {
             xtdom.stopPropagation(ev);
@@ -125,7 +127,6 @@
 
     // Updates this model with the given data.
     // If this instance is optional and "unset", autocheck it.
-    // FIXME: call editor.update() method for filtering ? (implies to reestablish getData() and getDefaultData()) ?
     update : function (aData) {
       // 1. no change
       if (aData === this._legacy) {
@@ -135,7 +136,7 @@
       if (aData.search(/\S/) === -1 || (aData === this._defaultData)) {
         this._editor.clear(true);
       } else {
-        // 3. notifies data was updated
+        // 2. notifies data was updated
         this._editor.setModified(aData !== this.defaultData);
         this._editor.set(true);
       }
@@ -237,6 +238,7 @@
 
   // Internal class to manage an HTML input with a 'text' or 'password' type
   var _DateField = function (editor, aType, aData) {
+    xtdom.setAttribute(editor.getHandle(), 'type', 'text');
     this._editor = editor;
     this.isEditable = !editor.getParam('noedit');
     this.defaultData = aData || '';
@@ -244,8 +246,8 @@
   };
 
   _DateField.prototype = {
-    
-    // Initializes datepicker on demand because we do not want to create it from scratch 
+
+    // Initializes datepicker on demand because we do not want to create it from scratch
     // to avoid beeing set on shadow clone when instantiated inside a repeater
     lazyInit : function (h) {
       var tmp, _this = this;
@@ -253,13 +255,12 @@
         // trick to detect 'Esc' key since keyboard manager seem to be overriden by datepicker
         $(h).on('keydown', function(evt) {
                 if (evt.keyCode === $.ui.keyCode.ESCAPE) {
-                    _this.cancelEditing();
+                    _this.onEscape();
                 }
                 xtdom.stopPropagation(evt);
             });
         // turns field into a datepicker
-        this.jhandle = $(h).datepicker().datepicker('option', 'onClose', function () { _this.onClose(); });
-        this.constrained = false; // flag to avoid configuration
+        this.jhandle = $(h).datepicker( { 'onClose' : function () { _this.onClose(); } } );
       } else {
         alert('datepicker jQuery plugin needed for "date" input field !')
       }
@@ -275,87 +276,88 @@
       } else {
         h.value = this.defaultData; // FIXME: placeholder if HTML5 (?)
       }
+      this.model = h.value;
       // size defaults (could be done once in constructor)
       if (! this._editor.getParam('size')) {
         xtdom.setAttribute(h, 'size', 8);
       }
+
+    },
+
+    // date picker event called before onClose if user hit Esc
+    onEscape : function (num) {
+      this.escape = true;
     },
 
     onClose : function () {
-      this.stopEditing(false, true);
+      this.stopEditing(this.escape);
+      this.escape = false;
     },
 
-    // Starts an edition process on *this* instance's device.
+    // Starts an edition session
+    // Only setup field once
     startEditing : function (aEvent) {
-      var min, max, before, h, 
-          kbd = xtiger.session(this._editor.getDocument()).load('keyboard');
-      if (! this._isEditing) {
+      var min, max, before, h;
+      if (! this.dpDone) {
         h = this._editor.getHandle();
-        this._legacy = h.value;
-        this._isEditing = true;
-        // registers to keyboard events
-        this.kbdHandlers = kbd.register(this, h);
-        kbd.grab(this, this._editor);
-        if (!this._editor.isModified()) {
-          xtdom.focusAndSelect(h);
-        }
-        if (! this.dpDone) {
-          this.lazyInit(h);
-        }
+        this.lazyInit(h);
         if (this.jhandle) {
           min = this._editor.getParam('minDate');
           max = this._editor.getParam('maxDate');
           before = this._editor.getParam('beforeShow');
-          if (this.constrained || min || max || before) {
+          if (min || max || before) {
             if (min === 'today') {
               min = $.datepicker.formatDate('dd/mm/yy', new Date());
             }
-            this.jhandle.datepicker('option', 'minDate', min || null);
+            if (min) {
+              this.jhandle.datepicker('option', 'minDate', min);
+            }
             if (max === 'today') {
               max = $.datepicker.formatDate('dd/mm/yy', new Date());
             }
-            this.jhandle.datepicker('option', 'maxDate', max || null);
-            this.jhandle.datepicker('option', 'beforeShow', before || null);
-            this.constrained = true;
+            if (max) {
+              this.jhandle.datepicker('option', 'maxDate', max);
+            }
+            if (before) {
+              this.jhandle.datepicker('option', 'beforeShow', before);
+            }
           }
-          xtiger.util.date.setRegion(this._editor.getParam('date_region'));        
+          xtiger.util.date.setRegion(this._editor.getParam('date_region'));
           $(h).datepicker('show');
         }
       }
     },
 
     // Stops the ongoing edition process
-    stopEditing : function (isCancel, isBlurOrClose) {
+    stopEditing : function (isCancel) {
       var h = this._editor.getHandle();
-      var kbd = xtiger.session(this._editor.getDocument()).load('keyboard');
-      if (this._isEditing) {
-        this._isEditing = false; // do it first to prevent any potential blur handle callback
-        kbd.unregister(this, this.kbdHandlers, h);
-        kbd.release(this, this._editor);
-        if (!isCancel) {
-          this._editor.update(h.value);
-        }
-        if ((! isBlurOrClose) && (h.blur)) {
-          h.blur();
-        }
-        if (this.jhandle) {
-          this.jhandle.datepicker('hide');
-        }
+          val = h.value;
+      if (val.search(/\S/) === -1) { // space normalization
+        val = ''; // will reset to default data
+      }
+      // incl. rough check on validity - FIXME: adjust to data_region / date_format ?
+      if (val && ((val.length != 10) || isCancel)) {
+        h.value = this.model; // reset to previous value
+      } else {
+        this._editor.update(val);
+        this.model = h.value;
       }
     },
 
     load : function (aPoint, aDataSrc) {
-      var value, fallback;
+      var value, fallback,
+          h = this._editor.getHandle();
       if (aPoint !== -1) {
         value = aDataSrc.getDataFor(aPoint);
         value = value ? ($.datepicker ? xtiger.util.date.convertDate(this._editor, value, 'date_format', 'date_region') : value ) : null;
         fallback = this.defaultData;
-        this._editor.getHandle().value = value || fallback || '';
+        h.value = value || fallback || '';
         this._editor.setModified(value !==  fallback);
         this._editor.set(false);
       } else {
         this.clear(false);
       }
+      this.model = h.value;
     },
 
     save : function (aLogger) {
@@ -505,8 +507,9 @@
     ////////////////////////
 
     onGenerate : function ( aContainer, aXTUse, aDocument ) {
-      var _handle = xtdom.createElement(aDocument, 'input'),
-          pstr = aXTUse.getAttribute('param'); // IE < 9 does not render 'radio' or 'checkbox' when set afterwards
+      var pstr = aXTUse.getAttribute('param'), // IE < 9 does not render 'radio' or 'checkbox' when set afterwards
+          tag = (!pstr || (pstr.indexOf('type=textarea') === -1)) ? 'input' : 'textarea',
+          _handle = xtdom.createElement(aDocument, tag);
       if (pstr) {
         if (pstr.indexOf("type=radio") !== -1) {
           xtdom.setAttribute(_handle, 'type', 'radio');
@@ -525,7 +528,7 @@
       var type, data;
       // create delegate
       type = this.getParam('type');
-      if ((type === 'text') || (type === 'password')) {
+      if ((type === 'text') || (type === 'password') || (type === 'textarea')) {
         this._delegate = new _KeyboardField(this, type, aDefaultData);
       } else if ((type === 'radio') || (type === 'checkbox')) {
         this._delegate = new _SelectField(this, type, aRepeater ? aRepeater.getClockCount() : undefined);

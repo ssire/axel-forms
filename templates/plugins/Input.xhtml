@@ -48,6 +48,10 @@
         font-family: Garamond, Arial;
         color: brown;
       }
+      textarea.a-textarea {
+        vertical-align: top;
+        width: 100%;
+      }
     </style>
 
     <!-- SELF-TRANSFORMED template -->
@@ -55,13 +59,13 @@
     <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
     <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
     <script src="../../../axel/axel/axel.js">//</script>
-    <script src="../../src/plugins/date.js">//</script>
+    <!-- <script src="../../src/plugins/input.js">//</script> -->
     <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
 
     <!-- 3rd party dependencies -->
     <link rel="stylesheet" type="text/css"
-          href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"  charset="utf-8" />
-    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
+          href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.10.4.custom.min.css"  charset="utf-8" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>
 
     <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
     <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
@@ -103,7 +107,7 @@
       <li><var>date_format</var> (<code><b>ISO_8601</b></code>) : specifies the date format used in XML output (read and write). You can use any datepicker date format string (e.g. 'dd/mm/yy'), or a $.datepicker constant name such as <code>ISO_8601</code> (others are <code>ATOM, COOKIE, RFC_822, RFC_850, RFC_1036, RFC_1123, RFC_2822, RSS, TICKS, TIMESTAMP, W3C</code>)</li>
       <li><var>minDate</var> (unset by default) : lower bound on the date that can be entered (in <var>date_region</var> format), the special value <tt>today</tt> is converted to the current day</li>
       <li><var>maxDate</var> (unset by default) : upper bound on the date that can be entered (in <var>date_region</var> format), the special value <tt>today</tt> is converted to the current day</li>
-      <li><var>beforeShow</var> (unset by deafult) : to be documented</li>
+      <li><var>beforeShow</var> (unset by default) : to be documented</li>
     </ul>
     
     <p>In order to use the <code>date</code> control you MUST include jQuery datepicker module inside the same window as the transformed template.</p>
@@ -115,6 +119,7 @@
       <p><xt:use types="input" label="LastName">Enter last name</xt:use></p>
       <p><xt:use types="input" label="Nickname" param="filter=optional">Enter nickname</xt:use></p>
       <p>With <var>size</var> parameter set to 50 : <xt:use types="input" label="FullName" param="filter=optional;size=50">Enter full name</xt:use></p>
+      <p>With <i>type="textarea"</i> : <xt:use types="input" label="Comment" param="type=textarea;class=a-textarea">Commentaire</xt:use></p>
     </div>
 
     <h2>Example with <code>noedit</code> set to <tt>true</tt></h2>
@@ -125,10 +130,18 @@
       <p><xt:use types="input" label="Nickname" param="filter=optional;noedit=true">Enter nickname</xt:use></p>
     </div>
 
-    <h2>Example with date </h2>
+    <h2>Example with several dates (try using tab navigation...)</h2>
 
     <div class="demo extract">
-      <p>Date : <xt:use types="input" label="Date" param="type=date">today</xt:use></p>
+      <p>Date 1 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601">today</xt:use></p>
+      <br/>
+      <div>
+      <p>Date 2 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601;maxDate=today;class=foo">today</xt:use></p>
+      </div>
+      <br/>
+      <div>
+      <p>Date 3 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601;maxDate=today;class=foo">today</xt:use></p>      
+      </div>
     </div>
 
     <h2>Example with radio buttons </h2>

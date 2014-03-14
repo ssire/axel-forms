@@ -137,7 +137,7 @@
               );
               _this.update(accu);
             } else {
-              _this.update($(this).val());
+              _this.update($(this).val()); // with option element jQuery returns the value attribute
             }
           }
         }, true);
@@ -230,8 +230,11 @@
 
        isFocusable : function () {
          return true;
-       }
+       },
 
+       focus : function () {
+         // nop : currently Tab focusing seems to be done by the browser
+       }
      },
 
      /////////////////////////////
