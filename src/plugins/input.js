@@ -180,11 +180,23 @@
     load : function (aPoint, aDataSrc) {
       var value, fallback;
       if (aPoint !== -1) {
-        value = aDataSrc.getDataFor(aPoint);
+        if (this._editor.getParam('multilines') === 'normal') {
+          var cur = aPoint[0].firstChild,
+              buffer = '';
+          while (cur) {
+            if (cur.nodeType === xtdom.ELEMENT_NODE && cur.firstChild) {
+              buffer = buffer + cur.firstChild.nodeValue + '\n\n';
+            }
+            cur = cur.nextSibling;
+          }
+          value = buffer;
+        } else {
+          value = aDataSrc.getDataFor(aPoint);
+        }
         fallback = this._editor.getDefaultData();
         this._editor.getHandle().value = value || fallback || '';
         this._editor.setModified(value !==  fallback);
-        this._editor.set(false);
+        this._editor.set(false);        
       } else {
           this._editor.clear(false);
       }
@@ -193,7 +205,19 @@
     save : function (aLogger) {
       var val = this._editor.getHandle().value;
       if (val) {
-        aLogger.write(val);
+        if (this._editor.getParam('multilines') === 'normal') {
+          var _scanner = new RegExp("[\n\r]{0,}(.*)", "g");
+          function singleLine (str, found) {
+            if (found.length > 0)  {
+              aLogger.openTag('Text');
+              aLogger.write(found);  
+              aLogger.closeTag('Text');
+            }
+          }
+          $.trim(val).replace(_scanner, singleLine);
+        } else {
+          aLogger.write(val);
+        }
       }
     },
 
@@ -207,6 +231,9 @@
         // registers to keyboard events
         this.kbdHandlers = kbd.register(this, h);
         kbd.grab(this, this._editor); // this._editor for Tab group manager to work
+        if (this._editor.getParam('multilines') == 'normal') {
+          kbd.enableRC(true);
+        }
         if (!this._editor.isModified()) {
           xtdom.focusAndSelect(h);
         }
@@ -222,7 +249,13 @@
         this._isEditing = false; // do it first to prevent any potential blur handle callback
         kbd.unregister(this, this.kbdHandlers, h);
         kbd.release(this, this._editor);
+        if (this._editor.getParam('multilines') == 'normal') {
+          kbd.disableRC();
+        }                                                 
         if (!isCancel) {
+          if (this._editor.getParam('multilines') === 'normal') { // normalization
+            h.value = $.trim(h.value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2")
+          }
           this._editor.update(h.value);
         }
         if ((! isBlur) && (h.blur)) {
