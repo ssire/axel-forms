@@ -67,6 +67,8 @@
            res = false;
          }
        }
+     } else { // FIXME: assumes no multiple default values
+       res = model !== defval;
      }
      return res;
    }

@@ -90,7 +90,7 @@
     var type = $(node).attr('data-command'), // e.g. 'save', 'submit'
         key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
         record = registry[type];
-    xtiger.cross.log('debug', 'create command "' + type + '"' + ' on target "' + key + '"');
+    // xtiger.cross.log('debug', 'create command "' + type + '"' + ' on target "' + key + '"');
     if (record) {
       if (record.check) {
         if ($axel.command.getEditor(key)) { // checks editor existence
@@ -108,7 +108,7 @@
     } else {
       $axel.error('Attempt to create an unkown command "' + type + '"');
     }
-    xtiger.cross.log('debug', 'created command "' + type + '"' + ' on target "' + key + '"');
+    // xtiger.cross.log('debug', 'created command "' + type + '"' + ' on target "' + key + '"');
   }
 
   // when sliceStart/sliceEnd is defined installs on a slice
@@ -121,7 +121,7 @@
         buffer2 = [],
         accu = [];
 
-    xtiger.cross.log('debug', 'installing commands ' + (sliceStart ? 'slice mode' :  'document mode'));
+    // xtiger.cross.log('debug', 'installing commands ' + (sliceStart ? 'slice mode' :  'document mode'));
     // make a snapshot of nodes with data-template command over a slice or over document body
     sel = sliceStart ? '[data-template]' : '* [data-template]'; // body to avoid head section
     cur = start;
@@ -184,7 +184,7 @@
     if (path) { // saves 'data-bundles-path' for self-transformable templates
       _Command.configure('bundlesPath', path);
       // FIXME: load sequence ordering issue (?)
-      $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+      $axel.filter.applyTo({ 'optional' : ['input', 'choice'], 'event' : 'input' });
     }
     _installCommands(document); 
     });

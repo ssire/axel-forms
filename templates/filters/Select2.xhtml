@@ -70,7 +70,7 @@
         <!-- in <xt:attribute types="choice" name="continent" default="Europe" param="filter=select2" values="Africa America Europe Oceania" option="unset"/>. -->
       </p>
     </div>
-    
+
     <p>Inside a repetition.</p>
 
     <div class="demo extract">
@@ -147,5 +147,41 @@
           >1</xt:use>
       </p>
     </div>
+    
+    <h2>Combining with the 'optional' filter</h2>
+
+    <p>This supposes you have called something like <code>$axel.filter.applyTo({ 'optional' : 'choice' });</code> after loading the AXEL and AXEL-FORMS libraries, note that this is done automatically when using AXEL-FORMS.</p>
+    
+    <p>With a single choice without placeholder and without default value :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite fruit <xt:use types="choice" label="FruitWithOptionalFilter" param="filter=select2 optional" values="Apple Orange Strawberry Ananas"></xt:use>
+      </p>
+    </div>
+
+    <p>With a single choice without placeholder and with a default value (however you should better use a placeholder in that case) :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite fruit <xt:use types="choice" label="FruitWithOptionalFilterDV" param="filter=select2 optional" values="None Apple Orange Strawberry Ananas">None</xt:use>
+      </p>
+    </div>
+
+    <p>With a single choice with placeholder :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite nickanme <xt:use types="choice" label="FruitWithOptionalFilterPH" param="filter=select2 optional;placeholder=Choose..." values="Alfredo Alberto Gilberto Rodrigo"/>
+      </p>
+    </div>
+
+    <p>With a multiple choice the optoinal filter will discard the parent label if no choices are selected  :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite colors <xt:use types="choice" label="ColorsWithOptionalFilter" param="filter=select2 optional;multiple=yes;xvalue=Color" values="Blue Yellow Rose Green Violet Chartreuse"/>
+      </p>
+    </div>    
   </body>
 </html>

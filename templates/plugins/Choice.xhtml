@@ -69,12 +69,12 @@
     <ul class="parameters">
       <li><var>placeholder</var> (string) : if you do not define a default selection the placeholder sets the message to display as the first selected option, if the user does not change it it will be serialized as the empty string (or not serialized at all if <var>xvalue</var> is defined)</li>
       <li><var>multiple</var> (yes | <b>no</b>) : multiple choices allowed when set to yes</li>
-      <li><var>xvalue</var> (tag name) : drives XML serialization of the content, default value means the selected option(s) is(are) exported as plain text (comma separated list of values), if it contains any other string the string will be used to generate an element in the target content model for each option with its text content set to the value</li>
+      <li><var>xvalue</var> (<i>unset</i> | tag name) : drives XML serialization of the content, if <i>unset</i> the selected option(s) is(are) exported as plain text (comma separated list of values), if a tag name is specified it will be used to generate an element in the target content model for each option with its text content set to the value</li>
       <li><var>typehead</var> (yes|<b>no</b>) : when set to yes the list of options can be filtered with keyboard shortcuts</li>
       <li><var>noedit</var> (false|<b>true</b>) : when set to true the field is read-only, its value can only be changed progammatically or as a result of loading a document into the editor</li>
     </ul>
 
-    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2".</p>
+    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2". It is currently not possible to declare default values with <var>multiple</var>.</p>
 
     <h2>Basic usage</h2>
 
