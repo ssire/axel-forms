@@ -32,15 +32,6 @@
 
   SaveCommand.prototype = (function () {
 
-    function isResponseAnOppidumError (xhr ) {
-      return $('error > message', xhr.responseXML).size() > 0;
-    }
-
-    function getOppidumErrorMsg (xhr ) {
-      var text = $('error > message', xhr.responseXML).text();
-      return text || xhr.status;
-    }
-    
     function unmarshalMessage( xhr ) {
       var text = $('success > message', xhr.responseXML).text();
       return text;
@@ -73,29 +64,6 @@
       } else {
         $axel.error('Cannot find the document editor to reset', this.errTarget);
       }
-    }
-
-    // Tries to extract more info from a server error. Returns a basic error message
-    // if it fails, otherwise returns an improved message
-    // Compatible with eXist 1.4.x server error format
-    function getExistErrorMsg (xhr) {
-      var text = xhr.responseText, status = xhr.status;
-      var msg = 'Error ! Result code : ' + status;
-      var details = "";
-      var m = text.match('<title>(.*)</title>','m');
-      if (m) {
-        details = '\n' + m[1];
-      }
-      m = text.match('<h2>(.*)</h2>','m');
-      if (m) {
-        details = details + '\n' + m[1];
-      } else if ($('div.message', xhr.responseXML).size() > 0) {
-        details = details + '\n' + $('div.message', xhr.responseXML).get(0).textContent;
-        if ($('div.description', xhr.responseXML).size() > 0) {
-          details = details + '\n' + $('div.description', xhr.responseXML).get(0).textContent;
-        }
-      }
-      return msg + details;
     }
 
     function saveSuccessCb (response, status, xhr) {
@@ -135,7 +103,9 @@
                 $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
               } else if (type === 'append') {
                 fnode.append(unmarshalPayload(xhr));
-              } // 'prepend', 'before', 'after'
+              } else if (type === 'prepend') {
+                fnode.prepend(unmarshalPayload(xhr));
+              } // 'before', 'after'
               $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
             } else {
               xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
@@ -145,29 +115,36 @@
       } else {
         $axel.error('Unexpected response from server (' + xhr.status + '). Save action may have failed', this.errTarget);
       }
+      finished(this);
     }
 
     function saveErrorCb (xhr, status, e) {
-      var s;
-      if (status === 'timeout') {
-        $axel.error("Save action taking too much time, it has been aborted, however it is possible that your page has been saved", this.errTarget);
-      } else if (xhr.status === 409) { // 409 (Conflict)
-        s = xhr.getResponseHeader('Location');
-        if (s) {
-          window.location.href = s;
-        } else {
-          $axel.error(getOppidumErrorMsg(xhr), this.errTarget);
-        }
-      } else if (isResponseAnOppidumError(xhr)) {
-        // Oppidum may generate 500 Internal error, 400, 401, 404
-        $axel.error(getOppidumErrorMsg(xhr), this.errTarget);
-      } else if (xhr.responseText.search('Error</title>') !== -1) { // eXist-db error (empirical)
-        $axel.error(getExistErrorMsg(xhr), this.errTarget);
-      } else if (e) {
-        $axel.error('Exception : ' + e.name + ' / ' + e.message + "\n" + ' (line ' + e.lineNumber + ')', this.errTarget);
+      var msg, 
+          flags = this.spec.attr('data-save-flags');
+      if ((!flags) || flags.indexOf('silentErrors') === -1) {
+        msg = $axel.oppidum.parseError(xhr, status, e);
+        $axel.error(msg);
       } else {
-        $axel.error('Error while connecting to "' + this.url + '" (' + xhr.status + ')', this.errTarget);
+        this.spec.trigger('axel-network-error', { xhr : xhr, status : status, e : e });
       }
+      $axel.command.getEditor(this.key).trigger('axel-save-error', this, xhr);
+      finished(this);
+    }
+    
+    function started (that) {
+      var flags = that.spec.attr('data-save-flags');
+      if (flags && flags.indexOf('disableOnSave') != -1) {
+        that.spec.attr('disabled', 'disable');
+      }
+      that.spec.addClass('axel-save-running');
+    }
+    
+    function finished (that) {
+      var flags = that.spec.attr('data-save-flags');
+      if (flags && flags.indexOf('disableOnSave') != -1) {
+        that.spec.removeAttr('disabled');
+      }
+      that.spec.removeClass('axel-save-running');
     }
 
     return {
@@ -193,19 +170,23 @@
                   if (transaction) {
                     url = url + '?transaction=' + transaction;
                   }
-                  $.ajax({
-                    url : $axel.resolveUrl(url),
-                    type : method,
-                    data : data,
-                    dataType : 'xml',
-                    cache : false,
-                    timeout : 50000,
-                    contentType : "application/xml; charset=UTF-8",
-                    success : $.proxy(saveSuccessCb, this),
-                    error : $.proxy(saveErrorCb, this)
-                    });
-                    editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
-                    // FIXME: shouldn't we disable the button while saving ?
+                  started(this);
+                  $axel.command.getEditor(this.key).trigger('axel-save', this);
+                  // var _this = this;
+                  // setTimeout(function() {
+                    $.ajax({
+                      url : $axel.resolveUrl(url, this.spec.get(0)),
+                      type : method,
+                      data : data,
+                      dataType : 'xml',
+                      cache : false,
+                      timeout : 50000,
+                      contentType : "application/xml; charset=UTF-8",
+                      success : $.proxy(saveSuccessCb, this),
+                      error : $.proxy(saveErrorCb, this)
+                      });
+                      editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
+                    // }, 1000);
                 } else {
                   $axel.error('The editor did not generate any data');
                 }

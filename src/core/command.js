@@ -86,9 +86,8 @@
 
   // Creates a new command from a DOM node
   // FIXME: data-command='template' exception (exclusion or handle it properly)
-  function _createCommand (node, doc) {
-    var type = $(node).attr('data-command'), // e.g. 'save', 'submit'
-        key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
+  function _createCommand (node, type, doc) {
+    var key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
         record = registry[type];
     // xtiger.cross.log('debug', 'create command "' + type + '"' + ' on target "' + key + '"');
     if (record) {
@@ -156,7 +155,10 @@
 
     // create other commands
     for (i = 0; i < buffer2.length; i++) {
-      _createCommand(buffer2[i], doc);
+      buffer1 = $(buffer2[i]).attr('data-command').split(' ');
+      for (cur = 0; cur < buffer1.length; cur++) {
+        _createCommand(buffer2[i], buffer1[cur], doc);
+      }
     }
 
     return accu;
@@ -165,14 +167,19 @@
   // exports module
   $axel.command = _Command;
   $axel.command.install = _installCommands;
-  
+
   // AXEL extension (FIXME: definitive API ?)
-  $axel.resolveUrl = function resolveUrl ( url ) {
-    if (url.length > 2 && url.charAt(0) === '~' && url.charAt(1) === '/') {
-      if ((window.location.href.charAt(window.location.href.length - 1)) !== '/') {
-        return window.location.href + '/' + url.substr(2);
-      } else {
-        return url.substr(2);
+  // Rewrites url taking into account optional node to interpret ^/ syntax  
+  $axel.resolveUrl = function resolveUrl ( url, node ) {
+    if (url && (url.length > 2)) {
+      if (url.charAt(0) === '~' && url.charAt(1) === '/') {
+        if ((window.location.href.charAt(window.location.href.length - 1)) !== '/') {
+          return window.location.href + '/' + url.substr(2);
+        } else {
+          return url.substr(2);
+        }
+      } else if (url.charAt(0) === '^' && url.charAt(1) === '/') {
+        return ($(node).closest('*[data-axel-base]').attr('data-axel-base') || '/') + url.substr(2);
       }
     }
     return url;

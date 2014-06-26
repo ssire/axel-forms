@@ -79,10 +79,10 @@
             bundlesPath : $axel.command.defaults.bundlesPath,
             enableTabGroupNavigation : true
           };
-          set = (templateUrl === '#') ? $axel(this.spec).transform(config) : $axel(this.spec).transform(templateUrl, config);
+          set = (templateUrl === '#') ? $axel(this.spec).transform(config) : $axel(this.spec).transform($axel.resolveUrl(templateUrl,this.spec.get(0)), config);
 
           if (dataUrl) {
-            set.load($axel.resolveUrl(dataUrl));
+            set.load($axel.resolveUrl(dataUrl, this.spec.get(0)));
             this.spec.attr('data-src', dataUrl);
           }
 
@@ -121,11 +121,11 @@
       var src;
       if (hard && this.defaultTpl && (this.defaultTpl !== this.spec.attr('data-template'))) { // last test to avoid loop
         this.attr('data-src', this.defaultData);
-        this.transform(this.defaultTpl);
+        this.transform($axel.resolvedUrl(this.defaultTpl, this.spec.get(0)));
       } else {
         src = this.spec.attr('data-src');
         if (src) {
-          $axel(this.spec).load($axel.resolveUrl(src));
+          $axel(this.spec).load($axel.resolveUrl(src, this.spec.get(0)));
         } else {
           $axel(this.spec).load('<Reset/>'); // trick  
         }
@@ -137,7 +137,7 @@
     reload : function () {
       var url = this.spec.attr('data-src');
       if (url) {
-        $axel(this.spec).load($axel.resolveUrl(url));
+        $axel(this.spec).load($axel.resolveUrl(url, this.spec.get(0)));
       }
     },
 

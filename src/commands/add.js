@@ -31,7 +31,7 @@
   }
   AddCommand.prototype = {
     execute : function (event) {
-      var dial, 
+      var dial, tmp,
           ed = $axel.command.getEditor(this.key),
           action = this.spec.attr('data-edit-action');
       if (action) {
@@ -42,7 +42,9 @@
         }
       }
       if (!this.done || !ed.getDefaultTemplate()) { // most probably a shared editor
-        ed.transform(this.spec.attr('data-with-template'));
+        // resolves optional data-with-template relatively to command button host else falls back to 'transform' data-template
+        tmp = this.spec.attr('data-with-template');
+        ed.transform(tmp ? $axel.resolveUrl(tmp, this.spec.get(0)) : undefined ); 
       } else if (this.cleanOnShow) {
         ed.reset();
         this.cleanOnShow = false;
