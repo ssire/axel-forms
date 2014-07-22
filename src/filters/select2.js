@@ -97,17 +97,17 @@
           //match=$(state.element).data('key').indexOf(qTerm);
           if (match < i) {
             markMatch(text.substr(0, i), qTerm, markup, escapeMarkup, match);
-            markup.push(oTag + text.substr(i + 2) + cTag);
+            markup.push(oTag + escapeMarkup(text.substr(i + 2)) + cTag);
           } else if (match > i+1) {
             markup.push(text.substr(0, i));
             markup.push(oTag);
             markMatch(text.substr(i + 2), qTerm, markup, escapeMarkup, match-i-2);
             markup.push(cTag);
           } else {
-            return text.substr(0, i) + oTag + text.substr(i + 2) + cTag;
+            return escapeMarkup(text.substr(0, i)) + oTag + escapeMarkup(text.substr(i + 2)) + cTag;
           }
         } else {
-          return text.substr(0, i) + oTag + text.substr(i + 2) + cTag;
+          return escapeMarkup(text.substr(0, i)) + oTag + escapeMarkup(text.substr(i + 2)) + cTag;
         }
       } else if (query.term.length > 0) { // w/o complement with term
         match=translate(text).indexOf(qTerm);
