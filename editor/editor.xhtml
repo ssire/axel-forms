@@ -45,6 +45,8 @@ Author: Stephane Sire
     <!-- filters -->
     <script type="text/javascript" src="../src/filters/select2.js"></script>
     <script type="text/javascript" src="../src/filters/autofill.js"></script>
+    <!-- oppidum stub -->
+    <script type="text/javascript" src="../src/core/oppidum.js">//</script>
     <!-- commands -->
     <script type="text/javascript" src="../src/core/command.js">//</script>
     <script type="text/javascript" src="../src/commands/transform.js">//</script>
@@ -113,6 +115,8 @@ Author: Stephane Sire
                  appController.log('Template with embedded transformation failed, no editor has been generated', 1);
                }
              } else {
+               xtiger.cross.log('debug', 'command installation (post-template transformation)');
+               ed = $axel.command.install(iframeDoc);               
                xtiger.cross.log('debug', 'binding installation (post-template transformation)');
                $axel.binding.install(iframeDoc);
              }
@@ -131,7 +135,7 @@ Author: Stephane Sire
              path2intro : 'intro.xhtml'
            })
            // late filter registration
-           $axel.filter.applyTo({ 'optional' : 'input', 'event' : 'input' });
+           $axel.filter.applyTo({ 'optional' : ['input', 'choice'], 'event' : 'input' });
            // Install Hook to install bindings
            $(document).bind('__AXEL_DEMO_EDITOR_READY', onTemplateTransformed);
            // configure command for templates with embedded transformation command

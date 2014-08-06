@@ -66,10 +66,32 @@
       }
     }
 
-    function saveSuccessCb (response, status, xhr) {
+    function saveSuccessCb (response, status, xhr, memo) {
       var loc = xhr.getResponseHeader('Location'),
-          type, fnode, msg, tmp;
-      if ((xhr.status === 201) || (xhr.status === 200)) {
+          type, fnode, msg, tmp, proceed;
+      if ((xhr.status === 202) && memo) { // middle of transactional protocol FIXME: success -> confirm
+        proceed = confirm($('success > message', xhr.responseXML).text());
+        if (memo.url.indexOf('?') !== -1) {
+          tmp = memo.url + '&_confirmed=1';
+        } else {
+          tmp = memo.url + '?_confirmed=1';
+        }
+        if (proceed) {
+          $.ajax({
+            url : tmp,
+            type : memo.method,
+            data :  memo.payload,
+            cache : false,
+            timeout : 50000,
+            dataType : 'xml',
+            contentType : "application/xml; charset=UTF-8",
+            success : $.proxy(saveSuccessCb, this),
+            error : $.proxy(saveErrorCb, this)
+          });
+        } else {
+          $axel.command.getEditor(this.key).trigger('axel-save-cancel', this, xhr);
+        }
+      } else if ((xhr.status === 201) || (xhr.status === 200)) {
         if (loc) {
           window.location.href = loc;
         } else {
@@ -114,6 +136,7 @@
         }
       } else {
         $axel.error('Unexpected response from server (' + xhr.status + '). Save action may have failed', this.errTarget);
+        $axel.command.getEditor(this.key).trigger('axel-save-error', this, xhr);
       }
       finished(this);
     }
@@ -149,8 +172,10 @@
 
     return {
       execute : function (event) {
-        var editor = $axel.command.getEditor(this.key),
-            valid = true, method, dataUrl, transaction, data, errtarget, fields,
+        var method, dataUrl, transaction, data, errtarget, fields, _successCb, _memo,
+            _this = this,
+            valid = true,
+            editor = $axel.command.getEditor(this.key),
             yesNo = this.spec.attr('data-save-confirm');
         if (editor) {
           if (!yesNo || confirm(yesNo)) {
@@ -170,23 +195,25 @@
                   if (transaction) {
                     url = url + '?transaction=' + transaction;
                   }
+                  url = $axel.resolveUrl(url, this.spec.get(0));
                   started(this);
                   $axel.command.getEditor(this.key).trigger('axel-save', this);
-                  // var _this = this;
-                  // setTimeout(function() {
-                    $.ajax({
-                      url : $axel.resolveUrl(url, this.spec.get(0)),
-                      type : method,
-                      data : data,
-                      dataType : 'xml',
-                      cache : false,
-                      timeout : 50000,
-                      contentType : "application/xml; charset=UTF-8",
-                      success : $.proxy(saveSuccessCb, this),
-                      error : $.proxy(saveErrorCb, this)
-                      });
-                      editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
-                    // }, 1000);
+                  _memo = { url : url, payload : data, method : method };
+                  _successCb = function (data, textStats, jqXHR) {
+                                 saveSuccessCb.call(_this, data, textStats, jqXHR, _memo);
+                               };
+                  $.ajax({
+                    url : url,
+                    type : method,
+                    data : data,
+                    dataType : 'xml',
+                    cache : false,
+                    timeout : 50000,
+                    contentType : "application/xml; charset=UTF-8",
+                    success : _successCb,
+                    error : $.proxy(saveErrorCb, this)
+                    });
+                    editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
                 } else {
                   $axel.error('The editor did not generate any data');
                 }
