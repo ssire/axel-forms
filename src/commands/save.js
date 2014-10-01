@@ -32,24 +32,6 @@
 
   SaveCommand.prototype = (function () {
 
-    function unmarshalMessage( xhr ) {
-      var text = $('success > message', xhr.responseXML).text();
-      return text;
-    }
-    
-    function unmarshalPayload( xhr ) {
-      var start = xhr.responseText.indexOf('<payload>'),
-          end,
-          res = xhr.responseText;
-      if (start != -1) {
-        end = xhr.responseText.indexOf('</payload>');
-        if (end != -1) {
-          res = xhr.responseText.substr(start + 9, end - start - 9) ;
-        }
-      }
-      return res;
-    }
-
     function doSwap () {
       this.swap.remove();
       this.fragment.show();
@@ -88,6 +70,7 @@
             success : $.proxy(saveSuccessCb, this),
             error : $.proxy(saveErrorCb, this)
           });
+          return; // short-circuit final call to finished
         } else {
           $axel.command.getEditor(this.key).trigger('axel-save-cancel', this, xhr);
         }
@@ -95,7 +78,7 @@
         if (loc) {
           window.location.href = loc;
         } else {
-          msg = unmarshalMessage(xhr); // side effect message
+          msg = $axel.oppidum.unmarshalMessage(xhr); // side effect message
           if (msg) {
             alert(msg); // FIXME: use a reporting function !!!
           }
@@ -115,18 +98,18 @@
             fnode = $('#' + this.spec.attr('data-replace-target'));
             if (fnode.length > 0) {
               if (type === 'all') {
-                fnode.replaceWith(unmarshalPayload(xhr));
+                fnode.replaceWith($axel.oppidum.unmarshalPayload(xhr));
               } else if (type === 'swap') {
-                this.swap = $(unmarshalPayload(xhr)); // FIXME: document context ?
+                this.swap = $($axel.oppidum.unmarshalPayload(xhr)); // FIXME: document context ?
                 fnode.after(this.swap);
                 fnode.hide();
                 this.fragment = fnode; // cached to implement data-command="continue"
                 $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
                 $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
               } else if (type === 'append') {
-                fnode.append(unmarshalPayload(xhr));
+                fnode.append($axel.oppidum.unmarshalPayload(xhr));
               } else if (type === 'prepend') {
-                fnode.prepend(unmarshalPayload(xhr));
+                fnode.prepend($axel.oppidum.unmarshalPayload(xhr));
               } // 'before', 'after'
               $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
             } else {
