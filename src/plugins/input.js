@@ -147,13 +147,17 @@
   // Keyboard Field  //
   /////////////////////
 
-  // Internal class to manage an HTML input with a 'text' or 'password' type
+  // Internal class to manage an HTML input with a 'text', 'number' or 'password' type
+  // Currently 'number' type is not passed to HTML but is treated as 'text' because 
+  // it requires extra configuration like steps some of which browser's dependent
   var _KeyboardField = function (editor, aType, aData) {
-    var h = editor.getHandle(), size;
+    var h = editor.getHandle(), 
+        t = 'number' !== aType ? aType : 'text',
+        size;
     this._editor = editor;
     this.isEditable = !editor.getParam('noedit');
     this.defaultData = aData || '';
-    xtdom.setAttribute(h, 'type', aType);
+    xtdom.setAttribute(h, 'type', t);
     if (size = editor.getParam('size')) {
       xtdom.setAttribute(h, 'size', size);
     }
@@ -203,7 +207,7 @@
     },
 
     save : function (aLogger) {
-      var val = this._editor.getHandle().value;
+      var val = $.trim(this._editor.getHandle().value);
       if (val) {
         if (this._editor.getParam('multilines') === 'normal') {
           var _scanner = new RegExp("[\n\r]{0,}(.*)", "g");
@@ -214,7 +218,9 @@
               aLogger.closeTag('Text');
             }
           }
-          $.trim(val).replace(_scanner, singleLine);
+          val.replace(_scanner, singleLine);
+        } else if ('number' === this._editor.getParam('type')) {
+          aLogger.write(val.replace(',','.')); // forces decimal point representation
         } else {
           aLogger.write(val);
         }
@@ -561,7 +567,7 @@
       var type, data;
       // create delegate
       type = this.getParam('type');
-      if ((type === 'text') || (type === 'password') || (type === 'textarea')) {
+      if ((type === 'text') || (type === 'number') || (type === 'password') || (type === 'textarea')) {
         this._delegate = new _KeyboardField(this, type, aDefaultData);
       } else if ((type === 'radio') || (type === 'checkbox')) {
         this._delegate = new _SelectField(this, type, aRepeater ? aRepeater.getClockCount() : undefined);
