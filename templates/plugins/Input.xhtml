@@ -51,6 +51,8 @@
       textarea.a-textarea {
         vertical-align: top;
         width: 100%;
+        resize: vertical;
+        overflow: none;
       }
     </style>
 
@@ -59,7 +61,7 @@
     <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
     <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
     <script src="../../../axel/axel/axel.js">//</script>
-    <!-- <script src="../../src/plugins/input.js">//</script> -->
+    <script src="../../src/plugins/input.js">//</script>    
     <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
 
     <!-- 3rd party dependencies -->
@@ -119,7 +121,7 @@
       <p><xt:use types="input" label="LastName">Enter last name</xt:use></p>
       <p><xt:use types="input" label="Nickname" param="filter=optional">Enter nickname</xt:use></p>
       <p>With <var>size</var> parameter set to 50 : <xt:use types="input" label="FullName" param="filter=optional;size=50">Enter full name</xt:use></p>
-      <p>With <i>type="textarea"</i> : <xt:use types="input" label="Comment" param="type=textarea;class=a-textarea">Commentaire</xt:use></p>
+      <p>With <i>type="textarea"</i> : <xt:use types="input" label="Comment" param="type=textarea;multilines=normal;class=a-textarea">Commentaire</xt:use></p>
     </div>
 
     <h2>Example with <code>noedit</code> set to <tt>true</tt></h2>
@@ -133,14 +135,14 @@
     <h2>Example with several dates (try using tab navigation...)</h2>
 
     <div class="demo extract">
-      <p>Date 1 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601">today</xt:use></p>
+      <p>Date 1 (minDate = today; 'en'; today) : <xt:use types="input" label="Date" param="type=date;date_region=en;date_format=ISO_8601;minDate=today">today</xt:use></p>
       <br/>
       <div>
-      <p>Date 2 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601;maxDate=today;class=foo">today</xt:use></p>
+      <p>Date 2 (maxDate = today, dd#mm##yy, 'fr', today) : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=dd#mm##yy;maxDate=today;class=foo">today</xt:use></p>
       </div>
       <br/>
       <div>
-      <p>Date 3 : <xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601;maxDate=today;class=foo">today</xt:use></p>      
+      <p>Date 3 (maxDate = 2015-01-19, 'en', 2014-12-31) : <xt:use types="input" label="Date" param="type=date;date_region=en;date_format=ISO_8601;maxDate=2015-01-19;class=foo">2014-12-31</xt:use></p>      
       </div>
     </div>
 

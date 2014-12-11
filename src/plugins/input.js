@@ -47,6 +47,13 @@
     // xtiger.cross.log('debug', 'decache failure of ' + name + '=' + value);
     return false;
   };
+  
+  // Returns date of the day in the date_region format of the editor
+  // Pre-condition: there must be a $.datepicker
+  var _genTodayFor = function (editor) {
+      var format = editor.getParam('date_format'); // either pre-defined constant of custom format date string
+      return xtiger.util.date.convertDate(editor, $.datepicker.formatDate($.datepicker[format] || format, new Date()), 'date_format' , 'date_region');
+  };
 
   var _getClockCount = function (name, card) {
     var tmp = parseInt(card),
@@ -307,13 +314,12 @@
     },
 
     awake : function () {
-      var tmp, h = this._editor.getHandle();
+      var h = this._editor.getHandle();
       this.subscribe(h);
       if (this.defaultData === 'today') {
-        tmp = new Date();
-        h.value = this.defaultData = $.datepicker ? $.datepicker.formatDate('dd/mm/yy', tmp) : tmp;
+        h.value = this.defaultData = $.datepicker ? _genTodayFor(this._editor) : new Date();
       } else {
-        h.value = this.defaultData; // FIXME: placeholder if HTML5 (?)
+        h.value = xtiger.util.date.convertDate(this._editor, this.defaultData, 'date_format' , 'date_region');
       }
       this.model = h.value;
       // size defaults (could be done once in constructor)
@@ -337,6 +343,7 @@
     // Only setup field once
     startEditing : function (aEvent) {
       var min, max, before, h;
+      xtiger.util.date.setRegion(this._editor.getParam('date_region'));
       if (! this.dpDone) {
         h = this._editor.getHandle();
         this.lazyInit(h);
@@ -344,24 +351,17 @@
           min = this._editor.getParam('minDate');
           max = this._editor.getParam('maxDate');
           before = this._editor.getParam('beforeShow');
-          if (min || max || before) {
-            if (min === 'today') {
-              min = $.datepicker.formatDate('dd/mm/yy', new Date());
-            }
-            if (min) {
-              this.jhandle.datepicker('option', 'minDate', min);
-            }
-            if (max === 'today') {
-              max = $.datepicker.formatDate('dd/mm/yy', new Date());
-            }
-            if (max) {
-              this.jhandle.datepicker('option', 'maxDate', max);
-            }
-            if (before) {
-              this.jhandle.datepicker('option', 'beforeShow', before);
-            }
+          if (min) {
+            min = (min === 'today') ? _genTodayFor(this._editor) : xtiger.util.date.convertDate(this._editor, min, 'date_format' , 'date_region');
+            this.jhandle.datepicker('option', 'minDate', min);
           }
-          xtiger.util.date.setRegion(this._editor.getParam('date_region'));
+          if (max) {
+            max = (max === 'today') ? _genTodayFor(this._editor) : xtiger.util.date.convertDate(this._editor, max, 'date_format' , 'date_region');
+            this.jhandle.datepicker('option', 'maxDate', max);
+          }
+          if (before) {
+            this.jhandle.datepicker('option', 'beforeShow', before);
+          }
           $(h).datepicker('show');
         }
       }

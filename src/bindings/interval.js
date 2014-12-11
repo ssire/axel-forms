@@ -12,10 +12,10 @@
 
 (function ($axel) {
 
-  // FIXME: currenlty works only if date format on watched fields is YYYY-MM-DD
-  function parseDate(date, defaults) {
+  // FIXME: currenlty works only if date format on watched fields is ISO_8601 (aka YYYY-MM-DD)
+  function parseDate(editor, date, defaults) {
     try {
-      return date ? $.datepicker.formatDate('dd/mm/yy',$.datepicker.parseDate('yy-mm-dd', date)) : defaults;
+      return date ? xtiger.util.date.convertDate(editor, date, 'date_format' , 'date_region') : defaults;
     }
     catch (e) {
       return defaults;
@@ -38,12 +38,12 @@
 
       // FIXME: adapt to format
       beforeShowMinDate : function ( input, picker ) {
-        return { 'maxDate' : parseDate(this.max.text(), null) };
+        return { 'maxDate' : parseDate(this.max.get(0), this.max.text(), null) };
       },
 
       // FIXME: adapt to format
       beforeShowMaxDate : function ( input, picker ) {
-        return { 'minDate' : parseDate(this.min.text(), null) };
+        return { 'minDate' : parseDate(this.min.get(0), this.min.text(), null) };
       }
     }
   };
