@@ -168,31 +168,44 @@
   $axel.command = _Command;
   $axel.command.install = _installCommands;
 
-  // AXEL extension (FIXME: definitive API ?)
-  // Rewrites url taking into account optional node to interpret ^/ syntax  
+  // AXEL extension that rewrites url taking into account special notations :
+  // ~/ to inject current location path
+  // ^/ to inject data-axel-base base URL (requires a node parameter to look updwards for data-axel-basee)
+  // $^ to be replaced with the latest location path segment (could be extended with $^^ for second before the end, etc.)
   $axel.resolveUrl = function resolveUrl ( url, node ) {
+    var res = url, tmp;
     if (url && (url.length > 2)) {
       if (url.charAt(0) === '~' && url.charAt(1) === '/') {
         if ((window.location.href.charAt(window.location.href.length - 1)) !== '/') {
-          return window.location.href + '/' + url.substr(2);
+          res = window.location.href + '/' + url.substr(2);
         } else {
-          return url.substr(2);
+          res = url.substr(2);
         }
       } else if (url.charAt(0) === '^' && url.charAt(1) === '/') {
-        return ($(node).closest('*[data-axel-base]').attr('data-axel-base') || '/') + url.substr(2);
+        res = ($(node).closest('*[data-axel-base]').attr('data-axel-base') || '/') + url.substr(2);
+      }
+      if (res.indexOf('$^') !== -1) {
+        tmp = window.location.href.match(/([^\/]+)\/?$/); // FIXME: handle URLs with parameters  
+        if (tmp) {
+          res = res.replace('$^', tmp[1]);
+        }
       }
     }
-    return url;
+    return res;
   };
 
   // document ready handler to install commands (self-transformed documents only)
   jQuery(function() { 
-    var path = $('script[data-bundles-path]').attr('data-bundles-path');
+    var script = $('script[data-bundles-path]')
+    var path = script.attr('data-bundles-path');
+    var when = script.attr('data-when');
     if (path) { // saves 'data-bundles-path' for self-transformable templates
       _Command.configure('bundlesPath', path);
       // FIXME: load sequence ordering issue (?)
       $axel.filter.applyTo({ 'optional' : ['input', 'choice'], 'event' : 'input' });
     }
-    _installCommands(document); 
-    });
+    if ('deferred' !== when) {
+      _installCommands(document);
+    }
+  });
 }($axel));
