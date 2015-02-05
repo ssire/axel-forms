@@ -47,7 +47,7 @@
     // xtiger.cross.log('debug', 'decache failure of ' + name + '=' + value);
     return false;
   };
-  
+
   // Returns date of the day in the date_region format of the editor
   // Pre-condition: there must be a $.datepicker
   var _genTodayFor = function (editor) {
@@ -64,6 +64,23 @@
       _CLOCK[name] += 1;
     }
     return Math.floor(_CLOCK[name] / num);
+  };
+
+  var _formatTextBlock = function (stack, aLogger) {
+    var cur;
+    if (stack.length > 1) {
+      aLogger.openTag('Block');
+      while (cur = stack.shift()) {
+        aLogger.openTag('Line');
+        aLogger.write(cur);
+        aLogger.closeTag('Line');
+      }
+      aLogger.closeTag('Block');
+    } else if (1 === stack.length) {
+      aLogger.openTag('Text');
+      aLogger.write(stack.pop());
+      aLogger.closeTag('Text');
+    }
   };
 
   ///////////////////////////////
@@ -155,10 +172,10 @@
   /////////////////////
 
   // Internal class to manage an HTML input with a 'text', 'number' or 'password' type
-  // Currently 'number' type is not passed to HTML but is treated as 'text' because 
+  // Currently 'number' type is not passed to HTML but is treated as 'text' because
   // it requires extra configuration like steps some of which browser's dependent
   var _KeyboardField = function (editor, aType, aData) {
-    var h = editor.getHandle(), 
+    var h = editor.getHandle(),
         t = 'number' !== aType ? aType : 'text',
         size;
     this._editor = editor;
@@ -189,14 +206,26 @@
     },
 
     load : function (aPoint, aDataSrc) {
-      var value, fallback;
+      var value, fallback, multi;
       if (aPoint !== -1) {
-        if (this._editor.getParam('multilines') === 'normal') {
-          var cur = aPoint[0].firstChild,
+        multi = this._editor.getParam('multilines');
+        if ((multi === 'normal') || (multi === 'enhanced')) {
+          var cur = aPoint[0].firstChild, line,
               buffer = '';
           while (cur) {
             if (cur.nodeType === xtdom.ELEMENT_NODE && cur.firstChild) {
-              buffer = buffer + cur.firstChild.nodeValue + '\n\n';
+              if ('Text' === cur.nodeName) {
+                buffer = buffer + cur.firstChild.nodeValue + '\n\n';
+              } else if ('Block' === cur.nodeName) {
+                line = cur.firstChild;
+                while (line) {
+                  if (line.nodeType === xtdom.ELEMENT_NODE && line.firstChild) { // assumes Line
+                    buffer = buffer + line.firstChild.nodeValue + '\n';
+                  }
+                  line = line.nextSibling;
+                }
+                buffer = buffer + '\n';
+              }
             }
             cur = cur.nextSibling;
           }
@@ -207,25 +236,46 @@
         fallback = this._editor.getDefaultData();
         this._editor.getHandle().value = value || fallback || '';
         this._editor.setModified(value !==  fallback);
-        this._editor.set(false);        
+        this._editor.set(false);
       } else {
           this._editor.clear(false);
       }
     },
 
     save : function (aLogger) {
-      var val = $.trim(this._editor.getHandle().value);
+      var val = $.trim(this._editor.getHandle().value),
+          pending, _scanner;
+
+      var singleLineI = function (str, found) {
+        if (found.length > 0)  {
+          aLogger.openTag('Text');
+          aLogger.write(found);
+          aLogger.closeTag('Text');
+        }
+      };
+
+      var singleLineII = function (str, found) {
+        var sep = str.charCodeAt(1);
+        if ((sep === 10) || (sep === 13)) {
+          _formatTextBlock(pending, aLogger);
+          pending = [];
+        }
+        if (found.length > 0) {
+          pending.push(found);
+        }
+      };
+
       if (val) {
-        if (this._editor.getParam('multilines') === 'normal') {
-          var _scanner = new RegExp("[\n\r]{0,}(.*)", "g");
-          function singleLine (str, found) {
-            if (found.length > 0)  {
-              aLogger.openTag('Text');
-              aLogger.write(found);  
-              aLogger.closeTag('Text');
-            }
+        multi = this._editor.getParam('multilines');
+        if (multi) {
+          _scanner = new RegExp("[\n\r]{0,}(.*)", "g");
+          if ('normal' === multi) {
+            val.replace(_scanner, singleLineI);
+          } else { // assumes enhanced
+            pending = [];
+            val.replace(_scanner, singleLineII);
+            _formatTextBlock(pending, aLogger);
           }
-          val.replace(_scanner, singleLine);
         } else if ('number' === this._editor.getParam('type')) {
           aLogger.write(val.replace(',','.')); // forces decimal point representation
         } else {
@@ -244,7 +294,7 @@
         // registers to keyboard events
         this.kbdHandlers = kbd.register(this, h);
         kbd.grab(this, this._editor); // this._editor for Tab group manager to work
-        if (this._editor.getParam('multilines') == 'normal') {
+        if (this._editor.getParam('multilines')) {
           kbd.enableRC(true);
         }
         if (!this._editor.isModified()) {
@@ -255,19 +305,22 @@
 
     // Stops the ongoing edition process
     stopEditing : function (isCancel, isBlur) {
-      var h, kbd;
+      var h, kbd, multi;
       if (this._isEditing) {
         h = this._editor.getHandle();
         kbd = xtiger.session(this._editor.getDocument()).load('keyboard');
         this._isEditing = false; // do it first to prevent any potential blur handle callback
         kbd.unregister(this, this.kbdHandlers, h);
         kbd.release(this, this._editor);
-        if (this._editor.getParam('multilines') == 'normal') {
+        if ('normal' === this._editor.getParam('multilines')) {
           kbd.disableRC();
-        }                                                 
+        }
         if (!isCancel) {
-          if (this._editor.getParam('multilines') === 'normal') { // normalization
-            h.value = $.trim(h.value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2")
+          multi = this._editor.getParam('multilines');
+          if (multi === 'normal') { // normalization
+            h.value = $.trim(h.value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
+          } else if (multi === 'enhanced') {
+            h.value = $.trim(h.value).replace(/((\r\n|\n|\r){2,})/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
           }
           this._editor.update(h.value);
         }
@@ -308,7 +361,7 @@
         // turns field into a datepicker
         this.jhandle = $(h).datepicker( { 'onClose' : function () { _this.onClose(); } } );
       } else {
-        alert('datepicker jQuery plugin needed for "date" input field !')
+        alert('datepicker jQuery plugin needed for "date" input field !');
       }
       this.dpDone = true;
     },
@@ -375,7 +428,7 @@
         val = ''; // will reset to default data
       }
       // incl. rough check on validity - FIXME: adjust to data_region / date_format ?
-      if (val && ((val.length != 10) || isCancel)) {
+      if (val && ((val.length !== 10) || isCancel)) {
         h.value = this.model; // reset to previous value
       } else {
         this._editor.update(val);
@@ -577,7 +630,7 @@
         xtdom.addClassName(this._handle, 'axel-generator-error');
         xtdom.setAttribute(this._handle, 'readonly', '1');
         xtdom.setAttribute(this._handle, 'value', 'ERROR: type "' + type + '" not recognized by plugin "input"');
-        alert('Form generation failed : fatal error in "input" plugin declaration')
+        alert('Form generation failed : fatal error in "input" plugin declaration');
       }
       if (this.getParam('hasClass')) {
         xtdom.addClassName(this._handle, this.getParam('hasClass'));
