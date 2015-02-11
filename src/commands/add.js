@@ -19,6 +19,8 @@
 |  - data-edit-action (create | update) : when using data-src this mandatory  |
 |   attribute defines if the data-src attribute must be pre-loaded (update)   |
 |   or not (create)                                                           |
+|  - data-add-key="xxx" : works in conjunction with data-title-scope          |
+|    to locate data-when-{xxx} and change an optional editor's window title   |
 |                                                                             |
 \*****************************************************************************/
 (function () {
@@ -31,7 +33,7 @@
   }
   AddCommand.prototype = {
     execute : function (event) {
-      var dial, tmp,
+      var dial, tmp, title,
           ed = $axel.command.getEditor(this.key),
           action = this.spec.attr('data-edit-action');
       if (action) {
@@ -48,6 +50,13 @@
       } else if (this.cleanOnShow) {
         ed.reset();
         this.cleanOnShow = false;
+      }
+      // try to change editor's title using a mode key
+      tmp = this.spec.attr('data-add-key');
+      if (tmp) {
+        tmp = 'data-when-' + tmp;
+        title = $('#' + this.spec.attr('data-title-scope')).find('[' + tmp + ']');
+        title.text(title.attr(tmp));
       }
       if ($axel('#' + this.key).transformed()) { // assumes synchronous transform()
         this.done = true;
