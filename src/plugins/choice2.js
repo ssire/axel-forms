@@ -27,13 +27,13 @@
     }
 
    function _createPopup ( that, menu ) {
-     var tmp = '',
+     var k1, k2, tmp = '',
          buff = that.getParam('choice2_width1'),
          style1 = _style({ 'width' : buff }),
          style2 = _style({ 'left' : buff, 'width' : that.getParam('choice2_width2') });
-     for (var k1 in menu) {
+     for (k1 in menu) {
        buff = '';
-       for (var k2 in menu[k1]) {
+       for (k2 in menu[k1]) {
          if (k2 !== '_label') {
            buff += '<li class="choice2-label" data-code="' + k2 + '">' + menu[k1][k2] + '</li>';
          }
@@ -108,7 +108,7 @@
          // inserts placeholder option
          // $(this._handle).prepend('<span class="axel-choice-placeholder">' + (pl || "") + '</span>');
          // creates default selection
-         if (!defval) {
+         // if (!defval) {
            // this._param.values.splice(0,0,pl);
            // if (this._param.i18n !== this._param.values) { // FIXME: check its correct
            //   this._param.i18n.splice(0,0,pl);
@@ -116,7 +116,7 @@
            // if (pl) {
            //   $(this._handle).addClass("axel-choice-placeholder");
            // }
-         }
+         // }
        }
       this._setData(defval);
       $(this._handle).children('div.select2-container-multi').click($.proxy(this, '_handleClickOnChoices'));
@@ -141,7 +141,7 @@
              }
              option = aDataSrc.getVectorFor(xval, aPoint);
            }
-           this._setData(value.length > 0 ? value : ""); // "string" and ["string"] are treated as equals by jQuery's val()
+           this._setData(value.length > 0 ? value : "");
          } else { // comma separated list
            tmp = aDataSrc.getDataFor(aPoint);
            if (typeof tmp !== 'string') {
@@ -238,7 +238,7 @@
          } else if (t.hasClass('select2-search-choice-close')) { // remove single choice
            t = $(e.target).closest('li[data-code]').first();
            val = t.attr('data-code');
-           n = h.find('ul.choice2-popup1 li.choice2-label[data-code="' + val +'"]').removeClass('selected')
+           n = h.find('ul.choice2-popup1 li.choice2-label[data-code="' + val +'"]').removeClass('selected');
            this.removeFromSelection(val, n);
            t.remove();
            e.stopPropagation();
@@ -247,46 +247,56 @@
 
        // Click on a popup level 1 option
        _handleClickOnItem :function (e) {
-         var n = $(e.target)
-            _this = this;
-         if (n.parent().hasClass('selected')) {
-           n.parent().find('li.choice2-label').each(
-             function (i,e) {
-               var n = $(e);
-               _this.removeFromSelection(n.attr('data-code'), false);
-               n.removeClass('selected');
+         var n = $(e.target),
+             options = n.parent().find('li.choice2-label'),
+             multiple = "yes" === this.getParam('multiple'),
+             _this = this;
+         if (multiple || (1 === options.size())) {
+           if (n.parent().hasClass('selected')) {
+             options.each(
+               function (i,e) {
+                 var n = $(e);
+                 _this.removeFromSelection(n.attr('data-code'), false);
+                 n.removeClass('selected');
+               }
+             );
+           } else {
+             if (! multiple) { // unselect the other
+                this.setSelection([]);
              }
-           );
-         } else {
-           n.parent().find('li.choice2-label').each(
-             function (i,e) {
-               var n = $(e);
-               _this.addToSelection(n.attr('data-code'), n.text());
-               n.addClass('selected');
-             }
-           );
-         };
-         n.parent().toggleClass('selected');
+             options.each(
+               function (i,e) {
+                 var n = $(e);
+                 _this.addToSelection(n.attr('data-code'), n.text());
+                 n.addClass('selected');
+               }
+             );
+           }
+           n.parent().toggleClass('selected');
+         }
        },
 
        // Click on a popup level 2 option
        _handleClickOnLabel : function (e) {
          var n = $(e.target);
+         if (("yes" !== this.getParam('multiple')) && !n.hasClass('selected')) { // unselect the other
+           this.setSelection([]);
+         }
          n.toggleClass('selected');
          if (n.hasClass('selected')) { // has been selected
            this.addToSelection(n.attr('data-code'), n.text());
            _fixItemSelection(n.closest('.choice2-option'));
          } else { // has been unselected
            this.removeFromSelection(n.attr('data-code'), n);
-         };
+         }
        },
 
        setSelection : function (values ) {
          var tmp = '',
              set = $('li.choice2-label', this._handle),
              i, label;
-         // reset all 
-         set.removeClass('selected');
+         // reset all
+         set.filter('.selected').removeClass('selected');
          for (i = 0; i < values.length; i++) {
            if (values[i].length > 0) {
              label = set.filter('[data-code="' + values[i] + '"]').first().addClass('selected').text();
@@ -306,7 +316,7 @@
            if ('true' === this.getParam('choice2_closeOnSelect')) {
              $('ul.choice2-popup1', this._handle).removeClass('show');
            }
-           this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code') } ).get(), true );
+           this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get(), true );
          }
        },
 
@@ -316,7 +326,7 @@
            n.css('minHeight', n.height() + 'px'); // locks height to avoid "jump"
          }
          $('div.select2-container-multi li[data-code="' + value + '"]', this._handle).remove();
-         this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code') } ).get(), true );
+         this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get(), true );
         if (checkParent) {
           checkParent.closest('.choice2-option').removeClass('selected');
         }
@@ -325,11 +335,11 @@
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
        _setData : function ( value, withoutSideEffect ) {
          var values;
-         if(!value && (this.getParam('placeholder'))) {
+         //if(!value && (this.getParam('placeholder'))) {
            // $(this.getHandle()).addClass("axel-choice-placeholder");
-         } else {
+         // } else {
            // $(this.getHandle()).removeClass("axel-choice-placeholder");
-         }
+         // }
          this._data =  value || "";
          if (! withoutSideEffect) {
            values = typeof this._data === "string" ? [ this._data ] : this._data; // converts to array
