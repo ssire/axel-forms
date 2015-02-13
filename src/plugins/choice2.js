@@ -40,7 +40,7 @@
        }
        tmp += '<li class="choice2-option"><div class="choice2-item"' + style1 + '>' + k1 + ' ' + menu[k1]._label + '</div><ul class="choice2-popup2 choice2-drop-container"' + style2 + '>' + buff + '</ul></li>';
      }
-     tmp = '<ul class="choice2-popup1 choice2-drop-container"' + style1 + '>' + tmp.replace('&', '&amp;', 'g') + '</ul>';
+     tmp = '<ul class="choice2-popup1 choice2-drop-container"' + style1 + '>' + tmp.replace(/&/g,'&amp;') + '</ul>';
      $(that.getHandle()).append(tmp);
    }
 
@@ -300,7 +300,7 @@
          for (i = 0; i < values.length; i++) {
            if (values[i].length > 0) {
              label = set.filter('[data-code="' + values[i] + '"]').first().addClass('selected').text();
-             tmp += '<li class="select2-search-choice" data-code="' + values[i] + '"><div class="select2-label">' + label.replace('&', '&amp;', 'g') + '</div><a class="select2-search-choice-close" tabindex="-1" onclick="return false;" href="#"></a></li>';
+             tmp += '<li class="select2-search-choice" data-code="' + values[i] + '"><div class="select2-label">' + label.replace(/&/g,'&amp;') + '</div><a class="select2-search-choice-close" tabindex="-1" onclick="return false;" href="#"></a></li>';
            }
          }
          $('div.select2-container-multi > ul', this._handle).html(tmp);
@@ -311,7 +311,7 @@
          var sel = $('div.select2-container-multi > ul', this._handle);
          if ((sel.find('li.select2-search-choice[data-code="' + value + '"]')).size() === 0) {
            sel.append(
-             '<li class="select2-search-choice" data-code="' + value + '"><div class="select2-label">' + name.replace('&', '&amp;', 'g') + '</div><a class="select2-search-choice-close" tabindex="-1" onclick="return false;" href="#"></a></li>'
+             '<li class="select2-search-choice" data-code="' + value + '"><div class="select2-label">' + name.replace(/&/g,'&amp;') + '</div><a class="select2-search-choice-close" tabindex="-1" onclick="return false;" href="#"></a></li>'
              );
            if ('true' === this.getParam('choice2_closeOnSelect')) {
              $('ul.choice2-popup1', this._handle).removeClass('show');
