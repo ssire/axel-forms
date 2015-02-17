@@ -172,12 +172,13 @@
   // ~/ to inject current location path
   // ^/ to inject data-axel-base base URL (requires a node parameter to look updwards for data-axel-basee)
   // $^ to be replaced with the latest location path segment (could be extended with $^^ for second before the end, etc.)
+  // Note that it removes any hash tag or search parameters
   $axel.resolveUrl = function resolveUrl ( url, node ) {
     var res = url, tmp;
     if (url && (url.length > 2)) {
       if (url.charAt(0) === '~' && url.charAt(1) === '/') {
         if ((window.location.href.charAt(window.location.href.length - 1)) !== '/') {
-          res = window.location.href + '/' + url.substr(2);
+          res = window.location.href.split('#')[0] + '/' + url.substr(2);
         } else {
           res = url.substr(2);
         }
@@ -185,7 +186,7 @@
         res = ($(node).closest('*[data-axel-base]').attr('data-axel-base') || '/') + url.substr(2);
       }
       if (res.indexOf('$^') !== -1) {
-        tmp = window.location.href.match(/([^\/]+)\/?$/); // FIXME: handle URLs with parameters  
+        tmp = window.location.href.split('#')[0].match(/([^\/]+)\/?$/); // FIXME: handle URLs with parameters  
         if (tmp) {
           res = res.replace('$^', tmp[1]);
         }

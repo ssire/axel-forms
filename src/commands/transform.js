@@ -121,7 +121,7 @@
       var src;
       if (hard && this.defaultTpl && (this.defaultTpl !== this.spec.attr('data-template'))) { // last test to avoid loop
         this.attr('data-src', this.defaultData);
-        this.transform($axel.resolvedUrl(this.defaultTpl, this.spec.get(0)));
+        this.transform($axel.resolveUrl(this.defaultTpl, this.spec.get(0)));
       } else {
         src = this.spec.attr('data-src');
         if (src) {

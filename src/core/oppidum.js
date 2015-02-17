@@ -9,6 +9,11 @@
 
   var  _Oppidum = {
 
+    checkJSON : function ( type ) {
+      var json = "application/json";
+      return (typeof type === 'string') && (type.slice(0, json.length) === json);
+    },
+
     // Returns the text message of a successful response
     unmarshalMessage : function ( xhr ) {
       var text = $('success > message', xhr.responseXML).text();
@@ -37,7 +42,7 @@
           res = false;
       if (xhr.responseXML) {
         res = $('error > message', xhr.responseXML).size() > 0;
-      } else if (type.startsWith("application/json")) {
+      } else if ($axel.oppidum.checkJSON(type)) {
         try {
           res = JSON.parse(xhr.responseText).error !== undefined;
         } catch (e) {
@@ -51,7 +56,7 @@
           res;
       if (xhr.responseXML) {
         res = $('error > message', xhr.responseXML).text();
-      } else if (type.startsWith("application/json")) {
+      } else if ($axel.oppidum.checkJSON(type)) {
         try {
           res = JSON.parse(xhr.responseText).error.message['#text'];
         } catch (e) {
@@ -85,8 +90,8 @@
 
     // Same parameters as the one received by the jQuery Ajax error callback
     // a) XHR object, b) status message (error,timeout, notmodified, parseerror)
-    // and c) optional exception somteimes returned from XHR if any
-    parseError : function (xhr, status, e) {
+    // c) optional exception sometimes returned from XHR, plus d) url 
+    parseError : function (xhr, status, e, url) {
       var loc, msg;
       if (status === 'timeout') {
         msg = "Action aborted : server is taking too much time to answer. You are strongly advised to reload the page to check if the action has been executed anyway !";
@@ -107,8 +112,10 @@
         msg =  'Exception : "' + e + '" (' + xhr.status + ')';
       } else if (e) {
         msg =  'Exception : ' + e.name + ' / ' + e.message + '\n' + ' (' + xhr.status +', line : ' + e.lineNumber + ')';
+      } else if (url) {
+        msg = 'Error while loading "' + url + '" (' + xhr.status + ')';
       } else {
-        msg = 'Error while connecting to "' + this.url + '" (' + xhr.status + ')';
+        msg = 'Error (' + xhr.status + ')';
       }
       return msg;
     }
