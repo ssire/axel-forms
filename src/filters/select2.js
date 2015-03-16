@@ -78,8 +78,8 @@
       text = (state && state.text) ? state.text : '';
     }
     i = text.indexOf('::');      
-    res = (i != -1) ? text.substr(0, i) : text;
-    return res
+    res = (i !== -1) ? text.substr(0, i) : text;
+    return res;
   }
 
   function formatResult(state, container, query, escapeMarkup, openTag) {
@@ -91,7 +91,7 @@
         match, markup;
     if (text) {
       markup=[];
-      if (i != -1 ) { // with complement
+      if (i !== -1 ) { // with complement
         if (query.term.length > 0) {
           match=translate(text).indexOf(qTerm);
           //match=$(state.element).data('key').indexOf(qTerm);
@@ -141,9 +141,9 @@
     return key.indexOf(translate(term))>=0;
   }
   
-  /* FIXME: to be internationalized */
   function formatInputTooShort(input, min) { 
-    var n = min - input.length; return "Entrez au moins " + n + " caractère" + (n == 1? "" : "s"); 
+    var n = min - input.length;
+    return xtiger.util.getLocaleString('hintSelect2minInput', { 'n' : n });
   }
 
   var _Filter = {
@@ -168,7 +168,7 @@
            pl = this.getParam("placeholder"),
            klass = this.getParam("select2_complement"),
            tag = klass ? ' - <span class="' + klass + '">' : undefined,
-           formRes = klass ? function (s, c, q, e) { return formatResult(s, c, q, e, tag) } : formatResult,
+           formRes = klass ? function (s, c, q, e) { return formatResult(s, c, q, e, tag); } : formatResult,
            params = {
              myDoc : this.getDocument(),
              formatResult: formRes,
@@ -182,7 +182,7 @@
           if (decodeTypes[k] === 'bool') {
             typVal = curVal === 'true' ? true : false;
           } else if (decodeTypes[k] === 'int') {
-            typVal = parseInt(curVal);
+            typVal = parseInt(curVal, 10);
           } else {
             typVal = curVal;
           }
@@ -257,7 +257,7 @@
          var filtered = value, i;
          if (this.getParam("select2_tags")) { // remove complement (see formatSelection)
            i = value.indexOf('::');
-           if (i != -1) {
+           if (i !== -1) {
              filtered = value.substr(0, i);
            }
          }
@@ -265,6 +265,15 @@
        }
       }
   };
+
+  $axel.extend (
+    xtiger.defaults.locales.en,
+    {
+      hintSelect2minInput : function (values) { return "Type at least " + values.n + " letter" + (values.n === 1? "" : "s"); }
+    }
+    // xtiger.defaults.locales.fr
+    // hintSelect2minInput : function (values) { return "Entrez au moins " + values.n + " caractère" + (values.n === 1? "" : "s"); }
+  );
 
   $axel.filter.register(
     'select2',
@@ -275,7 +284,7 @@
       select2_closeOnSelect : 'false',
       select2_width : 'element',
       select2_maximumSelectionSize : '-1',
-      select2_minimumInputLength : undefined,
+      select2_minimumInputLength : undefined
     },
     _Filter);
   $axel.filter.applyTo({'select2' : 'choice'});
