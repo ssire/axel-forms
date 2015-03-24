@@ -9,6 +9,7 @@
 |                                                                             |
 |  Optional attributes :                                                      |
 |  - data-replace-type : defines what to do with the servers's response       |
+|    value is 'event' and/or a choice of 'all', 'swap', 'append', 'prepend'   |
 |  - data-event-target : when data-replace-type is 'event' this attribute     |
 |    gives the name of a second editor from which to trigger a copy cat of    |
 |    'axel-save-done' event                                                   |
@@ -83,37 +84,36 @@
             alert(msg); // FIXME: use a reporting function !!!
           }
           type = this.spec.attr('data-replace-type') || 'all';
-          if (type === 'event') {
-            // FIXME: adjust editor's trigger method to add arguments...
-            // FIXME: pass xhr.responseXML.getElementsByTagName("payload")[0] instead of xhr ?
-            $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
-            tmp = this.spec.attr('data-event-target');
-            if (tmp) {
-              tmp = $axel.command.getEditor(tmp);
-              if (tmp) {
-                tmp.trigger('axel-save-done', this, xhr);
-              }
-            }
-          } else {
+          if (/all|swap|append|prepend/.test(type)) { // incremental update
             fnode = $('#' + this.spec.attr('data-replace-target'));
             if (fnode.length > 0) {
-              if (type === 'all') {
+              if (type.indexOf('all') !== -1) {
                 fnode.replaceWith($axel.oppidum.unmarshalPayload(xhr));
-              } else if (type === 'swap') {
+              } else if (type.indexOf('swap') !== -1) {
                 this.swap = $($axel.oppidum.unmarshalPayload(xhr)); // FIXME: document context ?
                 fnode.after(this.swap);
                 fnode.hide();
                 this.fragment = fnode; // cached to implement data-command="continue"
                 $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
                 $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
-              } else if (type === 'append') {
+              } else if (type.indexOf('append') !== -1) {
                 fnode.append($axel.oppidum.unmarshalPayload(xhr));
-              } else if (type === 'prepend') {
+              } else if (type.indexOf('prepend') !== -1) {
                 fnode.prepend($axel.oppidum.unmarshalPayload(xhr));
-              } // 'before', 'after'
-              $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
-            } else {
-              xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
+              } else { // TBD: before, after
+                xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
+              }
+            }
+          } 
+          $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr); // trigger event on target editor (always)
+          if (type.indexOf('event') !== -1) { // event on other target editor
+            // FIXME: adjust editor's trigger method to add arguments... (e.g. event payload ?)
+            tmp = this.spec.attr('data-event-target');
+            if (tmp) {
+              tmp = $axel.command.getEditor(tmp);
+              if (tmp) {
+                tmp.trigger('axel-save-done', this, xhr);
+              }
             }
           }
         }
@@ -125,7 +125,7 @@
     }
 
     function saveErrorCb (xhr, status, e) {
-      var msg, 
+      var msg,
           flags = this.spec.attr('data-save-flags');
       if ((!flags) || flags.indexOf('silentErrors') === -1) {
         msg = $axel.oppidum.parseError(xhr, status, e);
@@ -136,7 +136,7 @@
       $axel.command.getEditor(this.key).trigger('axel-save-error', this, xhr);
       finished(this);
     }
-    
+
     function started (that) {
       var flags = that.spec.attr('data-save-flags');
       if (flags && flags.indexOf('disableOnSave') != -1) {
@@ -144,7 +144,7 @@
       }
       that.spec.addClass('axel-save-running');
     }
-    
+
     function finished (that) {
       var flags = that.spec.attr('data-save-flags');
       if (flags && flags.indexOf('disableOnSave') != -1) {
