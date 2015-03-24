@@ -143,7 +143,7 @@
   
   function formatInputTooShort(input, min) { 
     var n = min - input.length;
-    return xtiger.util.getLocaleString('hintSelect2minInput', { 'n' : n });
+    return xtiger.util.getLocaleString('hintMinInputSize', { 'n' : n });
   }
 
   var _Filter = {
@@ -265,15 +265,6 @@
        }
       }
   };
-
-  $axel.extend (
-    xtiger.defaults.locales.en,
-    {
-      hintSelect2minInput : function (values) { return "Type at least " + values.n + " letter" + (values.n === 1? "" : "s"); }
-    }
-    // xtiger.defaults.locales.fr
-    // hintSelect2minInput : function (values) { return "Entrez au moins " + values.n + " caractère" + (values.n === 1? "" : "s"); }
-  );
 
   $axel.filter.register(
     'select2',

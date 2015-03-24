@@ -159,12 +159,12 @@
     feedback = $(errsel, doc).html('');
     if (err.length > 0) {
       feedback.append(
-        '<p>Vous devez remplir les champs suivants : ' + err.join(', ') + '</p>'
+        '<p>' + xtiger.util.getLocaleString('errFormRequired', { 'fields' : err.join(', ') }) + '</p>'
       );
     }
     if (valid.length > 0) {
       feedback.append(
-        '<p>Vous devez corriger les champs suivants : ' + valid.join(', ') + '</p>'
+        '<p>' + xtiger.util.getLocaleString('errFormInvalid', { 'fields' : valid.join(', ') }) + '</p>'
       );
     }
     res = (err.length === 0) && (valid.length === 0);
