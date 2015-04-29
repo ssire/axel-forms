@@ -79,7 +79,7 @@
   function _createEditor (node, doc) {
     var key = $(node).attr('id') || ('untitled' + (sindex++)),
         res = new registry['transform'].factory(key, node, doc);
-    xtiger.cross.log('debug','registering editor "' + key + '"' );
+    xtiger.cross.log('debug',"registering editor " + key);
     editors[key] = res;
     return res;
   }
@@ -197,14 +197,29 @@
 
   // document ready handler to install commands (self-transformed documents only)
   jQuery(function() { 
-    var script = $('script[data-bundles-path]')
-    var path = script.attr('data-bundles-path');
-    var when = script.attr('data-when');
+    var script = $('script[data-bundles-path]'),
+        path = script.attr('data-bundles-path'),
+        when = script.attr('data-when'),
+        lang;
     if (path) { // saves 'data-bundles-path' for self-transformable templates
       _Command.configure('bundlesPath', path);
       // FIXME: load sequence ordering issue (?)
       $axel.filter.applyTo({ 'optional' : ['input', 'choice'], 'event' : 'input' });
     }
+    // browser language detection
+    if (navigator.browserLanguage) {
+      lang = navigator.browserLanguage;
+    } else {
+      lang = navigator.language;
+    }
+    if (lang) {
+      lang = lang.substr(0,2);
+      if (xtiger.defaults.locales[lang]) {
+        $axel.setLocale(lang);
+        xtiger.cross.log('debug','set lang to ' + lang);
+      }
+    }
+    // command(s) installation
     if ('deferred' !== when) {
       _installCommands(document);
     }

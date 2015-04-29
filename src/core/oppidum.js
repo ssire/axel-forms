@@ -16,7 +16,7 @@
 
     // Returns the text message of a successful response
     unmarshalMessage : function ( xhr ) {
-      var text = $('success > message', xhr.responseXML).text();
+      var text = xhr.responseXML ? $('success > message', xhr.responseXML).text() : xhr.responseText;
       return text;
     },
 
@@ -61,6 +61,8 @@
           res = JSON.parse(xhr.responseText).error.message['#text'];
         } catch (e) {
         }
+      } else {
+        res = xhr.responseText;
       }
       return res || xhr.status;
     },
@@ -94,12 +96,12 @@
     parseError : function (xhr, status, e, url) {
       var loc, msg;
       if (status === 'timeout') {
-        msg = "Action aborted : server is taking too much time to answer. You are strongly advised to reload the page to check if the action has been executed anyway !";
+        msg = xtiger.util.getLocaleString("errServerTimeOut");
       } else if (xhr.status === 409) { // 409 (Conflict)
         loc = xhr.getResponseHeader('Location');
         if (loc) {
           window.location.href = loc;
-          msg = "Your are going to be redirected";
+          msg = xtiger.util.getLocaleString("msgRedirect");
         } else {
           msg = $axel.oppidum.getOppidumErrorMsg(xhr);
         }
@@ -109,13 +111,15 @@
       } else if (xhr.responseText.search('Error</title>') !== -1) { // HTML generated eXist-db error (empirical)
         msg = $axel.oppidum.getExistErrorMsg(xhr);
       } else if (e && (typeof e === 'string')) {
-        msg =  'Exception : "' + e + '" (' + xhr.status + ')';
+        msg = xtiger.util.getLocaleString('errException', { e : { message : e }, status : xhr.status });
       } else if (e) {
-        msg =  'Exception : ' + e.name + ' / ' + e.message + '\n' + ' (' + xhr.status +', line : ' + e.lineNumber + ')';
+        msg = xtiger.util.getLocaleString('errException', { e : e, status : xhr.status });
       } else if (url) {
-        msg = 'Error while loading "' + url + '" (' + xhr.status + ')';
+        msg = xtiger.util.getLocaleString('errLoadDocumentStatus', { url : url, xhr: xhr });
+      } else if (xhr.responseText !== '') {
+        msg = xhr.responseText;
       } else {
-        msg = 'Error (' + xhr.status + ')';
+        msg = xtiger.util.getLocaleString('errLoadDocumentStatus', { xhr: xhr });
       }
       return msg;
     }
