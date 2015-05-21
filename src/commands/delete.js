@@ -59,7 +59,7 @@
           }
         }
       } else {
-        $axel.error('Unexpected response from server (' + xhr.status + '). Delete action may have failed');
+        $axel.error(xtiger.util.getLocaleString('errServerResponse', { 'xhr' : xhr }));
       }
     }
 

@@ -2,8 +2,8 @@
  *
  * author      : Stéphane Sire
  * contact     : s.sire@oppidoc.fr
- * license     : proprietary
- * last change : 2012-09-05
+ * license     : LGPL v2.1
+ * last change : 2015-05-15
  *
  * Scripts to interface the AXEL library with a micro-format syntax
  * This allows to use XTiger XML templates without writing Javascript
@@ -44,7 +44,8 @@
 
   var sindex = 0, cindex = 0;
   var registry = {}; // Command class registry to instantiates commands
-  var editors = {}; //
+  var editors = {};
+  var commands = {};
 
   var  _Command = {
 
@@ -71,6 +72,14 @@
 
       getEditor : function (key) {
         return editors[key];
+      },
+      
+      getCommand : function (name, key) {
+        var _name = name,
+            _key = key,
+            c = commands[key],
+            found = c ? c[name] : undefined;
+        return found || { execute : function () { alert('Command ' + _name  + ' not found on ' + _key) }  };
       }
   };
 
@@ -80,7 +89,7 @@
     var key = $(node).attr('id') || ('untitled' + (sindex++)),
         res = new registry['transform'].factory(key, node, doc);
     xtiger.cross.log('debug',"registering editor " + key);
-    editors[key] = res;
+    editors[key] = res; // stores editor for getEditor
     return res;
   }
 
@@ -88,7 +97,9 @@
   // FIXME: data-command='template' exception (exclusion or handle it properly)
   function _createCommand (node, type, doc) {
     var key =  $(node).attr('data-target') || ('untitled' + (cindex++)),
-        record = registry[type];
+        id = $(node).attr('id'),
+        record = registry[type],
+        done;
     // xtiger.cross.log('debug', 'create command "' + type + '"' + ' on target "' + key + '"');
     if (record) {
       if (record.check) {
@@ -96,13 +107,19 @@
             if (node.disabled) { // activates trigger
               node.disabled = false;
             }
-            new registry[type].factory(key, node, doc); // command constructor should register to trigger event
+            done = new registry[type].factory(key, node, doc); // command constructor should register to trigger event
         } else {
           node.disabled = true; // unactivates trigger
           $axel.error('Missing or invalid data-target attribute in ' + type + ' command ("' + key + '")');
         }
       } else {
-        new registry[type].factory(key, node, doc); // command constructor should register to trigger event
+        done = new registry[type].factory(key, node, doc); // command constructor should register to trigger event
+      }
+      if (done && id) { // stores command for getCommand
+        if (! commands[id]) {
+          commands[id] = {};
+        }
+        commands[id][type] = done;
       }
     } else {
       $axel.error('Attempt to create an unkown command "' + type + '"');

@@ -2,19 +2,79 @@
 |                                                                             |
 |  AXEL Oppidum interface module                                              |
 |                                                                             |
-|  Utility functions to interact with server side code based on Oppidum       |
+|  Implementation of Oppidum Ajax responses                                   |
+|  Functions to be called from commands to intepret server's response         |                                                                             
+|                                                                             |
+|  TODO: rename to neutral $axel.reponse (response.js) to support adaptation  |
+|  to more server-side back-ends                                              |
 |                                                                             |
 \*****************************************************************************/
+
 (function ($axel) {
 
   var  _Oppidum = {
+    
+    // Converts XHR response into client-side Oppidum command
+    // Currently this is just a simple object containing the underlying parsed XML document
+    // and retaining the original XHR object
+    // TODO: handle JSON responses
+    getCommand : function ( xhr ) {
+      var doc, parser,
+          cmd = { xhr: xhr };
+      if (xhr.responseXML) {
+        cmd.doc = xhr.responseXML;
+      } else {
+        parser = xtiger.cross.makeDOMParser();
+        try {
+          cmd.doc = parser.parseFromString(xhr.responseText, "text/xml");
+        } catch (e) { // nope
+        }
+      }
+      return cmd;
+    },
 
+    // Implements redirection with Location header
+    // Returns true if no redirection or false otherwise 
+    // Currently redirection is supposed to supersede any other feedback
+    filterRedirection : function ( cmd ) {
+      var loc = cmd.xhr && cmd.xhr.getResponseHeader('Location'),
+          res = true;
+      if (loc) {
+        window.location.href = loc;
+        res = false;
+      }
+      return res;
+    },
+
+    // Implements the <message> element of an Ajax response
+    handleMessage : function ( cmd ) {
+      msg = cmd.doc ? $('success > message', cmd.doc).text() : xhr.responseText;
+      if (msg) {
+        alert(msg); // FIXME: integrate reporting with flash ?
+      }
+    },
+    
+    // Implements the <forward> element of an Ajax response
+    handleForward : function ( cmd ) {
+      var command, target, host, ev;
+      if (cmd.doc) {
+        host = $('success > forward', cmd.doc);
+        command = host.attr('command');
+        target = host.text();
+      }
+      if (command && target) {
+        ev = { synthetic: true, command : cmd };
+        $axel.command.getCommand(command, target).execute(ev);
+      }
+    },
+
+    // Tests if type string represents JSON MIME Type
     checkJSON : function ( type ) {
       var json = "application/json";
       return (typeof type === 'string') && (type.slice(0, json.length) === json);
     },
 
-    // Returns the text message of a successful response
+    // DEPRECATED - Returns the text message of a successful response
     unmarshalMessage : function ( xhr ) {
       var text = xhr.responseXML ? $('success > message', xhr.responseXML).text() : xhr.responseText;
       return text;
