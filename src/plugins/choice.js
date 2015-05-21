@@ -139,7 +139,7 @@
               );
               _this.update(accu);
             } else {
-              _this.update($(this).val()); // with option element jQuery returns the value attribute
+              _this.update($(xtdom.getEventTarget(ev)).val()); // with option element jQuery returns the value attribute
             }
           }
         }, true);
