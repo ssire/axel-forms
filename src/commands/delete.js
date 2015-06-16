@@ -42,7 +42,7 @@
               newblock =  fnode.replaceWith(xhr.responseText);
             } else if (type === 'swap') {
               if (this.swap) { // confirmation dialog already there
-                this.swap.replaceWith(xhr.responseText)
+                this.swap.replaceWith(xhr.responseText);
               } else {
                 this.swap = $(xhr.responseText); // FIXME: document context ?
                 fnode.after(this.swap);
@@ -70,18 +70,31 @@
 
     // Send delete request to server
     function doDelete () {
-      var url, editor = $axel.command.getEditor(this.key);
+      var url,
+          action,
+          editor = $axel.command.getEditor(this.key),
+          req = {
+            cache : false,
+            timeout : 10000,
+            success : $.proxy(successCb, this),
+            error : $.proxy(errorCb, this)
+            };
+          
       if (editor) {
         url = editor.attr('data-src'); // delete resource loaded into editor
-        $.ajax({
-          url : url,
-          type : 'delete',
-          cache : false,
-          timeout : 10000,
-          success : $.proxy(successCb, this),
-          error : $.proxy(errorCb, this)
-        });
-        
+        action = this.spec.attr('data-delete-action');
+        if (action) { // HTTP DELETE verb simulated with POST
+          if (! /\/$/.test(url)) {
+            url  += '/';
+          }
+          req.url = url + action;
+          req.type = 'post';
+          req.data =  { '_delete' : 1 };
+        } else { // HTTP DELETE verb
+          req.url = url;
+          req.type = 'delete';
+        }
+        $.ajax(req);
       }
     }
 
