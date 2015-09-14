@@ -112,52 +112,68 @@
   
   // FIXME: internationalize validation error messages
   function _validate (fields, errid, doc, cssrule) {
-    var errsel = '#' + errid,
+    var res, feedback, errsel = '#' + errid,
         labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
       fields.apply(
       function (field) {
         // we consider failure to meet required implies field is valid
-        var rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
+        var rcheck = (field.getParam('required') === 'true'),
+            vcheck = field.isValid,
+            rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
             vsuccess = (!rsuccess) || (!field.isValid || field.isValid()), 
             f = $(field.getHandle()),
+            l = f.parents().children(labsel).first(), // FIXME: too wide ?
             label, i;
-        if (rsuccess) {
+        if (rsuccess && rcheck) {
           f.removeClass('af-required');
+          l.removeClass('af-required');
         }
-        if (vsuccess) {
+        if (vsuccess && vcheck) {
           f.removeClass('af-invalid');
+          l.removeClass('af-invalid');
         }
-        if (!rsuccess || !vsuccess) {
-          label = $(field.getHandle()).parent().children(labsel).text();
+        if ((rcheck || vcheck) && (!rsuccess || !vsuccess)) {
+          // FIXME: contents().filter(function () { return (this.nodeType === 3) } )
+          // because contents(':not(span)') may throw exception
+          label = l.contents(':not(span)').text(); // filters inner span (useful to skip hints)
+          // .parent().children(labsel).text();
           i = label.lastIndexOf(':');
           if (i != -1) {
             label = label.substr(0, i);
           }
           label = $.trim(label);
-          if (!rsuccess) {
+          if (!rsuccess && rcheck) {
             f.addClass('af-required');
+            l.addClass('af-required');
             err.push(label);
-          } else {
+          } else if (vcheck) {
             f.addClass('af-invalid');
+            l.addClass('af-invalid');
             valid.push(label);
           }
         }
       }
     );
-    $(errsel, doc).html('');
+    feedback = $(errsel, doc).html('');
     if (err.length > 0) {
-      $(errsel, doc).append(
-        '<p>Vous devez remplir les champs suivants : ' + err.join(', ') + '</p>'
+      feedback.append(
+        '<p>' + xtiger.util.getLocaleString('errFormRequired', { 'fields' : err.join(', ') }) + '</p>'
       );
     }
     if (valid.length > 0) {
-      $(errsel, doc).append(
-        '<p>Vous devez corriger les champs suivants : ' + valid.join(', ') + '</p>'
+      feedback.append(
+        '<p>' + xtiger.util.getLocaleString('errFormInvalid', { 'fields' : valid.join(', ') }) + '</p>'
       );
     }
-    return (err.length === 0) && (valid.length === 0);
+    res = (err.length === 0) && (valid.length === 0);
+    if (!res) {
+      feedback.addClass('af-validation-failed');
+    } else {
+      feedback.removeClass('af-validation-failed');
+    }
+    return res;
   }
   
   // Extends a primitive editor instance with an isValid function 
@@ -234,7 +250,7 @@
         }
         // call life cycle method
         binding.onInstall(host); 
-        xtiger.cross.log('debug', 'installed binding "' + spec.name + '"');
+        // xtiger.cross.log('debug', 'installed binding "' + spec.name + '"');
         return binding;
       }
     } else {
@@ -245,8 +261,9 @@
   // when sliceStart/sliceEnd is defined installs on a slice
   function _installBindings ( doc, sliceStart, sliceEnd ) {
     var cur = sliceStart || doc,
+        stop = sliceEnd || sliceStart,
         sel = sliceStart ? '[data-binding]' : 'body [data-binding]'; // body to avoid head section
-    xtiger.cross.log('debug', 'installing bindings ' + (sliceStart ? 'slice mode' :  'document mode'));
+    // xtiger.cross.log('debug', 'installing bindings ' + (sliceStart ? 'slice mode' :  'document mode'));
     do {
       $(sel, cur).each(
         function(index, n) {
@@ -254,7 +271,7 @@
               names = el.attr('data-binding').split(' ');
           for (i = 0; i < names.length; i++) {
             if (registry[names[i]]) {
-              xtiger.cross.log('debug', 'installing binding "' + names[i] + '"');
+              // xtiger.cross.log('debug', 'installing binding "' + names[i] + '"');
               _installBinding(registry[names[i]], el, doc);
             } else {
               xtiger.cross.log('error', 'unregistered binding "' + names[i] + '"');
@@ -263,7 +280,7 @@
         }
       );
       cur = sliceStart ? cur.nextSibling : undefined;
-    } while (cur && (cur !== sliceEnd));
+    } while (cur && (cur !== sliceEnd) && (stop != sliceStart));
   }
 
  $axel.binding = $axel.binding || {};

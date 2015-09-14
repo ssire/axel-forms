@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "date" plugin</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="DateInputDemo">
+    </xt:head>
+    <!-- SELF-TRANSFORMED template -->
+    <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+    <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script src="../../../axel/axel/axel.js">//</script>
+    <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
+
+    <!-- 3rd party dependencies -->
+    <link rel="stylesheet" type="text/css"
+          href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.10.4.custom.min.css"  charset="utf-8" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>
+
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js">//</script>
+  </head>
+  <body data-template="#">
+
+    <h1>The <samp>"date"</samp> plugin</h1>
+    
+    <p>There is no individual <code>date</code> plugin. In fact to enter a date you can use the <code>date</code> sub-type of the <code>input</code> plugin. It will use the jQuery datepicker module to input a date inside an <code>input</code> field. Note that this requires that jQuery datepicker module be included directly inside the window containing the transformed template.</p>
+
+    <h2>Basic usage</h2>
+
+    <div class="demo extract">
+      <p>Date as element : <xt:use types="input" label="BasicDate" param="type=date">19/01/1971</xt:use></p>
+      <p>Date as attribute : <xt:attribute types="input" name="BasicDate" default="today" param="type=date;date_region=fr;date_format=ISO_8601"/></p>
+    </div>
+
+    <h2>With "option" attribute</h2>
+    
+    <p>Note the use of <code>maxDate=today</code> parameter on the first field and <code>minDate=today</code> on the second field</p>
+
+    <div class="demo extract">
+      <p>Date as element : <xt:use types="input" label="OptionUnsetDate" option="unset" param="type=date;maxDate=today"/></p>
+      <p>Date as attribute : <xt:attribute types="input" name="OptionUnsetDate" option="unset" param="type=date;minDate=today"/></p>
+    </div>
+
+    <h2>With "optional" filter</h2>
+
+    <p>Note that this works only if the 'optional' filter is registered with the 'input' plugin. This is done by <tt>$axel.command.install</tt> which is called on a jQuery's document ready when you include <tt>axel-forms.js</tt>.</p>
+
+    <div class="demo extract">
+      <p>Date as element : <xt:use types="input" label="OptionalDate" param="type=date;filter=optional"/></p>
+      <p>Date as attribute : <xt:attribute types="input" name="OptionalDate" param="type=date;filter=optional"/></p>
+    </div>
+
+    <h2>Inside a repetition</h2>
+
+    <div class="demo extract">
+      <table>
+        <tr>
+          <th size="10">Date</th>
+          <th>City</th>
+        </tr>
+        <xt:repeat minOccurs="1" maxOccurs="*" label="Repetition">
+          <tr>
+            <td><xt:use types="input" label="Date" param="type=date;date_region=fr;date_format=ISO_8601">today</xt:use></td>
+            <td><xt:use types="input" label="City">city</xt:use></td>
+            <td><xt:menu-marker/></td>
+          </tr>
+        </xt:repeat>
+      </table>
+    </div>
+
+  </body>
+</html>

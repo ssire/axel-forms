@@ -10,11 +10,11 @@
     <xt:component name="t_civility">
       <p><span class="text label">Civility :</span>
         <span data-binding="required" data-variable="civility">
-          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=M;"/>Mr</label>
-          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mme;"/>Mrs</label>
-          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Mlle;"/>Ms</label>
-          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Prof;"/>Prof</label>
-          <label><xt:use types="input" label="Civilite" param="type=radio;name=gender;value=Dr;"/>Dr</label>
+          <label><xt:use types="input" label="Civility" param="type=radio;name=gender;value=M;"/>Mr</label>
+          <label><xt:use types="input" label="Civility" param="type=radio;name=gender;value=Mme;"/>Mrs</label>
+          <label><xt:use types="input" label="Civility" param="type=radio;name=gender;value=Mlle;"/>Ms</label>
+          <label><xt:use types="input" label="Civility" param="type=radio;name=gender;value=Prof;"/>Prof</label>
+          <label><xt:use types="input" label="Civility" param="type=radio;name=gender;value=Dr;"/>Dr</label>
         </span>
       </p>
     </xt:component>
@@ -29,6 +29,9 @@
     color: red;
   }
   </style>
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />  
+  <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
 </head>
 <body id="editor" data-template="#">
 

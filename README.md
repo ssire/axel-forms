@@ -6,21 +6,25 @@ Library](https://github.com/ssire/axel) that defines additional plugins and
 filters to create forms, a binding mechanism and a command mechanism. Like AXEL, 
 AXEL-FORMS is an open source (LGPL v2.1) library.
 
-With the **binding mechanism** you can dynamically constrain the authoring process
+The binding and the command mechanisms define microformat instructions to be included
+directly on the XTiger XML and application page markup. This way you can use them 
+without writing Javascript code, in a fully declarative way.
+
+Use the **binding mechanism** to dynamically constrain the authoring process
 (e.g. constrain a field input space with a regexp, contrain two dates 
-to follow each other, etc).
+to follow each other, etc). This is targeted at XTiger XML authors.
 
-With the **command mechanism** you can insert high-level commands such as __save__ 
+Use the **command mechanism** to associate high-level commands such as __save__ 
 (save the open document to a server), or __load__ (load a document into an editor) 
-into a page. This way it is easy to create editing user interfaces.
-
-Both the binding and the command mechanisms rely on microformat instructions 
-to be included into the page markup. The benefit is that you can start using 
-the library without writing Javascript code, in a fully declarative way.
+with user interface controls such as buttons into a page. This way it is easy 
+to create editing user interfaces. This is targeted at web application developers. 
+Some commands may be redundant with functionalities exposed by the **$axel** wrapped 
+set object, however they do not require writing Javascript code and thus are easy 
+to render in markup generation tool chains such as XSLT transformations.
 
 Javascript developers have access to the binding and command mechanisms in the 
-`$axel.binding` and `$axel.command` namespaces. The documented binding API 
-and command API explain how to create and register new bindings and commands.
+`$axel.binding` and `$axel.command` namespaces. Javascript developers can create
+and register new bindings and commands as explained in the documenation.
 
 Pre-requisites
 --------------
@@ -47,9 +51,8 @@ test AXEL-FORMS inside your browser without any preliminary software installatio
 Follow the instructions of the section "For the impatient". 
 
 The web site is regularly updated, however to really get the latest version checkout 
-the repository. The repository contains a `dist/axel-forms.js` file with the extensions.
-As this file is usually rebuilt only for release commits, do not forget to regenerate it
-if you really want to get the latest version (see section below).
+the repository. The *master* branch is where we push AXEL-FORMS more stable releases while
+the *devel* branch is where we prepare the next release.
 
 Where to start ?
 ----------------
@@ -62,6 +65,12 @@ your browser (Firefox recommended, see the security note displayed in the launch
 If you are just interested in using and deploying AXEL-FORMS, all you need 
 to do is to build the library (see below) and to copy the `dist/axel-forms.js`
 file to your Web server. You must also have deployed AXEL onto your server.
+
+The rule of thumb is that if you checkout the *master* branch it will contain
+a built of the `dist/axel-forms.js` library file lined up with the code. Be aware that if
+you checkout the *devel* branch, you will need to rebuild the `dist/axel-forms.js` file 
+following the instructions of the next section.
+
 
 How to build the library ?
 --------------------------
@@ -78,7 +87,7 @@ on your system, which is already the case on many operating systems.
 This requires that you install the Yahoo UI compressor onto your machine, and
 that you edit the `scripts/ant.properties` file to point to it.
 
-You can get the Yahoo UI compressor at [http://developer.yahoo.com/yui/compressor/]()
+You can get the Yahoo UI compressor at [http://developer.yahoo.com/yui/compressor/](http://developer.yahoo.com/yui/compressor/)
 
 Alternatively the `build.debug` target simply concatenates source files
 together, so you can use it without installing the compressor.

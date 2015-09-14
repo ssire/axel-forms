@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>The 'condition' binding</title>
+  
+  <xt:head version="1.1" templateVersion="1.0" label="ConditionBindingDemo">
+  </xt:head>
+  <!-- SELF-TRANSFORMED template -->
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+  <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script src="../../../axel/axel/axel.js">//</script>
+  <script src="../../src/plugins/date.js">//</script>
+  <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
+
+  <!-- 3rd party dependencies -->
+  <link rel="stylesheet" type="text/css"
+        href="../../../axel/3rd-part/jquery/css/ui-lightness/jquery-ui-1.8.18.custom.css"  charset="utf-8" />
+  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
+
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+  <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+</head>
+<body data-template="#">
+  
+  <h1>The 'condition' binding</h1>
+  
+  <p><b>Goal</b> : disable (or enable) one or more target fields depending of the value of another master field</p>
+
+  <p><b>Declaration</b> :</p>
+  
+  <ul>
+    <li>Master's field host : <code>data-binding="condition"</code>, <code>data-variable="<i>name</i>"</code></li>
+    <li>Target's field host(s) : <code>data-avoid-</code><i>name</i><code>="<i>value</i>"</code></li>
+  </ul>
+  
+  <h2>Sample demo (with a target 'date' plugin)</h2>
+  
+  <p data-binding="condition" data-variable="goal">
+    Goal : <xt:use types="choice" label="Action" values="1 2" i18n="Write\ an\ email Make\ an\ appointment" param="filter=event optional"/>
+  </p>
+  <div data-avoid-goal="">
+    <p data-avoid-goal="2">Enter a subject : <xt:use types="input" label="Title" param="type=text"></xt:use> (email only)</p>
+    <p data-avoid-goal="1">Select a date : <xt:use types="input" label="Date" param="type=date">today</xt:use> (appointment only)</p>
+  </div>
+  
+</body> 
+</html>

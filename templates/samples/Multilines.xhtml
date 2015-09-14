@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>How to do a multiple paragraphs line input</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    </xt:head>
+
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+
+    <style type="text/css">
+      textarea.a-textarea {
+        vertical-align: top;
+        width: 100%;
+        resize: vertical;
+        overflow: auto;
+        min-height: 150px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h1>How to do a multiple paragraphs line input</h1>
+
+    <h2>With a repetition</h2>
+
+    <xt:repeat minOccurs="0" macOccurs="*" label="Message">
+      <p><xt:use types="text" label="Text" param="optional=true">cliquez pour entrer votre message</xt:use><xt:menu-marker/></p>
+    </xt:repeat>
+
+    <h2>With an 'input' plugin with a 'textarea' type and 'multilines=normal' parameter</h2>
+
+    <div class="demo extract">
+      <p>With <i>type="textarea"</i> : <xt:use types="input" label="Comment"
+          param="type=textarea;multilines=normal;class=a-textarea">Commentaire</xt:use></p>
+    </div>
+  </body>
+</html>

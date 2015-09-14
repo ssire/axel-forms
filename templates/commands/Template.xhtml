@@ -14,7 +14,7 @@
   <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
   <script src="../../../axel/axel/axel.js">//</script>
   <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
-    
+
   <xt:head version="1.1" templateVersion="1.0" label="TestCase">
   </xt:head>
   <style>
@@ -24,9 +24,14 @@
   }
   </style>
 </head>
-<body id="editor" data-template="#">
+<body>
   <h1>'template' command test</h1>
   <p>This document shows how to write  a minimalistic self-transformed template, you should be able to edit the field below. View the source to see how it works.</p>
-  <p><xt:use types="text" label="Test">click to edit some content</xt:use></p>
+  <div id="editor" data-template="#"> 
+    <p ><xt:use types="text" label="Test">click to edit some content</xt:use></p>
+  </div>
+  <p>
+    <button onclick="javacscript:alert($axel('#editor').xml())">Dump</button>
+  </p>
 </body>
 </html>

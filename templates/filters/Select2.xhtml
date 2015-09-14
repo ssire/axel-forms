@@ -13,13 +13,13 @@
     <link rel="stylesheet" type="text/css" href="../../3rd-part/bootstrap-select/bootstrap-select.css"></link> -->
 
     <link rel="stylesheet" type="text/css" href="../../3rd-part/select2/select2.css"></link>
-    
+
     <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
     <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
     <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
     <!-- <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.js"></script> -->
     <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
-    
+
     <style type="text/css" media="screen">
       select.axel-choice {
         width: 150px;
@@ -27,20 +27,32 @@
       select.axel-choice.districts {
         width: 300px;
       }
+      span.town {
+        color: gray;
+        font-style: italic;
+      }
     </style>
   </head>
-  <body>
+  <body xmlns:xt="http://ns.inria.org/xtiger">
 
     <h1>The <samp>"select2"</samp> filter</h1>
 
     <p>The <code>"select2"</code> filter turns a "choice" into a <a href="http://ivaynberg.github.io/select2/" target="_blank">select2</a> combo box.</p>
 
+    <h2>Requirements</h2>
+
+    <p>You must copy the <code>/3rd-part/select2</code> folder to your server. It contains the original <i>select2</i> code that we patched for use with AXEL-FORMS. Our patched version is available on Github at <a href="https://github.com/ssire/select2" target="_blank">https://github.com/ssire/select2</a> (see the original <a href="http://ivaynberg.github.io/select2/index.html" target="_blank">documentation</a>).</p>
+
+    <p>The page invoking the editor generation code (i.e the page containing the AXEL, AXEL-FORMS and jQuery libraries) must include <code>/3rd-part/select2/select2.min.js</code> file.</p>
+
+    <p>The page containing the generated editor must include the <code>/3rd-part/select2/select2.css</code> CSS file.</p>
+
     <h2>Parameters</h2>
-    
-    <p>See <a href="editor.xhtml#plugins/Choice">"choice"</a> plugin parameters</p>
+
+    <p>See the <code>"choice"</code> plugin parameters</p>
 
     <h2>Basic usage</h2>
-    
+
     <p>With a default selection.</p>
 
     <div class="demo extract">
@@ -59,6 +71,16 @@
       </p>
     </div>
 
+    <p>Inside a repetition.</p>
+
+    <div class="demo extract">
+      <p>Select your seasons by prefernce order : 
+        <xt:repeat minOccurs="1" maxOccurs="*" label="Seasons">
+          <xt:use types="choice" label="Season" param="filter=select2" values="Winter Spring Summer Autumn">Winter</xt:use>
+        </xt:repeat>
+      </p>
+    </div>
+
     <!-- <h3>As an element (and with i18n labels)</h3>
 
     <div class="demo extract">
@@ -66,19 +88,100 @@
         I prefer to pay with <xt:use types="choice" label="Currency" param="filter=select2" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc">USD</xt:use>.
       </p>
     </div> -->
-    
+
     <h2>Multiple choices</h2>
-    
+
     <p>The <var>xvalue</var> parameter is used to serialize the selected options in XML elements instead of a comma-separated list of options.</p>
-        
-        <div class="demo extract">
-          <p>
-            Please select one or more Swiss canton <xt:use types="choice" label="Districts"
-            param="multiple=yes;xvalue=District;typeahead=yes;filter=select2;placeholder=Choose something...;class=districts"
-            values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
-            i18n="Argovie Appenzell\ Interieur Appenzell\ Exterieur Berne Bale-Campagne Bale-Ville Fribourg Geneve Glaris Grisons Jura Lucerne Neuchatel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"></xt:use>
-          </p>
+
+    <div class="demo extract">
+      <p>
+        Please select one or more Swiss canton <xt:use types="choice" label="Districts"
+        param="multiple=yes;xvalue=District;typeahead=yes;filter=select2;placeholder=Choose something...;class=districts"
+        values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+        i18n="Argovie Appenzell\ Interieur Appenzell\ Exterieur Berne Bale-Campagne Bale-Ville-Bale Fribourg Geneve Glaris Grisons Jura Lucerne Neuchatel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"></xt:use>
+      </p>
+    </div>
+
+    <h2>Multiple choices with double entry keys</h2>
+
+    <p>You can declare the option labels using a complement separated from the principal label with two colons (<code>::</code>). The complement will appear within a <code>span</code> element with a <code>select2_complement</code> class name so you can style it. This is useful to create double entry selection lists where you can use either the label or the complement as a key for keyboard access. You can change the complement class using the <var>select2_complement</var> parameter .</p>
+
+    <div class="demo extract">
+      <p>
+        Please select one or more Swiss canton <xt:use types="choice" label="DistrictsDoubleKey"
+        param="multiple=yes;xvalue=District;typeahead=yes;filter=select2;placeholder=Choose something...;class=districts;select2_complement=town;select2_dropdownAutoWidth=true;select2_minimumInputLength=2"
+        values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+        i18n="Argovie::Aarau Appenzell\ Interieur::Appenzell Appenzell\ Exterieur::Herisau Berne Bale-Campagne::Liestal Bale-Ville::Bale Fribourg Geneve Glaris Grisons::Coire Jura::Delémont Lucerne Neuchatel Nidwald::Stans Obwald::Sarnen Saint-Gall Schaffhouse Schwytz Soleure Tessin::Bellinzone Thurgovie::Frauenfeld Uri::Altdorf Valais::Sion Vaud::Lausanne Zoug Zurich"></xt:use>
+      </p>
+    </div>
+
+    <h2>Single choice with free text entry</h2>
+
+    <p>The <var>select2_tags</var> parameter uses the <i>tags</i> parameter of the select2 library to create a combo list with free text entry to enter new tag-like options. In that case the plugin will serialize current selection as either the new free text entry or as the display value (localized label) of the corresponding predefined option, excluding any complement appearing after <tt>::</tt>. For that reason if you declare the predefined options label inside the <var>i18n</var> attribute of the <code>xt:use</code> element, you may omit the <var>values</var> attribute.</p>
+    
+    <p>Using <var>select2_tags</var> implies that the <var>appearance</var> parameter is set to <i>compact</i> (generated as a drop down list, which is the default) and that the <var>multiple</var> parameter is set to <i>no</i> (which is the default).</p>
+    
+    <p>Currently <var>select2_tags</var> must be declared with the <i>yes</i> value.</p>
+
+    <div class="demo extract">
+      <p>
+        Please choose a nickname <xt:use types="choice" label="Nickname"
+        param="filter=select2;select2_tags=yes;select2_width=250px;typeahead=yes;select2_minimumInputLength=2;select2_complement=town;required=true"
+
+        i18n="Fast::popular Furious Quick::very\ popular Rapid Slow"></xt:use>
+      </p>
+      <p>
+        You may select an already existing one to create a new duplicate
+      </p>
     </div>
     
+    <h2>Ampersand character in option</h2>
+
+    <p>You can use ampersand characters to label options with the corresponding entity <code>&amp;amp;</code> in the <i>i18n</i> attribute.</p>
+
+    <div class="demo extract">
+      <p>Choose a professionnal category :
+        <xt:use types="choice" values="1 2 3 4 5" label="CategoryRef"
+          i18n="Accountability Research&amp;Development Engineering Consultancy&amp;Planing Other"                   
+          param="select2_dropdownAutoWidth=true;select2_width=250px;select2_minimumResultsForSearch=2;filter=select2;multiple=no;typeahead=yes"
+          >1</xt:use>
+      </p>
+    </div>
+    
+    <h2>Combining with the 'optional' filter</h2>
+
+    <p>This supposes you have called something like <code>$axel.filter.applyTo({ 'optional' : 'choice' });</code> after loading the AXEL and AXEL-FORMS libraries, note that this is done automatically when using AXEL-FORMS.</p>
+    
+    <p>With a single choice without placeholder and without default value :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite fruit <xt:use types="choice" label="FruitWithOptionalFilter" param="filter=select2 optional" values="Apple Orange Strawberry Ananas"></xt:use>
+      </p>
+    </div>
+
+    <p>With a single choice without placeholder and with a default value (however you should better use a placeholder in that case) :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite fruit <xt:use types="choice" label="FruitWithOptionalFilterDV" param="filter=select2 optional" values="None Apple Orange Strawberry Ananas">None</xt:use>
+      </p>
+    </div>
+
+    <p>With a single choice with placeholder :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite nickanme <xt:use types="choice" label="FruitWithOptionalFilterPH" param="filter=select2 optional;placeholder=Choose..." values="Alfredo Alberto Gilberto Rodrigo"/>
+      </p>
+    </div>
+
+    <p>With a multiple choice the optoinal filter will discard the parent label if no choices are selected  :</p>
+
+    <div class="demo extract">
+      <p>
+        My favourite colors <xt:use types="choice" label="ColorsWithOptionalFilter" param="filter=select2 optional;multiple=yes;xvalue=Color" values="Blue Yellow Rose Green Violet Chartreuse"/>
+      </p>
+    </div>    
   </body>
 </html>

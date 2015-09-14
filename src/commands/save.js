@@ -5,38 +5,64 @@
 |*****************************************************************************|
 |                                                                             |
 |  Required attributes :                                                      |
-|  - data-target : id of the editor's container                               |
+|  - data-target : id of the editor's container to generate submission data   |
 |                                                                             |
 |  Optional attributes :                                                      |
+|  - data-replace-type : defines what to do with the servers's response       |
+|    value is 'event' and/or a choice of 'all', 'swap', 'append', 'prepend'   |
+|  - data-event-target : when data-replace-type is 'event' this attribute     |
+|    gives the name of a second editor from which to trigger a copy cat of    |
+|    'axel-save-done' event (e.g. to trigger refresh content)                 |
 |  - data-validation-output (on the target editor): identifier of a target    |
 |    element to use as a container for showing validation error messages,     |
-|    the presence of this attributes causes validation                        |
+|    the presence of this attribute causes validation                         |
+|                                                                             |
+|  HTTP Responses :                                                           |
+|  - redirection with Location header                                         |
+|  - <success> with <message>, <payload> and /or <forward> elements           |
+|  - <error> with <message> in case of server-side error                      |
 |                                                                             |
 \*****************************************************************************/
 
-// TODO
-// - customize server error decoding for Orbeon 3.8, eXist-DB, etc.
-
 (function () {
-
+  
   function SaveCommand ( identifier, node, doc ) {
     this.doc = doc || document;
     this.spec = $(node);
     this.key = identifier;
     this.spec.bind('click', $.proxy(this, 'execute'));
   }
-
+  
   SaveCommand.prototype = (function () {
 
-    function isResponseAnOppidumError (xhr) {
-      return $('error > message', xhr.responseXML).size() > 0;
+    // Implements data-replace-type feedback from ajax response
+    function doIncUpdate ( type, xhr ) {
+      var content;
+      if (/all|swap|append|prepend/.test(type)) { // incremental update
+        content = $axel.oppidum.unmarshalPayload(xhr);
+        fnode = $('#' + this.spec.attr('data-replace-target'));
+        if (fnode.length > 0) {
+          if (type.indexOf('all') !== -1) {
+            fnode.replaceWith(content);
+          } else if (type.indexOf('swap') !== -1) {
+            this.swap = $(content); // FIXME: document context ?
+            fnode.after(this.swap);
+            fnode.hide();
+            this.fragment = fnode; // cached to implement data-command="continue"
+            $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
+            $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
+          } else if (type.indexOf('append') !== -1) {
+            fnode.append(content);
+          } else if (type.indexOf('prepend') !== -1) {
+            fnode.prepend(content);
+          } 
+          // TBD: before, after
+        } else { 
+          xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
+        }
+      }
     }
 
-    function getOppidumErrorMsg (xhr) {
-      var text = $('error > message', xhr.responseXML).text();
-      return text || xhr.status;
-    }
-    
     function doSwap () {
       this.swap.remove();
       this.fragment.show();
@@ -49,131 +75,161 @@
         this.swap.remove();
         this.fragment.show();
       } else {
-        $axel.command.logError('Cannot find the document editor to reset', this.errTarget);
+        $axel.error(xtiger.util.getLocaleString("editorNotFound"));
       }
     }
 
-    // Tries to extract more info from a server error. Returns a basic error message
-    // if it fails, otherwise returns an improved message
-    // Compatible with eXist 1.4.x server error format
-    function getExistErrorMsg (xhr) {
-      var text = xhr.responseText, status = xhr.status;
-      var msg = 'Error ! Result code : ' + status;
-      var details = "";
-      var m = text.match('<title>(.*)</title>','m');
-      if (m) {
-        details = '\n' + m[1];
-      }
-      m = text.match('<h2>(.*)</h2>','m');
-      if (m) {
-        details = details + '\n' + m[1];
-      } else if ($('div.message', xhr.responseXML).size() > 0) {
-        details = details + '\n' + $('div.message', xhr.responseXML).get(0).textContent;
-        if ($('div.description', xhr.responseXML).size() > 0) {
-          details = details + '\n' + $('div.description', xhr.responseXML).get(0).textContent;
+    function saveSuccessCb (response, status, xhr, memo) {
+      var type, msg, tmp, proceed, cmd;
+
+      // 1) middle of transactional protocol
+      if ((xhr.status === 202) && memo) { 
+        proceed = confirm($('success > message', xhr.responseXML).text());
+        if (memo.url.indexOf('?') !== -1) {
+          tmp = memo.url + '&_confirmed=1';
+        } else {
+          tmp = memo.url + '?_confirmed=1';
         }
-      }
-      return msg + details;
-    }
+        if (proceed) {
+          $.ajax({
+            url : tmp,
+            type : memo.method,
+            data :  memo.payload,
+            cache : false,
+            timeout : 50000,
+            dataType : 'xml',
+            contentType : "application/xml; charset=UTF-8",
+            success : $.proxy(saveSuccessCb, this),
+            error : $.proxy(saveErrorCb, this)
+          });
+          return; // short-circuit final call to finished
+        } else {
+          $axel.command.getEditor(this.key).trigger('axel-save-cancel', this, xhr);
+        }
 
-    function saveSuccessCb (response, status, xhr) {
-      var loc = xhr.getResponseHeader('Location'),
-          type, fnode;
-      if (xhr.status === 201) {
-        if (loc) { // implicit data-replace="location" behavior
-          window.location.href = loc;
-        } else { // implicit data-replace="fragment" behavior
+      // 2) direct response or end of transactionnal protocol
+      } else if ((xhr.status === 201) || (xhr.status === 200)) {
+        cmd = $axel.oppidum.getCommand(xhr);
+        if ($axel.oppidum.filterRedirection(cmd)) { // in page feedback
+          $axel.oppidum.handleMessage(cmd); // <message> feedback
+          // <payload> feedback
           type = this.spec.attr('data-replace-type') || 'all';
-          fnode = $('#' + this.spec.attr('data-replace-target'));
-          if (fnode.length > 0) {
-            if (type === 'all') {
-              fnode.replaceWith(xhr.responseText);
-            } else if (type === 'swap') {
-              this.swap = $(xhr.responseText); // FIXME: document context ?
-              fnode.after(this.swap);
-              fnode.hide();
-              this.fragment = fnode; // cached to implement data-command="continue"
-              $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
-              $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
-            } // FIXME: implement other types like before|after|prepend|append
-          } else {
-            xtiger.cross.log('error', 'missing "data-replace-target" attribute to report "save" command success');
+          doIncUpdate.call(this, type, xhr);
+          // 'axel-save-done' event dispatch
+          $axel.command.getEditor(this.key).trigger('axel-save-done', this, xhr);
+          if (type.indexOf('event') !== -1) { // optional secondary target editor
+            // FIXME: adjust editor's trigger method to add arguments... (e.g. event payload ?)
+            tmp = this.spec.attr('data-event-target');
+            if (tmp) {
+              tmp = $axel.command.getEditor(tmp);
+              if (tmp) {
+                tmp.trigger('axel-save-done', this, xhr);
+              }
+            }
           }
         }
+
+      // 3) untrapped server-side error or wrong Ajax protocol error
       } else {
-        $axel.command.logError('Unexpected response from server (' + xhr.status + '). Save action may have failed', this.errTarget);
+        $axel.error(xtiger.util.getLocaleString('errServerResponse', { 'xhr' : xhr }));
+        $axel.command.getEditor(this.key).trigger('axel-save-error', this, xhr);
+      }
+
+      // 4) re-enable 'save' command
+      finished(this);
+      
+      if (cmd) {
+        $axel.oppidum.handleForward(cmd); // <forward> feedback
       }
     }
 
     function saveErrorCb (xhr, status, e) {
-      var s;
-      if (status === 'timeout') {
-        $axel.command.logError("Save action taking too much time, it has been aborted, however it is possible that your page has been saved", this.errTarget);
-      } else if (xhr.status === 409) { // 409 (Conflict)
-        s = xhr.getResponseHeader('Location');
-        if (s) {
-          window.location.href = s;
-        } else {
-          $axel.command.logError(getOppidumErrorMsg(xhr), this.errTarget);
-        }
-      } else if (isResponseAnOppidumError(xhr)) {
-        // Oppidum may generate 500 Internal error, 400, 401, 404
-        $axel.command.logError(getOppidumErrorMsg(xhr), this.errTarget);
-      } else if (xhr.responseText.search('Error</title>') !== -1) { // eXist-db error (empirical)
-        $axel.command.logError(getExistErrorMsg(xhr), this.errTarget);
-      } else if (e) {
-        $axel.command.logError('Exception : ' + e.name + ' / ' + e.message + "\n" + ' (line ' + e.lineNumber + ')', this.errTarget);
+      var msg,
+          flags = this.spec.attr('data-save-flags');
+      if ((!flags) || flags.indexOf('silentErrors') === -1) {
+        msg = $axel.oppidum.parseError(xhr, status, e);
+        $axel.error(msg);
       } else {
-        $axel.command.logError('Error while connecting to "' + this.url + '" (' + xhr.status + ')', this.errTarget);
+        this.spec.trigger('axel-network-error', { xhr : xhr, status : status, e : e });
       }
+      $axel.command.getEditor(this.key).trigger('axel-save-error', this, xhr);
+      finished(this);
+    }
+
+    function started (that) {
+      var flags = that.spec.attr('data-save-flags');
+      if (flags && flags.indexOf('disableOnSave') != -1) {
+        that.spec.attr('disabled', 'disable');
+      }
+      that.spec.addClass('axel-save-running');
+    }
+
+    function finished (that) {
+      var flags = that.spec.attr('data-save-flags');
+      if (flags && flags.indexOf('disableOnSave') != -1) {
+        that.spec.removeAttr('disabled');
+      }
+      that.spec.removeClass('axel-save-running');
     }
 
     return {
       execute : function (event) {
-        var editor = $axel.command.getEditor(this.key),
-            valid = true, method, dataUrl, transaction, data, errtarget, fields;
+        var method, dataUrl, transaction, data, fields, _successCb, _memo,
+            _this = this,
+            valid = true,
+            editor = $axel.command.getEditor(this.key),
+            yesNo = this.spec.attr('data-save-confirm');
         if (editor) {
-          url = editor.attr('data-src') || this.spec.attr('data-src') || '.'; // last case to create a new page in a collection
-          if (url) {
-            if (editor.attr('data-validation-output')) {
-              fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
-              valid = $axel.binding.validate(fields, editor.attr('data-validation-output'), this.doc, editor.attr('data-validation-label'));
-            }
-            if (valid) {
-              data = editor.serializeData();
-              if (data) {
-                method = editor.attr('data-method') || this.spec.attr('data-method') || 'post';
-                transaction = editor.attr('data-transaction') || this.spec.attr('data-transaction');
-                if (transaction) {
-                  url = url + '?transaction=' + transaction;
-                }
-                $.ajax({
-                  url : url,
-                  type : method,
-                  data : data,
-                  dataType : 'xml',
-                  cache : false,
-                  timeout : 10000,
-                  contentType : "application/xml; charset=UTF-8",
-                  success : $.proxy(saveSuccessCb, this),
-                  error : $.proxy(saveErrorCb, this)
-                  });
-                  editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
-                  // FIXME: shouldn't we disable the button while saving ?
-              } else {
-                $axel.command.logError('The editor did not generate any data');
+          if (!yesNo || confirm(yesNo)) {
+            url = this.spec.attr('data-src') || editor.attr('data-src') || '.'; // last case to create a new page in a collection
+            if (url) {
+              if (editor.attr('data-validation-output') || this.spec.attr('data-validation-output')) {
+                fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
+                valid = $axel.binding.validate(fields,
+                  editor.attr('data-validation-output')  || this.spec.attr('data-validation-output'),
+                  this.doc, editor.attr('data-validation-label')  || this.spec.attr('data-validation-label'));
               }
+              if (valid) {
+                data = editor.serializeData();
+                if (data) {
+                  method = editor.attr('data-method') || this.spec.attr('data-method') || 'post';
+                  transaction = editor.attr('data-transaction') || this.spec.attr('data-transaction');
+                  if (transaction) {
+                    url = url + '?transaction=' + transaction;
+                  }
+                  url = $axel.resolveUrl(url, this.spec.get(0));
+                  started(this);
+                  $axel.command.getEditor(this.key).trigger('axel-save', this);
+                  _memo = { url : url, payload : data, method : method };
+                  _successCb = function (data, textStats, jqXHR) {
+                                 saveSuccessCb.call(_this, data, textStats, jqXHR, _memo);
+                               };
+                  $.ajax({
+                    url : url,
+                    type : method,
+                    data : data,
+                    dataType : 'xml',
+                    cache : false,
+                    timeout : 50000,
+                    contentType : "application/xml; charset=UTF-8",
+                    success : _successCb,
+                    error : $.proxy(saveErrorCb, this)
+                    });
+                    editor.hasBeenSaved = true; // trick to cancel the "cancel" transaction handler
+                } else {
+                  $axel.error(xtiger.util.getLocaleString("editorEmpty"));
+                }
+              }
+            } else {
+              $axel.error(xtiger.util.getLocaleString("noTargetURL"));
             }
-          } else {
-            $axel.command.logError('The command does not know where to send the data');
           }
         } else {
-          $axel.command.logError('There is no editor associated with this command');
+          $axel.error(xtiger.util.getLocaleString("editorNotFound"));
         }
-        return false;
       }
     };
   }());
 
-  $axel.command.register('save', SaveCommand, { check : true });
+  $axel.command.register('save', SaveCommand, { check : false });
 }());

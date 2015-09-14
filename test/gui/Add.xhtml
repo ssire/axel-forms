@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>                  
+  <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Minimalistic XTiger XML self-transformed document template" />
+  <meta name="keywords" content="template, XTiger" />
+
+  <title>AXEL 'add' command demo</title>
+
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+  <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script src="../../../axel/axel/axel.js">//</script>
+<!-- <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script> -->
+  <!-- AXEL-FORMS -->
+  <!-- commands -->
+  <script data-bundles-path="../../../axel/axel/bundles" type="text/javascript" src="../../src/core/command.js">//</script>
+  <script type="text/javascript" src="../../src/commands/transform.js">//</script>
+  <script type="text/javascript" src="../../src/commands/dump.js">//</script>
+  <script type="text/javascript" src="../../src/commands/save.js">//</script>
+  <script type="text/javascript" src="../../src/commands/validate.js">//</script>  
+  <script type="text/javascript" src="../../src/commands/trigger.js">//</script>  
+  <script type="text/javascript" src="../../src/commands/add.js">//</script>  
+
+  <script type="text/javascript" src="../../src/core/binding.js"></script>
+  <script type="text/javascript" src="../../src/plugins/input.js"></script>
+  <script type="text/javascript" src="../../src/bindings/condition.js"></script>
+    
+  <xt:head version="1.1" templateVersion="1.0" label="TestTransform">
+  </xt:head>
+  <style>
+  body {
+    margin: 20px auto;
+    width: 800px;
+  }
+  #editor-ui {
+    display: none;
+  }
+  </style>
+  <script type="text/javascript" charset="utf-8">
+    function saveCb ( event, editor, xhr ) {
+      if (xhr) {
+        alert('Document saved result ' + xhr.responseText);
+      }
+    };
+    $.ajax = function (option) {
+      // success
+      option.success( undefined, undefined, { status : 201, responseText : "&lt;p>" + "One new document" + "&lt;/p>", getResponseHeader : function () { return undefined; } });
+      // error
+      // option.error( { status : 404, 
+      //   responseXML : new DOMParser ().parseFromString("&lt;error>&lt;message>server side error example&lt;/message>&lt;/error>", "text/xml"),
+      //   getResponseHeader : function () { return undefined; } 
+      //   });
+    };
+    (function () {
+        function init() {
+          $('#editor').bind('axel-save-done', saveCb);
+        }
+        jQuery(function() { init(); });
+      }());    
+  </script>
+</head>
+<body>
+  <h1>'add' command test</h1>
+  <div id="results">
+  </div>
+  <fieldset id="editor-ui">
+    <legend>Create a new document</legend>
+    <div id="editor" data-command="transform" data-template="../../templates/samples/Sample2.xhtml">
+      <p>This should be replaced with an editor to create a new document</p>
+    </div>
+    <div>
+      Commands : 
+      <button data-command="trigger" data-target="editor" data-trigger-event="axel-cancel-edit">Cancel</button>
+      <button data-command="save" data-target="editor" data-replace-target="results" data-replace-type="append">Save</button>
+      <button data-command="save" data-target="editor" data-replace-type="event">Save &amp; event</button>
+    </div>  
+  </fieldset>
+  <hr/>
+  <p>
+    <button data-command="add" data-target="editor" data-target-ui="editor-ui" >Create a new document</button>
+  </p>
+</body>
+</html>

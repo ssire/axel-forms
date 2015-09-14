@@ -59,6 +59,14 @@
   .af-required {
     background-color: pink;
   }
+  span.label.af-required {
+    background-color: white;
+    color: red;
+  }
+  span.label.af-invalid {
+    background-color: white;
+    color: brown;
+  }  
   </style>
 
   <xt:head version="1.1" templateVersion="1.0" label="Demo">
@@ -92,6 +100,11 @@
     </xt:component>
   </xt:head>
 
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+  <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script src="../../../axel/axel/axel.js">//</script>
+  <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
+
   <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
   <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
 </head>
@@ -110,9 +123,9 @@
     <li><var>data-validation-ouput</var> (<code>identifier</code>) : identifier of the element whose content will be replaced by validation messages</li>
     <li><var>data-validation-label</var> (<code>name</code>) : CSS selector that will be applied to the parent element of the editing field to extract its label to display in validation messages. It defaults to the selector "<code>.af-label</code>". The command will take care of removing the final colon in a label if present.</li>
   </ul>
-  
+
   <h2>CSS class</h2>
-  
+
   <p>When validating the command will add a <code>af-required</code> (resp. <code>af-invalid</code>) class each requried input field (resp. invalid input field). Those classes will be removed during the next validation if the field are valid. Note that a missing required field is always valid.</p>
 
   <p><b>TO BE DONE</b>: internationalize validation messages (currently in French).</p>
@@ -155,11 +168,11 @@
   </div>
 
   <h2>Adding validation behavior directly to an editor</h2>
-  
+
   <p>The validate command behavior can be also be declared onto an editor generated with the 'template' command. For that purpose you only need to add the <var>data-validation-ouput</var> attribute and the optional <var>data-validation-label</var> attribute onto the editor's container element. This will create a validating editor.</p>
-  
+
   <p>Every command that serializes data from a validating editor will validate its content using the same algorithm as the 'validate' command before performing their action. They will cancel their action and print error messages with the same feedback mechanism as the 'validate' command if validation fails.</p>
-  
+
   <p>This currenlty applies to the 'save' command to create a command that validates data before submission.</p>
 </body>
 </html>

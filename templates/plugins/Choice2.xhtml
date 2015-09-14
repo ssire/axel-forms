@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "choice2" plugin</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+    </xt:head>
+
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../../3rd-part/select2/select2.css"></link>
+
+  <style type="text/css">
+    /* Top level width */
+    div.choice2-item, ul.choice2-popup1 {
+      width: 400px;
+    }
+    /* Second level width */
+    ul.choice2-popup2 {
+      left: 400px;
+      width: 200px;
+      /* z-index: 100;*/
+    }
+    ul.choice2-drop-container {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+      border: 1px solid #5897FB !important;
+      border-radius: 0px 0px 4px 4px;
+      box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
+      border-width: medium 1px 1px;
+      border-style: none solid solid;
+      border-color: -moz-use-text-color #5897FB #5897FB;
+      color: black;
+      background: white;
+    }
+    ul.choice2-drop-container li {
+      cursor: pointer;
+      padding: 3px 7px 4px;
+      margin: 0px;
+      min-height: 1em;
+      -moz-user-select: none;
+      font-size: 11px;
+    }
+    ul.choice2-popup1 {
+      display: none;
+    }
+    ul.choice2-popup1.show {
+      display: block;
+    }
+    li.choice2-option {
+      position: relative;
+    }
+    li.choice2-option:hover ul.choice2-popup2 {
+      display: block;
+    }
+    ul.choice2-popup2 {
+      display: none;
+      position: absolute;
+      top: 0;
+    }
+    li.choice2-option.selected, li.choice2-label.selected {
+      font-weight: bold;
+      background: white;
+      color: #3875D7;
+    }
+    li.choice2-option:hover, li.choice2-label:hover, div.choice2-item.selected:hover, li.choice2-label.selected:hover {
+      background: #3875D7;
+      color: #FFF;
+    }
+  </style>
+  </head>
+  <body>
+
+    <h1>The <samp>"choice2"</samp> plugin</h1>
+
+    <p>The <code>"choice2"</code> plugin edits a choice in a list of two-levels nested choices.</p>
+
+    <h2>Attributes</h2>
+
+    <p>The plugin requires specific attributes on the XTiger XML <code>xt:use</code> or <code>xt:attribute</code> host element :</p>
+
+    <ul class="attributes">
+      <li><var>values</var> (<code>list of tokens</code>) : JSON list the values that will be linearized in the XML output</li>
+      <li><var>default</var> (<code>token</code>) : the default selection as it will appear in the label</li>
+    </ul>
+
+    <h2>Parameters</h2>
+
+    <p><i>NOT up to date, in progress</i></p>
+
+    <ul class="parameters">
+      <li><var>placeholder</var> (string) : if you do not define a default selection the placeholder sets the message to display as the first selected option, if the user does not change it it will be serialized as the empty string (or not serialized at all if <var>xvalue</var> is defined)</li>
+      <li><var>multiple</var> (yes | <b>no</b>) : multiple choices allowed when set to yes</li>
+      <li><var>xvalue</var> (<i>unset</i> | tag name) : drives XML serialization of the content, if <i>unset</i> the selected option(s) is(are) exported as plain text (comma separated list of values), if a tag name is specified it will be used to generate an element in the target content model for each option with its text content set to the value</li>
+      <li><var>typehead</var> (yes|<b>no</b>) : when set to yes the list of options can be filtered with keyboard shortcuts</li>
+      <li><var>noedit</var> (false|<b>true</b>) : when set to true the field is read-only, its value can only be changed progammatically or as a result of loading a document into the editor</li>
+    </ul>
+
+    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2". It is currently not possible to declare default values with <var>multiple</var>.</p>
+
+    <h2>Multiple Choices</h2>
+
+    <h3>Defaults to multiple="no" (single selection allowed)</h3>
+
+    <div class="demo extract">
+      <div>Menu :
+        <xt:use types="choice2" label="ActivityDomainRef"
+          param="choice2_width0=302px;choice2_width1=300px;choice2_width2=100%"
+          values='{ "5010" : { "_label" : "Energy &amp; Fossil Fuels", "501010" : "Coal", "501020" : "Oil &amp; Gas", "501030" : "Oil &amp; Gas Related Equipment and Services" }, "5020" : { "_label" : "Renewable Energy", "502010" : "Renewable Energy" }, "5030" : { "_label" : "Uranium", "503010" : "Uranium" }, "5110" : { "_label" : "Chemicals", "511010" : "Chemicals" }, "5120" : { "_label" : "Mineral Resources", "512010" : "Metals &amp; Mining", "512020" : "Construction Materials" }, "5130" : { "_label" : "Applied Ressources", "513010" : "Paper &amp; Forest Products", "513020" : "Containers &amp; Packaging" }, "5210" : { "_label" : "Industrial Goods", "521010" : "Aerospace &amp; Defense", "521020" : "Machinery, Equipment &amp; Components" }, "5220" : { "_label" : "Industrial &amp; Commercial Services", "522010" : "Construction &amp; Engineering", "522020" : "Diversified Trading &amp; Distributing", "522030" : "Professional &amp; Commercial Services " }, "5230" : { "_label" : "Industrial Conglomerates", "523010" : "Industrial Conglomerates" }, "5310" : { "_label" : "Automobiles &amp; Auto Parts", "531010" : "Automobiles &amp; Auto Parts" }, "5320" : { "_label" : "Cyclical Consumer Products", "532020" : "Textiles &amp; Apparel", "532030" : "Homebuilding &amp; Construction Supplies", "532040" : "Household Goods", "532050" : "Leisure Products" }, "5330" : { "_label" : "Cyclical Consumer Services", "533010" : "Hotels &amp; Entertainment Services", "533020" : "Media &amp; Publishing" }, "5340" : { "_label" : "Retailers", "534020" : "Diversified Retail", "534030" : "Other Specialty Retailers" }, "5410" : { "_label" : "Food &amp; Beverages", "541010" : "Beverages", "541020" : "Food &amp; Tobacco" }, "5420" : { "_label" : "Personal &amp; Houshold Products &amp; Services", "542010" : "Personal &amp; Household Products &amp; Services" }, "5430" : { "_label" : "Food &amp; Drug Retailing", "543010" : "Food &amp; Drug Retailing " }, "5510" : { "_label" : "Banking &amp; Investment Services", "551010" : "Banking Services", "551020" : "Investment Banking &amp; Investment Services" }, "5560" : { "_label" : "Holding Companies", "556010" : "Holding Companies" }, "5530" : { "_label" : "Insurance", "553010" : "Insurance" }, "5540" : { "_label" : "Real Estate", "554020" : "Real Estate Operations", "554030" : "Residential &amp; Commercial REIT" }, "5550" : { "_label" : "Collective Investments", "555010" : "Collective Investments " }, "5610" : { "_label" : "Healthcare Services", "561010" : "Healthcare Equipment &amp; Supplies", "561020" : "Healthcare Providers &amp; Services" }, "5620" : { "_label" : "Pharmaceuticals &amp; Medical Research", "562010" : "Pharmaceuticals", "562020" : "Biotechnology &amp; Medical Research" }, "5710" : { "_label" : "Technology Equipment", "571010" : "Semiconductors &amp; Semiconductor Equipment ", "571020" : "Communications &amp; Networking", "571050" : "Office Equipment", "571040" : "Electronic Equipment &amp; Parts", "571060" : "Computers, Phones &amp; Household Electronics" }, "5720" : { "_label" : "Software &amp; IT Services", "572010" : "Software &amp; IT Services" }, "5810" : { "_label" : "Telecommunications Services", "581010" : "Telecommunications Services" }, "5910" : { "_label" : "Utilities", "591010" : "Electrical Utilities &amp; IPPs", "591020" : "Natural Gas Utilities", "591030" : "Water Utilities", "591040" : "Multiline Utilities" } }'></xt:use>
+      </div>
+    </div>
+
+    <h3>With multiple="yes" (multiple selection allowed)</h3>
+
+    <div class="demo extract">
+      <div>Menu :
+        <xt:use types="choice2" label="ActivityDomains"
+        param="multiple=yes;xvalue=ActivityDomainRef;choice2_width0=302px;choice2_width1=300px;choice2_width2=100%"
+        values='{ "5010" : { "_label" : "Energy &amp; Fossil Fuels", "501010" : "Coal", "501020" : "Oil &amp; Gas", "501030" : "Oil &amp; Gas Related Equipment and Services" }, "5020" : { "_label" : "Renewable Energy", "502010" : "Renewable Energy" }, "5030" : { "_label" : "Uranium", "503010" : "Uranium" }, "5110" : { "_label" : "Chemicals", "511010" : "Chemicals" }, "5120" : { "_label" : "Mineral Resources", "512010" : "Metals &amp; Mining", "512020" : "Construction Materials" }, "5130" : { "_label" : "Applied Ressources", "513010" : "Paper &amp; Forest Products", "513020" : "Containers &amp; Packaging" }, "5210" : { "_label" : "Industrial Goods", "521010" : "Aerospace &amp; Defense", "521020" : "Machinery, Equipment &amp; Components" }, "5220" : { "_label" : "Industrial &amp; Commercial Services", "522010" : "Construction &amp; Engineering", "522020" : "Diversified Trading &amp; Distributing", "522030" : "Professional &amp; Commercial Services " }, "5230" : { "_label" : "Industrial Conglomerates", "523010" : "Industrial Conglomerates" }, "5310" : { "_label" : "Automobiles &amp; Auto Parts", "531010" : "Automobiles &amp; Auto Parts" }, "5320" : { "_label" : "Cyclical Consumer Products", "532020" : "Textiles &amp; Apparel", "532030" : "Homebuilding &amp; Construction Supplies", "532040" : "Household Goods", "532050" : "Leisure Products" }, "5330" : { "_label" : "Cyclical Consumer Services", "533010" : "Hotels &amp; Entertainment Services", "533020" : "Media &amp; Publishing" }, "5340" : { "_label" : "Retailers", "534020" : "Diversified Retail", "534030" : "Other Specialty Retailers" }, "5410" : { "_label" : "Food &amp; Beverages", "541010" : "Beverages", "541020" : "Food &amp; Tobacco" }, "5420" : { "_label" : "Personal &amp; Houshold Products &amp; Services", "542010" : "Personal &amp; Household Products &amp; Services" }, "5430" : { "_label" : "Food &amp; Drug Retailing", "543010" : "Food &amp; Drug Retailing " }, "5510" : { "_label" : "Banking &amp; Investment Services", "551010" : "Banking Services", "551020" : "Investment Banking &amp; Investment Services" }, "5560" : { "_label" : "Holding Companies", "556010" : "Holding Companies" }, "5530" : { "_label" : "Insurance", "553010" : "Insurance" }, "5540" : { "_label" : "Real Estate", "554020" : "Real Estate Operations", "554030" : "Residential &amp; Commercial REIT" }, "5550" : { "_label" : "Collective Investments", "555010" : "Collective Investments " }, "5610" : { "_label" : "Healthcare Services", "561010" : "Healthcare Equipment &amp; Supplies", "561020" : "Healthcare Providers &amp; Services" }, "5620" : { "_label" : "Pharmaceuticals &amp; Medical Research", "562010" : "Pharmaceuticals", "562020" : "Biotechnology &amp; Medical Research" }, "5710" : { "_label" : "Technology Equipment", "571010" : "Semiconductors &amp; Semiconductor Equipment ", "571020" : "Communications &amp; Networking", "571050" : "Office Equipment", "571040" : "Electronic Equipment &amp; Parts", "571060" : "Computers, Phones &amp; Household Electronics" }, "5720" : { "_label" : "Software &amp; IT Services", "572010" : "Software &amp; IT Services" }, "5810" : { "_label" : "Telecommunications Services", "581010" : "Telecommunications Services" }, "5910" : { "_label" : "Utilities", "591010" : "Electrical Utilities &amp; IPPs", "591020" : "Natural Gas Utilities", "591030" : "Water Utilities", "591040" : "Multiline Utilities" } }'></xt:use>
+      </div>
+    </div>
+
+
+
+  </body>
+</html>

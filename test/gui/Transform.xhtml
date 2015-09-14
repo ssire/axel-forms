@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>                  
+  <!-- Use UTF-8 and avoid the xml protocol declaration at the top for Internet Explorer -->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Minimalistic XTiger XML self-transformed document template" />
+  <meta name="keywords" content="template, XTiger" />
+
+  <title>AXEL 'transform' command demo</title>
+
+  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+  <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script src="../../../axel/axel/axel.js">//</script>
+<!-- <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script> -->
+  <!-- AXEL-FORMS -->
+  <!-- commands -->
+  <script data-bundles-path="../../../axel/axel/bundles" type="text/javascript" src="../../src/core/command.js">//</script>
+  <script type="text/javascript" src="../../src/commands/transform.js">//</script>
+  <script type="text/javascript" src="../../src/commands/dump.js">//</script>
+  <script type="text/javascript" src="../../src/commands/save.js">//</script>
+  <script type="text/javascript" src="../../src/commands/validate.js">//</script>  
+  <script type="text/javascript" src="../../src/commands/trigger.js">//</script>  
+
+  <script type="text/javascript" src="../../src/core/binding.js"></script>
+  <script type="text/javascript" src="../../src/plugins/input.js"></script>
+  <script type="text/javascript" src="../../src/bindings/condition.js"></script>
+    
+  <xt:head version="1.1" templateVersion="1.0" label="TestTransform">
+  </xt:head>
+  <style>
+  body {
+    margin: 20px auto;
+    width: 800px;
+  }
+  </style>
+  <script type="text/javascript" charset="utf-8">
+    $.ajax = function (option) {
+      // success
+      option.success( undefined, undefined, { status : 201, responseText : "&lt;p>" + escape(option.data) + "&lt;/p>", getResponseHeader : function () { return undefined; } });
+      // error
+      option.error( { status : 500, 
+        responseXML : new DOMParser ().parseFromString("&lt;error>&lt;message>server side error example&lt;/message>&lt;/error>", "text/xml"),
+        getResponseHeader : function () { return undefined; } 
+        });
+    };
+  </script>
+</head>
+<body onload="$('#editor').bind('axel-save-done', function () { alert('saved'); }).bind('axel-cancel-edit', function () { alert('cancelled'); }).bind('axel-transform-error', function () { alert('transformation error'); })">
+  <h1>'transform' command test</h1>
+  <div id="results">
+  </div>
+  <fieldset>
+    <legend>Embedded template</legend>
+    <div id="editor" data-command="transform" data-template="../../templates/samples/Sample2.xhtml">
+      <p>This document shows how to use the command to generate editors on-demand into a page. Actually this is useful to create more advanced commands.</p>
+    </div>
+  </fieldset>
+  <p>
+    Click <button onclick="javascript:$axel.command.getEditor('editor').transform()">Transform</button> to generate the editor. The first time it will load it from the file given in the <code>data-template</code> attribute. Then it will simply be reset if you click more.
+  </p>
+  <hr/>
+  <p>
+    <button onclick="javacscript:alert($axel('#editor').xml())">Dump</button>
+    <button data-command="trigger" data-target="editor" data-trigger-event="axel-cancel-edit">Trigger</button>
+    <button data-command="save" data-target="editor" data-replace-target="results" data-replace-type="append">Save</button>
+  </p>
+</body>
+</html>

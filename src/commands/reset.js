@@ -22,9 +22,13 @@
   
   ResetCommand.prototype = {
     execute : function (event) {
-      var editor = $axel.command.getEditor(this.key);
+      var verr, editor = $axel.command.getEditor(this.key);
       if (editor) {
         editor.reset();
+        verr = editor.attr('data-validation-output'); // FIXME: document ?
+        if (verr) {
+          $('#' + verr).removeClass('af-validation-failed');
+        }
       }
     }
   };

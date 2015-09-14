@@ -25,6 +25,23 @@
         height: 300px;
         vertical-align:top;
       }
+      ul.axel-choice, ul.axel-choice > li {
+        display: inline;
+        padding-left: 0;
+      }
+      ul.axel-choice.vertical {
+        display: inline-block;
+        vertical-align: text-top;
+        margin: 0;
+      }
+      ul.axel-choice.vertical > li {
+        display: block;
+        padding-left: 0;
+      }
+      ul.readonly label.axel-choice-unset {
+        font-style: italic;
+        color: #999;
+      }
     </style>
   </head>
   <body>
@@ -36,13 +53,13 @@
     <h2>Attributes</h2>
 
     <p>The plugin requires specific attributes on the XTiger XML <code>xt:use</code> or <code>xt:attribute</code> host element :</p>
-      
+
     <ul class="attributes">
       <li><var>values</var> (<code>list of tokens</code>) : list the values that will be linearized in the XML output, these will also be used as the labels in the popup menu unless an optional <var>i18n</var> attribute is defined</li>
       <li><var>i18n</var> (<code>list of tokens</code>) : defines the labels to display for the values in the popup menu, both lists are enumerated in the same order</li>
       <li><var>default</var> (<code>token</code>) : the default selection as it will appear in the label</li>
     </ul>
-    
+
     <p>The <var>values</var> and <var>i18n</var> lists are white space separated list of tokens, you can include a white space inside a token by adding an anti-slash in front of it.</p>
 
     <p>Note that the <var>default</var> attribute is only valid when using the plugin with an <code>xt:attribute</code> XTiger XML host element. If you use it with an <code>xt:use</code> host, then you must declare the default selection inside the text content of the element.</p>
@@ -52,11 +69,12 @@
     <ul class="parameters">
       <li><var>placeholder</var> (string) : if you do not define a default selection the placeholder sets the message to display as the first selected option, if the user does not change it it will be serialized as the empty string (or not serialized at all if <var>xvalue</var> is defined)</li>
       <li><var>multiple</var> (yes | <b>no</b>) : multiple choices allowed when set to yes</li>
-      <li><var>xvalue</var> (tag name) : drives XML serialization of the content, default value means the selected option(s) is(are) exported as plain text (comma separated list of values), if it contains any other string the string will be used to generate an element in the target content model for each option with its text content set to the value</li>
+      <li><var>xvalue</var> (<i>unset</i> | tag name) : drives XML serialization of the content, if <i>unset</i> the selected option(s) is(are) exported as plain text (comma separated list of values), if a tag name is specified it will be used to generate an element in the target content model for each option with its text content set to the value</li>
       <li><var>typehead</var> (yes|<b>no</b>) : when set to yes the list of options can be filtered with keyboard shortcuts</li>
+      <li><var>noedit</var> (false|<b>true</b>) : when set to true the field is read-only, its value can only be changed progammatically or as a result of loading a document into the editor</li>
     </ul>
-    
-    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2".</p>
+
+    <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2". It is currently not possible to declare default values with <var>multiple</var>.</p>
 
     <h2>Basic usage</h2>
 
@@ -76,7 +94,7 @@
         I prefer to pay with <xt:use types="choice" label="Currency" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc">USD</xt:use>.
       </p>
     </div>
-    
+
     <h2>Multiple Choices</h2>
 
     <div class="demo extract">
@@ -88,7 +106,7 @@
       </p>
     </div>
 
-    <p>With serialization into different XML elements</p>
+    <h3>With serialization into different XML elements</h3>
 
     <div class="demo extract">
       <p>
@@ -98,13 +116,25 @@
         ></xt:use> in Switzerland.
       </p>
     </div>
-    
+
+    <h3>With <code>noedit</code> set to <tt>true</tt></h3>
+
+    <div class="demo extract">
+      <p>
+        I would like to visit <xt:use types="choice" label="Districts2"
+        param="class=district;multiple=yes;xvalue=District;placeholder=Choose...;noedit=true"
+        values="AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SZ SO TI TG UR VS VD ZG ZH"
+        i18n="Argovie Appenzell\ Intérieur Appenzell\ Extérieur Berne Bâle-Campagne Bâle-Ville Fribourg Genève Glaris Grisons Jura Lucerne Neuchâtel Nidwald Obwald Saint-Gall Schaffhouse Schwytz Soleure Tessin Thurgovie Uri Valais Vaud Zoug Zurich"
+        ></xt:use> in Switzerland.
+      </p>
+    </div>
+
     <h2>Special usage</h2>
-    
+
     <h3>Without default selection</h3>
-    
+
     <p>In that case the default selection (or empty selection) will be set to the empty string, which will be serialized as the empy string if the user does not change it.</p>
-    
+
     <div class="demo extract">
       <p>
         Please select a currency <xt:use types="choice" label="CurrencyOrNot" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc"/>
@@ -112,12 +142,61 @@
     </div>
 
     <p>You can change the empty selection prompt by setting the <code>placeholder</code> parameter to whatever string you want to display in that case.</p>
-    
+
     <div class="demo extract">
       <p>
         Please select a currency <xt:use types="choice" label="CurrencyOrNot" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc" param="placeholder=choose..."/>
       </p>
     </div>
 
+    <h3>Changing the appearance</h3>
+
+    <p>You can set <code>appearance</code> parameter to <tt>full</tt> to display the list of choices as a list of radio buttons or checkboxes. The list is generated inside an <code>&lt;ul class="axel-choice"></code> container so this is up to you to style the list to get the desired layout.</p>
+
+    <h4>Single choice (default) vs. multiple choice</h4>
+
+    <div id="appearance" class="demo extract">
+      <p>
+        Please select a currency <xt:use param="appearance=full;xvalue=Currency" types="choice" label="SingleFull" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc"/>
+      </p>
+      <p>
+        Please select several currencies <xt:use param="appearance=full;multiple=yes;xvalue=Currency" types="choice" label="SingleFullVertical" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc"/>
+      </p>
+    </div>
+
+    <h4>Horizontal layout (default) vs. vertical layout</h4>
+
+    <p>There is no builtin attribute to change layout from horizontal to vertical, however you can use the <code>class</code> parameter to set a class and style the generated list of options.</p>
+
+    <div class="demo extract">
+      <p>
+        Please select a currency <xt:use param="appearance=full" types="choice" label="MultipleFull" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc">EUR</xt:use>
+      </p>
+      <p>
+        Please select several currencies <xt:use param="appearance=full;multiple=yes;class=vertical" types="choice" label="MultipleFullVertical" values="EUR USD CHF" i18n="Euro Dollars Swiss-franc"/>
+      </p>
+    </div>
+
+    <p>The first example above is achieved with this styling : </p>
+    <div class="demo">
+      <pre>ul.axel-choice, ul.axel-choice > li {
+  display: inline;
+  padding-left: 0;
+}</pre>
+    </div>
+
+    <p>The second above below is achieved with this styling : </p>
+    <div class="demo">
+      <pre>ul.axel-choice.vertical {
+  display: inline-block;
+  vertical-align: text-top;
+  margin: 0;
+}
+ul.axel-choice.vertical > li {
+  display: block;
+  padding-left: 0;
+}</pre>
+    </div>
+    <p>Note that with <i>full</i> appearance, the <code>'choice'</code> plugin sets an <code>axel-choice-unset</code> class on the <code>label</code> element generated for each unselected choices. This can be also be used for styling purposes.</p>    
   </body>
 </html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>The "autofill" filter</title>
+
+    <xt:head version="1.1" templateVersion="1.0" label="Demo">
+      <xt:component name="t_company">
+        <p>Creation year : <xt:use types="input" label="CreationYear"/></p>
+        <p>CEO : <xt:use types="input" label="CEO"/></p>
+      </xt:component>
+    </xt:head>
+
+    <!-- FIXME: 'choice' plugin with placeholder styling -->
+    <style type="text/css">
+      select.axel-choice {
+        width: 150px;
+      }
+      select.axel-choice-placeholder, option.axel-choice-placeholder {
+        font-style: italic !important;
+      }
+      select.axel-choice > option {
+        font-style: normal;
+      }
+      blockquote {
+        padding-left: 20px;
+        border-left: solid 4px #333;
+      }
+    </style>
+
+    <!-- SELF-TRANSFORMED template -->
+    <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
+    <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script src="../../../axel/axel/axel.js">//</script>
+    <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
+    <script src="../../src/filters/autofill.js">//</script>
+
+    <!-- 3rd party dependencies -->
+    <!-- 'select2' plugin -->
+    <link rel="stylesheet" type="text/css" href="../../3rd-part/select2/select2.css"></link>
+    <script type="text/javascript" src="../../3rd-part/select2/select2.min.js"></script>
+    
+    <!-- AJAX patch for simulation purpose -->
+    <script type="text/javascript" charset="utf-8">
+      xtiger.cross.loadDocument = function (url) { 
+        var db = {
+            "1" : { CreationYear: '2012', CEO: 'Stéphane'},
+            "2" : { CreationYear: '1999', CEO: 'Christine'},
+        }
+        var res = "&lt;data>&lt;CreationYear>" + db[url].CreationYear 
+                    + "&lt;/CreationYear>&lt;CEO>" + db[url].CEO + "&lt;/CEO>&lt;/data>";
+        var parser = xtiger.cross.makeDOMParser ();
+        return parser.parseFromString(res, "text/xml");
+      }
+    </script>
+    
+    <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+    <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+    <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+  </head>
+  <body data-template="#">
+
+    <h1>The <samp>"autofill"</samp> filter</h1>
+
+    <p>The <code>"autofill"</code> filter fetches and inserts XML content into a target section of the document each time the user changes the current selection of a <code>'choice'</code> plugin. The URL can be constructed with the current value.</p>
+      
+    <p>The filter is currently compatible with the <code>'choice'</code> plugin.</p>
+
+    <h2>Parameters</h2>
+    
+    <ul class="parameters">
+      <li><var>autofill_target</var> (string) : mandatory CSS selector (relative to the editor's document) of the target where to fetch data after user has changed the current value</li>
+      <li><var>autofill_url</var> (string) : mandatory URL string to fetch XML content from, the <i>$_</i> variable will be replaced by the current value</li>
+      <li><var>autofill_container</var> (string) : optional CSS selector of the editor's root for listening to load events to trigger the filter after new data has been loaded into the editor (currently the load event is not yet automatically triggered by AXEL)</li>
+    </ul>
+
+    <h2>Basic usage</h2>
+    
+    <div class="demo extract">
+      <p>
+        <xt:use types="choice" values="1 2" i18n="Oppidoc Docetis" label="CompanyRef"
+          param="placeholder=Choose a company;filter=autofill;autofill_url=$_;autofill_target=#autofill"
+         ></xt:use>
+      </p>
+    </div>
+    
+    <p>The same with 'select2' filter on 'choice' plugin : </p>
+
+    <div class="demo extract">
+      <p>
+        <xt:use types="choice" values="1 2" i18n="Oppidoc Docetis" label="CompanyRef"
+          param="placeholder=Choose a company;filter=select2 autofill;autofill_url=$_;autofill_target=#autofill"
+         ></xt:use>
+      </p>
+    </div>
+    
+    <div id="autofill">
+      <blockquote>
+        <p>Target section of the editor under "autofill" control</p>
+        <xt:use types="t_company"/>
+      </blockquote>
+    </div>
+    
+    <h3>The paragraph below is editable and outside of the target editor</h3>
+    
+    <p><xt:use types="text" label="Parag">Click to edit</xt:use></p>
+  </body>
+</html>

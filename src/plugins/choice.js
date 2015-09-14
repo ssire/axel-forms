@@ -14,14 +14,6 @@
 
 (function ($axel) {
 
-  // Plugin static view: span showing current selected option
-  var _Generator = function ( aContainer, aXTUse, aDocument ) {
-   var viewNode = xtdom.createElement (aDocument, 'select');
-   xtdom.addClassName(viewNode,'axel-choice');
-   aContainer.appendChild(viewNode);
-   return viewNode;
-  };
-
   var _Editor = (function () {
 
    // Splits string s on every space not preceeded with a backslash "\ "
@@ -42,13 +34,24 @@
    // options is an array of the form [labels, values]
    function createOptions ( that, values, labels ) {
      var i, o, t, handle = that.getHandle(),
-         doc = that.getDocument();
+         doc = that.getDocument(),
+         type = that.getParam('multiple') === 'yes' ? 'checkbox' : 'radio',
+         readonly = that.getParam('noedit') === 'true' ? 'disabled="true" ' : '',
+         name = that.getUniqueKey(),
+         full = that.getParam('appearance') === 'full';
      for (i = 0; i < values.length; i++) {
-       o = xtdom.createElement(doc, 'option');
-       t = xtdom.createTextNode(doc, labels[i]);
-       xtdom.setAttribute(o, 'value', values[i]);
-       o.appendChild(t);
-       handle.appendChild(o);
+       if (full) {
+         $(handle).append('<li><label><input ' + readonly + 'type="' + type + '" value="' + values[i] + '" name ="' + name + '"/>' + labels[i] + '</label></li>');
+       } else {
+         o = xtdom.createElement(doc, 'option');
+         t = xtdom.createTextNode(doc, labels[i]);
+         xtdom.setAttribute(o, 'value', values[i]);
+         if (that.getParam('noedit') === 'true') {
+           xtdom.setAttribute(o, 'disabled', true);
+         }
+         o.appendChild(t);
+         handle.appendChild(o);
+       }
      }
    }
 
@@ -64,6 +67,8 @@
            res = false;
          }
        }
+     } else { // FIXME: assumes no multiple default values
+       res = model !== defval;
      }
      return res;
    }
@@ -73,6 +78,19 @@
      ////////////////////////
      // Life cycle methods //
      ////////////////////////
+
+     // Plugin static view: span showing current selected option
+     onGenerate : function ( aContainer, aXTUse, aDocument ) {
+      var viewNode;
+      if (this.getParam('appearance') === 'full') {
+        viewNode= xtdom.createElement (aDocument, 'ul');
+      } else {
+        viewNode= xtdom.createElement (aDocument, 'select');
+      }
+      xtdom.addClassName(viewNode,'axel-choice');
+      aContainer.appendChild(viewNode);
+      return viewNode;
+     },
 
      onInit : function ( aDefaultData, anOptionAttr, aRepeater ) {
        var values = this.getParam('values');
@@ -92,7 +110,7 @@
        var  _this = this,
             defval = this.getDefaultData(),
             pl = this.getParam("placeholder");
-       if (pl || (! defval)) {
+       if ((this.getParam('appearance') !== 'full') && (pl || (! defval))) {
          pl = pl || "";
          // inserts placeholder option
          $(this._handle).prepend('<option class="axel-choice-placeholder" selected="selected" value="">' + (pl || "") + '</option>');
@@ -102,16 +120,27 @@
            if (this._param.i18n !== this._param.values) { // FIXME: check its correct
              this._param.i18n.splice(0,0,pl);
            }
-           $(this._handle).addClass("axel-choice-placeholder");
+           if (pl) {
+             $(this._handle).addClass("axel-choice-placeholder");
+           }
          }
        }
        xtdom.addEventListener(this._handle, 'change',
-        function (ev) {
-          _this.update($(this).val());
-          if($(this).val() === "") {
-            $(this).addClass("axel-choice-placeholder");
-          } else {
-            $(this).removeClass("axel-choice-placeholder");
+        function (ev, data) {
+          if (!(data && data.synthetic)) { // short circuit if forged event (onLoad)
+            if (_this.getParam('appearance') === 'full') {
+              var accu = [];
+              $('input', _this.getHandle()).each(
+                function(i,e) { 
+                  if (e.checked) {
+                    accu.push($(e).val());
+                  }
+                }
+              );
+              _this.update(accu);
+            } else {
+              _this.update($(xtdom.getEventTarget(ev)).val()); // with option element jQuery returns the value attribute
+            }
           }
         }, true);
         this._setData(defval);
@@ -123,6 +152,7 @@
          this.clear(false);
        } else {
          xval = this.getParam('xvalue');
+         defval = this.getDefaultData();
          if (xval) { // custom label
            value = [];
            option = aDataSrc.getVectorFor(xval, aPoint);
@@ -135,8 +165,11 @@
            }
            this._setData(value.length > 0 ? value : ""); // "string" and ["string"] are treated as equals by jQuery's val()
          } else { // comma separated list
-           defval = this.getDefaultData();
-           value = (aDataSrc.getDataFor(aPoint) || defval).split(",");
+           tmp = aDataSrc.getDataFor(aPoint);
+           if (typeof tmp !== 'string') {
+             tmp = '';
+           }
+           value = (tmp || defval).split(",");
            this._setData(value);
          }
          this.set(false);
@@ -199,8 +232,11 @@
 
        isFocusable : function () {
          return true;
-       }
+       },
 
+       focus : function () {
+         // nop : currently Tab focusing seems to be done by the browser
+       }
      },
 
      /////////////////////////////
@@ -211,9 +247,32 @@
 
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
        _setData : function ( value, withoutSideEffect ) {
+         var values;
+         if (this.getParam('appearance') !== 'full') {
+           if(!value && (this.getParam('placeholder'))) {
+             $(this.getHandle()).addClass("axel-choice-placeholder");
+           } else {
+             $(this.getHandle()).removeClass("axel-choice-placeholder");
+           }
+         }
          this._data =  value || "";
          if (! withoutSideEffect) {
-           $(this.getHandle()).val(value);
+           if (this.getParam('appearance') === 'full') {
+             values = typeof this._data === "string" ? [ this._data ] : this._data; // converts to array
+             $('input', this.getHandle()).each(
+               function(i,e) { 
+                 if ($.inArray($(e).val(), values) > -1) {
+                   e.checked = true;
+                   xtdom.removeClassName(e.parentNode,'axel-choice-unset');
+                 } else {
+                   e.checked = false;
+                   xtdom.addClassName(e.parentNode,'axel-choice-unset');
+                 }
+               }
+             );
+           } else {
+             $(this.getHandle()).val(value);
+           }
          }
        },
 
@@ -247,7 +306,8 @@
     {
      choice : 'value'  // alternative is 'display'
     },
-    _Generator,
     _Editor
   );
+  
+  $axel.filter.applyTo({'event' : ['choice']});
 }($axel));

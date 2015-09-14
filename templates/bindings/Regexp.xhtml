@@ -14,6 +14,11 @@
       display: none;
       color: red;
     }
+    input:invalid, input:focus:invalid {
+      color: #b94a48;
+      border-color: #ee5f5b;
+      box-shadow: 0 0 6px #ee5f5b;
+    }
   </style>
 
   <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
@@ -36,6 +41,7 @@
     <li><var>data-variable</var> (<code><i>name</i></code>) : variable name given to the bound field</li>
     <li><var>data-regexp</var> (<code><i>regexp</i></code>) : regular expression to be used for validation</li>
     <li><var>data-error-scope</var> (<code><i>selector</i></code>) : optional CSS selector to find the closes ancestor to use to define a scope for locating the validation feedback element</li>
+    <li><var>data-pattern</var> (<code>undefined</code>) : optional pattern string (HTML5 form attribute) that will be set as a <i>pattern</i> attribute on all the <code>input</code> element(s) in scope of the binding's host</li>
   </ul>
 
   <h3>Validation feedback element</h3>
@@ -97,5 +103,23 @@
       </div>
     </xt:repeat>
   </div>
+  
+  <h2>Sample usage with HTML5 validation</h2>
+  
+  <p>The binding's <code>data-pattern</code> attribute will be converted to an HTML5 <code>pattern</code> attribute. Do not forget to style the input using the <code>:invalid</code> pseudo-selector to give feedback.</p>
+  
+  <div class="demo">
+    <xt:repeat minOccurs="0" maxOccurs="*" label="Prices">
+      <div class="record">
+        <xt:menu-marker/>
+        <span data-binding="regexp" data-variable="price"  data-regexp="^\s*\d*\s*$" data-pattern="[0-9]*" data-error-scope=".record">
+          <label for="Price">Enter a price :</label> 
+          <xt:use param="filter=event;type=text;id=Price" label="Price" types="input"/>
+        </span>
+        <span class="af-error" data-regexp-error="price">Invalid price enter a number</span>
+      </div>
+    </xt:repeat>
+  </div>  
+    
 </body>
 </html>
