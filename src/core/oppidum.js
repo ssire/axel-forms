@@ -3,7 +3,7 @@
 |  AXEL Oppidum interface module                                              |
 |                                                                             |
 |  Implementation of Oppidum Ajax responses                                   |
-|  Functions to be called from commands to intepret server's response         |                                                                             
+|  Functions to be called from commands to intepret server's response         |
 |                                                                             |
 |  TODO: rename to neutral $axel.reponse (response.js) to support adaptation  |
 |  to more server-side back-ends                                              |
@@ -13,28 +13,36 @@
 (function ($axel) {
 
   var  _Oppidum = {
-    
+
     // Converts XHR response into client-side Oppidum command
-    // Currently this is just a simple object containing the underlying parsed XML document
-    // and retaining the original XHR object
-    // TODO: handle JSON responses
+    // Currently this is just a simple object containing response as an XML document
+    // or as a JSON document (json) and retaining the original XHR object
+    // TODO: in JSON only status makes difference between success / error (no root)
     getCommand : function ( xhr ) {
-      var doc, parser,
+      var doc, parser, type,
           cmd = { xhr: xhr };
       if (xhr.responseXML) {
         cmd.doc = xhr.responseXML;
       } else {
-        parser = xtiger.cross.makeDOMParser();
-        try {
-          cmd.doc = parser.parseFromString(xhr.responseText, "text/xml");
-        } catch (e) { // nope
+        type = xhr.getResponseHeader('Content-Type');
+        if ($axel.oppidum.checkJSON(type)) { // tries to parse as JSON
+          try {
+            cmd.json = JSON.parse(xhr.responseText);
+          } catch (e) {
+          }
+        } else { // tries to parse as XML
+          parser = xtiger.cross.makeDOMParser();
+          try {
+            cmd.doc = parser.parseFromString(xhr.responseText, "text/xml");
+          } catch (e) { // nope
+          }
         }
       }
       return cmd;
     },
 
     // Implements redirection with Location header
-    // Returns true if no redirection or false otherwise 
+    // Returns true if no redirection or false otherwise
     // Currently redirection is supposed to supersede any other feedback
     filterRedirection : function ( cmd ) {
       var loc = cmd.xhr && cmd.xhr.getResponseHeader('Location'),
@@ -46,14 +54,21 @@
       return res;
     },
 
-    // Implements the <message> element of an Ajax response
+    // Implements the message part of an Ajax response
     handleMessage : function ( cmd ) {
-      msg = cmd.doc ? $('success > message', cmd.doc).text() : xhr.responseText;
+      var msg;
+      if (cmd.doc) {
+        msg = $('success > message', cmd.doc).text();
+      } else if (cmd.json) {
+        msg = cmd.json.message ? cmd.json.message['#text'] : 'missing "message" element in response';
+      } else {
+        msg = xhr.responseText;
+      }
       if (msg) {
         alert(msg); // FIXME: integrate reporting with flash ?
       }
     },
-    
+
     // Implements the <forward> element of an Ajax response
     handleForward : function ( cmd ) {
       var command, target, host, ev;
@@ -82,6 +97,7 @@
 
     // Returns the payload content as text of a successful response with payload
     // In particular payload may contain HTML for injection (e.g. 'save' command)
+    // NOTE: for JSON response you should directly use cmd.json.payload (!)
     unmarshalPayload : function ( xhr ) {
       var start = xhr.responseText.indexOf('<payload>'),
           end,
@@ -104,7 +120,7 @@
         res = $('error > message', xhr.responseXML).size() > 0;
       } else if ($axel.oppidum.checkJSON(type)) {
         try {
-          res = JSON.parse(xhr.responseText).error !== undefined;
+          res = JSON.parse(xhr.responseText).message !== undefined;
         } catch (e) {
         }
       }
@@ -118,7 +134,7 @@
         res = $('error > message', xhr.responseXML).text();
       } else if ($axel.oppidum.checkJSON(type)) {
         try {
-          res = JSON.parse(xhr.responseText).error.message['#text'];
+          res = JSON.parse(xhr.responseText).message['#text'];
         } catch (e) {
         }
       } else {
@@ -129,7 +145,7 @@
 
     // Tries to extract more info from a server error. Returns a basic error message
     // if it fails, otherwise returns an improved message
-    // Compatible with eXist 1.4.x server error format
+    // Compatible with eXist 1.4.x server error format (which is returned as plain HTML - no JSON)
     getExistErrorMsg : function (xhr) {
       var text = xhr.responseText, status = xhr.status;
       var msg = 'Error ! Result code : ' + status;
@@ -152,7 +168,7 @@
 
     // Same parameters as the one received by the jQuery Ajax error callback
     // a) XHR object, b) status message (error,timeout, notmodified, parseerror)
-    // c) optional exception sometimes returned from XHR, plus d) url 
+    // c) optional exception sometimes returned from XHR, plus d) url
     parseError : function (xhr, status, e, url) {
       var loc, msg;
       if (status === 'timeout') {
@@ -184,9 +200,9 @@
       return msg;
     }
   };
-  
+
   // registers 'protocol.upload' message decoder
-  xtiger.registry.registerFactory('protocol.upload', 
+  xtiger.registry.registerFactory('protocol.upload',
     {
       getInstance : function (doc) {
         return {

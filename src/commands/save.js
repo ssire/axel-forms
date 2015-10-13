@@ -178,7 +178,8 @@
             _this = this,
             valid = true,
             editor = $axel.command.getEditor(this.key),
-            yesNo = this.spec.attr('data-save-confirm');
+            yesNo = this.spec.attr('data-save-confirm'),
+            type = this.spec.attr('data-type');
         if (editor) {
           if (!yesNo || confirm(yesNo)) {
             url = this.spec.attr('data-src') || editor.attr('data-src') || '.'; // last case to create a new page in a collection
@@ -208,7 +209,7 @@
                     url : url,
                     type : method,
                     data : data,
-                    dataType : 'xml',
+                    dataType : type || 'xml', // FIXME: _memo
                     cache : false,
                     timeout : 50000,
                     contentType : "application/xml; charset=UTF-8",
