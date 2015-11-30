@@ -29,23 +29,26 @@
   var _CACHE= {}; // TODO: define and subscribe to load_begin / load_end events to clear it
   var _CLOCK= {}; // Trick to generate unique names for radio button groups
 
+  // name may be undefined in case of checkbox with unique XML tag
   var _encache = function _encache(name, value) {
-    // xtiger.cross.log('debug', 'encache of ' + name + '=' + value);
-    if (!_CACHE[name]) {
-      _CACHE[name] = {};
+    if (name) {
+      if (!_CACHE[name]) {
+        _CACHE[name] = {};
+      }
+      _CACHE[name][value] = true;
     }
-    _CACHE[name][value] = true;
   };
 
+  // name may be undefined in case of checkbox with unique XML tag
   var _decache = function _decache (name, value) {
-    // xtiger.cross.log('debug', 'decache of ' + name + '=' + value);
-    if (_CACHE[name] && _CACHE[name][value]) {
-      delete _CACHE[name][value];
-      // xtiger.cross.log('debug', 'decache success of ' + name + '=' + value);
-      return true;
+    var res = false;
+    if (name) {
+      if (_CACHE[name] && _CACHE[name][value]) {
+        delete _CACHE[name][value];
+        res = true;
+      }
     }
-    // xtiger.cross.log('debug', 'decache failure of ' + name + '=' + value);
-    return false;
+    return res;
   };
 
   // Returns date of the day in the date_region format of the editor
@@ -470,7 +473,8 @@
   var _SelectField = function (editor, aType, aStamp) {
     var h = editor.getHandle(),
         name = editor.getParam('name'),
-        card = editor.getParam('cardinality');
+        card = editor.getParam('cardinality'),
+        checked = editor.getParam('checked');
     this._editor = editor;
     this._type = aType;
     // xtdom.setAttribute(h, 'type', aType); (done in Generator because of IE < 9)
@@ -482,12 +486,17 @@
       xtdom.setAttribute(h, 'name', name);
       // xtiger.cross.log('debug', 'Created input type ' + aType + ' name=' + name);
     }
-    if (editor.getParam('checked') === 'true') {
-      xtdom.setAttribute(h, 'checked', true); // FIXME: does not work ?
-    } else {
-      if (editor.getParam('noedit') === 'true') {
-        xtdom.addClassName(h, 'axel-input-unset');
+    if (checked) {
+      if (checked === editor.getParam('value')) {
+        h.checked = true; // xtdom.setAttribute(h, 'checked', true);
+      } else {
+        _encache(name, checked);
       }
+    } else if (_decache(name, editor.getParam('value'))) {
+      h.checked = true; // xtdom.setAttribute(h, 'checked', true);
+    }
+    if (editor.getParam('noedit') === 'true') {
+      xtdom.addClassName(h, 'axel-input-unset');
     }
     // FIXME: transpose defaultData (checked attribute ?)
   };
@@ -516,16 +525,15 @@
       var found,
           h = this._editor.getHandle(),
           ischecked = false,
-          value = this._editor.getParam('value');
+          value = this._editor.getParam('value'),
+          checked;
       if (-1 !== aPoint) {
         found = aDataSrc.getDataFor(aPoint);
         ischecked = (found === value);
-        if (!ischecked) { // second chance : cache lookup
+        if (!ischecked) { // store it for 2nd chance cache lookup
           name = this._editor.getParam('name');
-          if (name) {
-            ischecked = _decache(name, value);
-            _encache(name, found);
-          } // otherwise anonymous checkbox with unique XML tag
+          ischecked = _decache(name, value);
+          _encache(name, found);
         }
         if (ischecked) { // checked
           if (! h.checked) {
@@ -538,12 +546,19 @@
         } else { // no checked
           this._editor.clear(false);
         }
-      } else { // second chance
-        // xtiger.cross.log('debug', 'aPoint is -1');
-        name = this._editor.getParam('name');
-        if (name) {
-          ischecked = _decache(name, value);
-        } // otherwise anonymous checkbox with unique XML tag
+      } else { // no value in XML input stream or 2nd chance
+        checked = this._editor.getParam('checked');
+        if (checked) { // MUST BE 1st input of the serie
+          if (checked === value) {
+            ischecked = true;
+          } else {
+            name = this._editor.getParam('name');
+            _encache(name, checked);  // store it for 2nd chance cache lookup
+          }
+        } else { // try 2nd chance cache lookup
+          name = this._editor.getParam('name');
+          ischecked = _decache(name, value); 
+        }
         if (ischecked) { // checked
           if (! h.checked) {
             h.checked = true;
@@ -561,9 +576,10 @@
 
     // FIXME: how to handle serialization to an xt:attribute
     save : function (aLogger) {
+      var ed = this._editor;
       // TODO: serialize checkbox without value with no content or make value mandatory
       // si on accepte contenu vide pb est de faire le load, il faudra tester sur le nom de la balise (?)
-      if (this._editor.getHandle().checked) {
+      if (ed.getHandle().checked && (ed.getParam('noxml') !== 'true')) {
         aLogger.write(this._editor.getParam('value'));
       } else { // same as option="unset"
         aLogger.discardNodeIfEmpty();
@@ -575,10 +591,11 @@
     },
 
     clear : function () {
-      this._editor.getHandle().checked = false;
+      var h = this._editor.getHandle();
       if (this._editor.getParam('noedit') === 'true') {
-        xtdom.addClassName(this._editor.getHandle(), 'axel-input-unset');
+        xtdom.addClassName(h, 'axel-input-unset');
       }
+      h.checked = false;
     },
 
     focus : function () {

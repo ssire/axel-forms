@@ -96,8 +96,9 @@
 
     <ul class="parameters">
       <li><var>name</var> (<code>name</code>) : seed to create radio or checkbox buttons belonging to the same group; it is used to generate the HTML <i>name</i> attribute</li>
-      <li><var>checked</var> (<code>true|<b>false</b></code>) : when set true the corresponding control will be checked by default</li>
+      <li><var>checked</var> (<code><i>string</i></code>) : this parameter can be set on the first control in a group with same <i>name</i>, it takes for value a single value taken amongst the values of the of a radio or a checkbox that will be checked by default, it is currently limited to a single value</li>
       <li><var>cardinality</var> (<code>integer</code>) : this hint is required when you instantiate several times the same <code>xt:component</code> that contains <code>input</code> elements of type <code>radio</code> inside a template;  its value is the total number of radio buttons within the group; it must be set on each <code>input</code> control in the group; it will be used to generate a unique name for the group</li>
+      <li><var>noxml</var> (<code><b>false</b> | true</code>) : when set to <i>true</i> the value will not be serialized to XML and the corresponding node element will be discarded</li>
     </ul>
 
     <p>NOTE: although the <var>name</var> parameter may seem redundant with the <code>label</code> attribute, they both MUST be set on the <code>xt:use</code> element for the <code>radio</code> or <code>checkbox</code> controls to work properly.</p>
@@ -150,9 +151,25 @@
     <h2>Example with radio buttons </h2>
 
     <div class="demo extract">
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=strawberry;"/>strawberry</label>
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=vanilla;checked=true;"/>vanilla</label>
-      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor;value=chocolate;"/>chocolate</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor1;value=strawberry"/>strawberry</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor1;value=vanilla"/>vanilla</label>
+      <label><xt:use types="input" label="Flavor" param="type=radio;name=flavor1;value=chocolate;"/>chocolate</label>
+    </div>
+
+    <h3>Example with <code>checked</code> for a default selection</h3>
+
+    <div class="demo extract">
+      <label><xt:use types="input" label="FlavorDefault" param="type=radio;name=flavor2;value=strawberry;checked=vanilla"/>strawberry</label>
+      <label><xt:use types="input" label="FlavorDefault" param="type=radio;name=flavor2;value=vanilla"/>vanilla</label>
+      <label><xt:use types="input" label="FlavorDefault" param="type=radio;name=flavor2;value=chocolate;"/>chocolate</label>
+    </div>
+    
+    <h3>Example with <code>checked</code> and <code>noxml</code> for a non-serialized default selection</h3>
+
+    <div class="demo extract">
+      <label><xt:use types="input" label="FlavorDefaultNotSerialized" param="type=radio;name=flavor3;value=strawberry;checked=chocolate"/>strawberry</label>
+      <label><xt:use types="input" label="FlavorDefaultNotSerialized" param="type=radio;name=flavor3;value=vanilla"/>vanilla</label>
+      <label><xt:use types="input" label="FlavorDefaultNotSerialized" param="type=radio;name=flavor3;value=chocolate;noxml=true"/>chocolate</label>
     </div>
 
     <h2>Example with check boxes</h2>
