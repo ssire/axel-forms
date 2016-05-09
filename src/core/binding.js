@@ -110,9 +110,14 @@
     return klass;
   }
   
-  // FIXME: internationalize validation error messages
+  // Implements required property of fields
+  // Validates fields which registered a validating binding (with an isValid function)
+  // Sets af-required and af-invalid pre-defined classes if missing or invalid data
+  // Computes and inserts a summary error message in the errid container if necessary 
+  // You can deactivate the summary if errif is undefined (e.g. for pre-validating)
+  // TODO: internationalize summary error messages
   function _validate (fields, errid, doc, cssrule) {
-    var res, feedback, errsel = '#' + errid,
+    var res, feedback,
         labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
@@ -156,22 +161,24 @@
         }
       }
     );
-    feedback = $(errsel, doc).html('');
-    if (err.length > 0) {
-      feedback.append(
-        '<p>' + xtiger.util.getLocaleString('errFormRequired', { 'fields' : err.join(', ') }) + '</p>'
-      );
-    }
-    if (valid.length > 0) {
-      feedback.append(
-        '<p>' + xtiger.util.getLocaleString('errFormInvalid', { 'fields' : valid.join(', ') }) + '</p>'
-      );
-    }
-    res = (err.length === 0) && (valid.length === 0);
-    if (!res) {
-      feedback.addClass('af-validation-failed');
-    } else {
-      feedback.removeClass('af-validation-failed');
+    if (errid) {
+      feedback = $('#' + errid, doc).html('');
+      if (err.length > 0) {
+        feedback.append(
+          '<p>' + xtiger.util.getLocaleString('errFormRequired', { 'fields' : err.join(', ') }) + '</p>'
+        );
+      }
+      if (valid.length > 0) {
+        feedback.append(
+          '<p>' + xtiger.util.getLocaleString('errFormInvalid', { 'fields' : valid.join(', ') }) + '</p>'
+        );
+      }
+      res = (err.length === 0) && (valid.length === 0);
+      if (!res) {
+        feedback.addClass('af-validation-failed');
+      } else {
+        feedback.removeClass('af-validation-failed');
+      }
     }
     return res;
   }

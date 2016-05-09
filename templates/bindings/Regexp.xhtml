@@ -19,10 +19,10 @@
       border-color: #ee5f5b;
       box-shadow: 0 0 6px #ee5f5b;
     }
-    label#continuous {
+    label.invalid {
       color: red;
     }
-    label#continuous.valid {
+    label.valid {
       color: green;
     }
   </style>
@@ -34,7 +34,7 @@
 
   <h1>The 'regexp' binding</h1>
 
-  <p>The <code>"regexp"</code> binding validates a text entry field against a regular expression.</p>
+  <p>The <code>"regexp"</code> binding validates a text entry field against a regular expression. It can then display an error feedback message already defined somewhere in the DOM tree if the field value is invalid. It can also dynamically set a class on a target label. You can define a class for a valid content and a class for an invalid content. Note that the binding does not trigger itself when loading XML data into the editor, you must call explicitely <code>$axel.binding.validate</code> for that purpose (for instance on success in the command that loads the XML date).</p>
 
   <h2>Declaration</h2>
 
@@ -46,30 +46,30 @@
     <li><var>data-binding</var> (<code>regexp</code>)</li>
     <li><var>data-variable</var> (<code><i>name</i></code>) : variable name given to the bound tree</li>
     <li><var>data-regexp</var> (<code><i>regexp</i></code>) : regular expression to be used for validation</li>
-    <li><var>data-error-scope</var> (<code><i>CSS selector</i></code>) : optional CSS selector to find the closes ancestor to use to define a scope for locating the validation error message and/or the label to highlight</li>
+    <li><var>data-error-scope</var> (<code><i>CSS selector</i></code>) : optional CSS selector to find the closes ancestor to use to define a scope for locating the error message and/or the label to highlight</li>
     <li><var>data-pattern</var> (<code>undefined</code>) : optional pattern string (HTML5 form attribute) that will be set as a <i>pattern</i> attribute on all the <code>input</code> element(s) in scope of the binding's host</li>
     <li><var>data-valid-class</var> (<code><i>CSS class name</i></code>) : optional class to set on the label when the bound tree is valid</li>
-    <li><var>data-label-selector</var> (<code><i>CSS selector</i></code>) : optional CSS selector to identify the label to highlight using the <i>data-valid-class</i>, scoped to <i>data-error-scope</i> or to the whole document otherwise</li>
-    <li><var>data-validation</var> (<code><b>on</b> | off</code>) : set it to <i>off</i> if you do not want invalid state to be blocking when saving the editor's content </li>
-    <li><var>data-target</var> (<code>document | AXEL editor id</code>) : use this attribute to also subscribe to <i>axel-content-ready</i> event to validate on XML document loading; predefined <i>document</i> value means the whole document is the editor</li>
+    <li><var>data-invalid-class</var> (<code><i>CSS class name</i></code>) : optional class to set on the label when the bound tree is invalid</li>    
+    <li><var>data-label-selector</var> (<code><i>CSS selector</i></code>) : optional CSS selector to identify the label to highlight using <i>data-valid-class</i> or <i>data-invalid-class</i>, scoped to <i>data-error-scope</i> or to the whole document otherwise</li>
+    <li><var>data-validation</var> (<code><b>on</b> | off</code>) : set it to <i>off</i> if you do not want invalid state to be blocking when saving the editor's content using a save command that calls <code>$axel.binding.validate</code> before saving</li>
   </ul>
 
-  <h3>Validation feedback element</h3>
+  <h3>Error feedback message</h3>
   
-  <p>Place a <code>data-regexp-error="<i>name</i>"</code> instruction on the HTML element to use as a feedback element, where <i>name</i> is the binding variable name. Use a CSS rule to initially hide the validation feedback element.</p>
+  <p>Place a <code>data-regexp-error="<i>name</i>"</code> instruction on the HTML element to use as an error feedback message, where <i>name</i> is the binding variable name. Use a CSS rule to initially hide the validation feedback element.</p>
   
-  <p>You can scope the validation feedback element using the <var>data-error-scope</var> parameter on the binding host element.</p>
+  <p>You can scope the error feedback message using the <var>data-error-scope</var> parameter on the binding host element.</p>
   
   <h3>Plugin field compatibility</h3>
   
   <p>This binding is compatible with the <code>input</code> plugin with a <code>text</code> type as long as you set an <code>event</code> filer on it.</p>
 
-  <h2>Sample usage with error message with a unique field</h2>
+  <h2>Sample usage with error feedback message with a single (not repeated) field</h2>
 
   <p>With a regexp to validate an email address (or the empty email address) :</p>
   
   <div class="source"><pre>
-&lt;div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp" data-error-scope=".demo" data-target="document">
+&lt;div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-zA-Z]{2,6}$" data-variable="mail" data-binding="regexp" data-error-scope=".demo">
   &lt;label for="Courriel">Courriel&lt;/label>
   &lt;xt:use param="filter=event;type=text;id=Courriel" label="Email" types="input"/>
   &lt;p class="af-error" data-regexp-error="mail">Invalid email address&lt;/p>
@@ -77,19 +77,19 @@
   </pre></div>
 
   <div class="demo">
-    <div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp" data-error-scope=".demo" data-target="document">
+    <div data-regexp="^\s*$|^\w([-.]?\w)+@\w([-.]?\w)+\.[a-zA-Z]{2,6}$" data-variable="mail" data-binding="regexp" data-error-scope=".demo">
       <label for="Courriel">Courriel : </label>
       <xt:use param="filter=event;type=text;id=Courriel" label="Email" types="input"/>
       <p class="af-error" data-regexp-error="mail">Invalid email address</p>
     </div>
   </div>
 
-  <h2>Sample usage with feedback on label with a unique field</h2>
+  <h2>Sample usage with class feedback on label with a single (not repeated) field</h2>
 
-  <p>With a regexp to show an email address state (valid or invalid); note that you need to configure CSS to show the email field as invalid by default :</p>
+  <p>With a regexp to show an email address state (valid or invalid); note that you need to configure CSS to show the appropriate feedback :</p>
   
   <div class="source"><pre>
-&lt;div data-regexp="^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp" data-valid-class="valid" data-error-scope=".demo" data-label-selector="label" data-validation="off" data-target="document">
+&lt;div data-regexp="^\w([-.]?\w)+@\w([-.]?\w)+\.[a-zA-Z]{2,6}$" data-variable="mail" data-binding="regexp" data-valid-class="valid" data-error-scope=".demo" data-label-selector="label">
   &lt;label for="Courriel">Courriel&lt;/label>
   &lt;xt:use param="filter=event;type=text" label="Email" types="input"/>
   &lt;p class="af-error" data-regexp-error="mail">Invalid email address&lt;/p>
@@ -97,10 +97,11 @@
   </pre></div>
 
   <div class="demo">
-    <div data-regexp="^\w([-.]?\w)+@\w([-.]?\w)+\.[a-z]{2,6}$" data-variable="mail" data-binding="regexp"
-      data-valid-class="valid" data-error-scope=".demo" data-label-selector="label" data-validation="off"
-      data-target="document">
-      <label id="continuous">Courriel : </label>
+    <div data-regexp="^\w([-.]?\w)+@\w([-.]?\w)+\.[a-zA-Z]{2,6}$" data-variable="mail" data-binding="regexp"
+      data-valid-class="valid" data-invalid-class="invalid" data-error-scope=".demo"
+      data-label-selector="label"
+      >
+      <label>Courriel : </label>
       <xt:use param="filter=event;type=text" label="Email" types="input"/>
     </div>
   </div>

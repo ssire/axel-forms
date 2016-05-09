@@ -1,9 +1,7 @@
 /*****************************************************************************\
 |                                                                             |
-|  AXEL 'condition' binding                                                   |
+|  AXEL 'regexp' binding                                                      |
 |                                                                             |
-|  Implements data-avoid-{variable} to disable fields on given data values    |
-|  Applies to AXEL 'input' plugin                                             |
 |                                                                             |
 |*****************************************************************************|
 |  Prerequisites: jQuery, AXEL, AXEL-FORMS                                    |
@@ -18,7 +16,6 @@
 
     onInstall : function ( host ) {
       var pattern = host.attr('data-pattern'),
-          target = host.attr('data-target'),
           root, jroot;
       this.re = new RegExp(this.getParam('regexp') || '');
       this.editor = $axel(host);
@@ -27,43 +24,42 @@
       if (pattern) {
         host.find('input').attr("pattern", pattern); // adds HTML5 pattern attribute on input
       }
-      if (this.spec.attr('data-validation') !== 'off') {
-        $axel.binding.setValidation(this.editor.get(0), $.proxy(this.checkRegexp, this));
-      }
-      if (target === 'document') {
-        jroot = $(document);
-      } else {
-        root = $axel.command.getEditor(target);
-        if (root) {
-          jroot = root.spec; // FIXME: $(root.getHost())
-        }
-      }
-      if (jroot) {
-        jroot.bind('axel-content-ready', $.proxy(this.checkRegexp, this));
-      }
+      $axel.binding.setValidation(this.editor.get(0), $.proxy(this.validate, this));
     },
 
     methods : {
 
+      // Updates inline bound tree side-effects based on current data
       checkRegexp : function  () {
         var valid = this.re.test(this.editor.text()),
-            scope, label, doc = this.getDocument(),
+            scope, label, 
+            doc = this.getDocument(),
             anchor = this.spec.get(0),
-            klass = this.spec.attr('data-valid-class');
-        if (klass) {
+            vklass = this.spec.attr('data-valid-class'),
+            iklass = this.spec.attr('data-invalid-class');
+        if (vklass || iklass) {
           if (! this.errScope) { // search error in full document
             label = $('body ' + this.spec.attr('data-label-selector'), doc);
           } else { // search error within scope
             scope = $(anchor, doc).closest(this.errScope);
             label = $(this.spec.attr('data-label-selector'), scope.get(0));
           }
-          if (valid) {
-            label.addClass(klass);
-          } else {
-            label.removeClass(klass);
+          if (vklass) {
+            valid ? label.addClass(vklass) : label.removeClass(vklass);
+          }
+          if (iklass) {
+            valid ? label.removeClass(iklass) : label.addClass(iklass);
           }
         }
         return this.toggleError(valid, this.editor.get(0).getHandle(true));
+      },
+      
+      // Updates inline bound tree side-effects based on current data
+      // Returns true to block caller command (e.g. save) if invalid
+      // unless data-validation is 'off'
+      validate : function () {
+        var res = this.checkRegexp();
+        return (this.spec.attr('data-validation') === 'off') || res;
       }
     }
   };
