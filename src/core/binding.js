@@ -117,7 +117,7 @@
   // You can deactivate the summary if errif is undefined (e.g. for pre-validating)
   // TODO: internationalize summary error messages
   function _validate (fields, errid, doc, cssrule) {
-    var res, feedback,
+    var res, feedback, evt,
         labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
@@ -176,6 +176,8 @@
       res = (err.length === 0) && (valid.length === 0);
       if (!res) {
         feedback.addClass('af-validation-failed');
+        evt = $.Event('axel-validate-error', { required: err.length, invalid: valid.length });
+        feedback.triggerHandler(evt);
       } else {
         feedback.removeClass('af-validation-failed');
       }
