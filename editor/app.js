@@ -42,6 +42,8 @@
          xtiger.cross.log('debug', 'binding installation (post-template transformation)');
          $axel.binding.install(iframeDoc);
        }
+       xtiger.cross.log('debug', "'axel-update' event listener installation");
+       $('body', iframeDoc).bind('axel-update', function( ev ) { xtiger.cross.log('debug', '[evt] axel-update value="' + ev.value + '"'); });
      } else {
        xtiger.cross.log('debug', 'command and binding installation skipped (self-transformed template) ');
      }

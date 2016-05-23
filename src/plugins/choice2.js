@@ -316,7 +316,7 @@
            if ('true' === this.getParam('choice2_closeOnSelect')) {
              $('ul.choice2-popup1', this._handle).removeClass('show');
            }
-           this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get(), true );
+           this.update($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get());
          }
        },
 
@@ -326,10 +326,10 @@
            n.css('minHeight', n.height() + 'px'); // locks height to avoid "jump"
          }
          $('div.select2-container-multi li[data-code="' + value + '"]', this._handle).remove();
-         this._setData($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get(), true );
-        if (checkParent) {
-          checkParent.closest('.choice2-option').removeClass('selected');
-        }
+         this.update($('li.select2-search-choice', this._handle).map( function(i, e) { return $(e).attr('data-code'); } ).get());
+         if (checkParent) {
+           checkParent.closest('.choice2-option').removeClass('selected');
+         }
        },
 
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
