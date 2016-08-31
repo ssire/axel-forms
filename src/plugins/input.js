@@ -85,6 +85,29 @@
       aLogger.closeTag('Text');
     }
   };
+  
+  // returns true if node contains at least one non-empty Element children
+  var _containElements = function (node) {
+    var cur = node.firstChild, res = false;
+    while (cur) {
+      if (cur.nodeType === xtdom.ELEMENT_NODE && cur.firstChild) {
+        res = true;
+        break;
+      }
+      cur = cur.nextSibling;
+    }
+    return res;
+  };
+  
+  var _normalizeMultilines = function (multi, value) {
+    var res = '';
+    if (multi === 'normal') { // normalization
+      res = $.trim(value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
+    } else if (multi === 'enhanced') {
+      res = $.trim(value).replace(/((\r\n|\n|\r){2,})/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
+    }
+    return res;
+  };
 
   ///////////////////////////////
   // Keyboard Field Base Mixin //
@@ -213,26 +236,30 @@
       if (aPoint !== -1) {
         multi = this._editor.getParam('multilines');
         if ((multi === 'normal') || (multi === 'enhanced')) {
-          var cur = aPoint[0].firstChild, line,
-              buffer = '';
-          while (cur) {
-            if (cur.nodeType === xtdom.ELEMENT_NODE && cur.firstChild) {
-              if ('Text' === cur.nodeName) {
-                buffer = buffer + cur.firstChild.nodeValue + '\n\n';
-              } else if ('Block' === cur.nodeName) {
-                line = cur.firstChild;
-                while (line) {
-                  if (line.nodeType === xtdom.ELEMENT_NODE && line.firstChild) { // assumes Line
-                    buffer = buffer + line.firstChild.nodeValue + '\n';
+          if (_containElements(aPoint[0])) {
+            var cur = aPoint[0].firstChild, line,
+                buffer = '';
+            while (cur) {
+              if (cur.nodeType === xtdom.ELEMENT_NODE && cur.firstChild) {
+                if ('Text' === cur.nodeName) {
+                  buffer = buffer + cur.firstChild.nodeValue + '\n\n';
+                } else if ('Block' === cur.nodeName) {
+                  line = cur.firstChild;
+                  while (line) {
+                    if (line.nodeType === xtdom.ELEMENT_NODE && line.firstChild) { // assumes Line
+                      buffer = buffer + line.firstChild.nodeValue + '\n';
+                    }
+                    line = line.nextSibling;
                   }
-                  line = line.nextSibling;
+                  buffer = buffer + '\n';
                 }
-                buffer = buffer + '\n';
               }
+              cur = cur.nextSibling;
             }
-            cur = cur.nextSibling;
+            value = buffer;
+          } else { // auto-migration of legacy plain text content
+            value = _normalizeMultilines(multi, aDataSrc.getDataFor(aPoint));
           }
-          value = buffer;
         } else {
           value = aDataSrc.getDataFor(aPoint);
         }
@@ -320,11 +347,7 @@
         }
         if (!isCancel) {
           multi = this._editor.getParam('multilines');
-          if (multi === 'normal') { // normalization
-            h.value = $.trim(h.value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
-          } else if (multi === 'enhanced') {
-            h.value = $.trim(h.value).replace(/((\r\n|\n|\r){2,})/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
-          }
+          h.value = _normalizeMultilines(multi, h.value);
           this._editor.update(h.value);
         }
         if ((! isBlur) && (h.blur)) {
