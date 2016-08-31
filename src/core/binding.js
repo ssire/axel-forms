@@ -126,7 +126,7 @@
         // we consider failure to meet required implies field is valid
         var rcheck = (field.getParam('required') === 'true'),
             vcheck = field.isValid,
-            rsuccess = (field.getParam('required') !== 'true') || field.isModified() || $axel($(field.getHandle()).parent()).text(), 
+            rsuccess = (field.getParam('required') !== 'true') || field.isModified(), 
             vsuccess = (!rsuccess) || (!field.isValid || field.isValid()), 
             f = $(field.getHandle()),
             l = f.parents().children(labsel).first(), // FIXME: too wide ?

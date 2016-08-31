@@ -38,7 +38,11 @@
          }
        } else {
          xtiger.cross.log('debug', 'command installation (post-template transformation)');
-         ed = $axel.command.install(iframeDoc);               
+         appController.curForm.spec = $('#container'); // create a pseudo editor object
+         $axel.command.addEditor('container', appController.curForm); // register it to be addressable in data-target 
+         // FIXME: pseudo editor object should implement a complete transform.js editor facade and not just spec field 
+         // but this is enough to test simple commands and bindings
+         ed = $axel.command.install(iframeDoc);
          xtiger.cross.log('debug', 'binding installation (post-template transformation)');
          $axel.binding.install(iframeDoc);
        }

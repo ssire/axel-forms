@@ -83,6 +83,11 @@
       }
   };
 
+  function _addEditor (key, editor) {
+    xtiger.cross.log('debug',"adding editor " + key);
+    editors[key] = editor; // stores editor for getEditor
+  }
+
   // Creates 'transform' commands, note that implicit ones
   // (i.e. w/o an associated data-command='transform') will immediately generate an editor
   function _createEditor (node, doc) {
@@ -184,6 +189,7 @@
   // exports module
   $axel.command = _Command;
   $axel.command.install = _installCommands;
+  $axel.command.addEditor = _addEditor;
 
   // AXEL extension that rewrites url taking into account special notations :
   // ~/ to inject current location path

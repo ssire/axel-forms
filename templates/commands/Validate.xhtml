@@ -100,17 +100,10 @@
     </xt:component>
   </xt:head>
 
-  <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
-  <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
-  <script src="../../../axel/axel/axel.js">//</script>
-  <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
-
   <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
   <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
 </head>
-<body id="editor" data-template="#">
-
-
+<body>
   <h1>The 'validate' command</h1>
 
   <p><b>Goal</b> : check required fields are present and fields bound to validation bindings are valid; print validation feedbacks.</p>
@@ -164,7 +157,7 @@
   </div>
 
   <div class="demo clear">
-    <p id="commands"><button data-command="validate" data-target="editor" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
+    <p id="commands"><button data-command="validate" data-target="container" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
   </div>
 
   <h2>Adding validation behavior directly to an editor</h2>
@@ -174,5 +167,12 @@
   <p>Every command that serializes data from a validating editor will validate its content using the same algorithm as the 'validate' command before performing their action. They will cancel their action and print error messages with the same feedback mechanism as the 'validate' command if validation fails.</p>
 
   <p>This currenlty applies to the 'save' command to create a command that validates data before submission.</p>
+
+<script type="text/javascript">
+  var n = document.getElementById('errors');
+  console.log('Binding on ' + window.parent.$('#errors', document));
+  window.parent.$('#errors', document).bind('axel-validate-error', function() { window.console.log('Error'); });
+  window.console.log('Subscribed to errors');
+</script>
 </body>
 </html>

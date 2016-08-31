@@ -24,7 +24,7 @@
     if (this.errid) {
       jhost.bind('click', $.proxy(this, 'execute'));
     } else {
-      xtiger.cross.log('error', 'Missing "data-validation" attribute in "validation" command');
+      xtiger.cross.log('error', 'Missing "data-validation-output" attribute in "validation" command');
     }
   }
 

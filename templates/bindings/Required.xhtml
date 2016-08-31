@@ -31,9 +31,10 @@
   </style>
   <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
   <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />  
-  <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js"></script>
+  <script type="text/javascript" src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+  <script type="text/javascript" charset="utf-8" src="../../../axel/templates/shared/demo.js">//</script>
 </head>
-<body id="editor" data-template="#">
+<body id="editor">
 
   <h1>The 'required' binding</h1>
 
@@ -59,6 +60,6 @@
     <xt:use types="t_civility"/>
   </div>
 
-  <p id="commands"><button data-command="validate" data-target="editor" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
+  <p id="commands"><button data-command="validate" data-target="container" data-validation-output="errors" data-validation-label="span.label">Validate</button></p>
 </body>
 </html>
