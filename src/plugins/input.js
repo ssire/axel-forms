@@ -99,12 +99,14 @@
     return res;
   };
   
-  var _normalizeMultilines = function (multi, value) {
-    var res = '';
+  var _normalizeEntry = function (multi, value) {
+    var res;
     if (multi === 'normal') { // normalization
       res = $.trim(value).replace(/((\r\n|\n|\r)+)/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
     } else if (multi === 'enhanced') {
       res = $.trim(value).replace(/((\r\n|\n|\r){2,})/gm,"$2$2").replace(/(\r\n|\n|\r)\s+(\r\n|\n|\r)/gm,"$1$2");
+    } else {
+      res = $.trim(value);
     }
     return res;
   };
@@ -258,7 +260,7 @@
             }
             value = buffer;
           } else { // auto-migration of legacy plain text content
-            value = _normalizeMultilines(multi, aDataSrc.getDataFor(aPoint));
+            value = _normalizeEntry(multi, aDataSrc.getDataFor(aPoint));
           }
         } else {
           value = aDataSrc.getDataFor(aPoint);
@@ -347,7 +349,7 @@
         }
         if (!isCancel) {
           multi = this._editor.getParam('multilines');
-          h.value = _normalizeMultilines(multi, h.value);
+          h.value = _normalizeEntry(multi, h.value);
           this._editor.update(h.value);
         }
         if ((! isBlur) && (h.blur)) {
