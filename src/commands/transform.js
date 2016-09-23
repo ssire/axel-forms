@@ -55,13 +55,15 @@
         return this.spec.attr(name);
       }
     },
-
+    
     transform : function (tOptUrl, dOptUrl) {
       var name, set, config,
           templateUrl = tOptUrl || this.spec.attr('data-template'), // late binding
           dataUrl = dOptUrl || this.spec.attr('data-src'); // late binding
-      // xtiger.cross.log('debug', 'transforming physical editor ' + this.key);
       if ((templateUrl === this.spec.attr('data-template')) && this.ready) {
+        if (dOptUrl) {
+          this.spec.attr('data-src', dOptUrl);
+        }
         this.reset();
       } else {
         if (templateUrl) {
@@ -119,7 +121,7 @@
     // FIXME: replace by $axel(this.spec).reset() with builtin reset algorithm
     reset : function (hard) {
       var src;
-      if (hard && this.defaultTpl && (this.defaultTpl !== this.spec.attr('data-template'))) { // last test to avoid loop
+      if (hard && this.defaultTpl && (this.defaultTpl !== his.spec.attr('data-template'))) { // last test to avoid loop
         this.attr('data-src', this.defaultData);
         this.transform($axel.resolveUrl(this.defaultTpl, this.spec.get(0)));
       } else {
@@ -136,9 +138,23 @@
     
     reload : function () {
       var url = this.spec.attr('data-src');
+      $('*[class*="af-invalid"]', this.spec.get(0)).removeClass('af-invalid');
+      $('*[class*="af-required"]', this.spec.get(0)).removeClass('af-required');
       if (url) {
         $axel(this.spec).load($axel.resolveUrl(url, this.spec.get(0)));
       }
+    },
+    
+    // Loads data into the editor and set it as the new data source
+    load : function (src) {
+      var wrapper = $axel(this.spec);
+      $('*[class*="af-invalid"]', this.spec.get(0)).removeClass('af-invalid');
+      $('*[class*="af-required"]', this.spec.get(0)).removeClass('af-required');
+      wrapper.load('<Reset/>'); // TODO: clear()
+      if (src) {
+        wrapper.load($axel.resolveUrl(src, this.spec.get(0)))
+      }
+      this.attr('data-src', src);
     },
 
     // Triggers an event on the host node only (no bubbling)
