@@ -30,7 +30,12 @@
      var k1, k2, tmp = '',
          buff = that.getParam('choice2_width1'),
          style1 = _style({ 'width' : buff }),
-         style2 = _style({ 'left' : buff, 'width' : that.getParam('choice2_width2') });
+         config2 = { 'left' : buff, 'width' : that.getParam('choice2_width2')},
+         style2;
+     if (that.getParam('choice2_position') === 'left') {
+       config2['margin-left'] = '-' + (parseInt(buff) + parseInt(config2.width) + 2) + 'px';
+     }
+     style2 = _style(config2);
      for (k1 in menu) {
        buff = '';
        for (k2 in menu[k1]) {

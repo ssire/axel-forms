@@ -93,14 +93,14 @@
 
     <h2>Parameters</h2>
 
-    <p><i>NOT up to date, in progress</i></p>
-
     <ul class="parameters">
       <li><var>placeholder</var> (string) : if you do not define a default selection the placeholder sets the message to display as the first selected option, if the user does not change it it will be serialized as the empty string (or not serialized at all if <var>xvalue</var> is defined)</li>
       <li><var>multiple</var> (yes | <b>no</b>) : multiple choices allowed when set to yes</li>
       <li><var>xvalue</var> (<i>unset</i> | tag name) : drives XML serialization of the content, if <i>unset</i> the selected option(s) is(are) exported as plain text (comma separated list of values), if a tag name is specified it will be used to generate an element in the target content model for each option with its text content set to the value</li>
-      <li><var>typehead</var> (yes|<b>no</b>) : when set to yes the list of options can be filtered with keyboard shortcuts</li>
-      <li><var>noedit</var> (false|<b>true</b>) : when set to true the field is read-only, its value can only be changed progammatically or as a result of loading a document into the editor</li>
+      <li><var>choice2_width0</var> (string) : </li>
+      <li><var>choice2_width1</var> (string) : </li>
+      <li><var>choice2_width2</var> (string) : </li>
+      <li><var>choice2_position</var> (left | <b>right</b>) : </li>
     </ul>
 
     <p>The <var>multiple</var> and <var>typeahead</var> parameters works only in conjunction with a combo box filter such as "select2". It is currently not possible to declare default values with <var>multiple</var>.</p>
@@ -127,6 +127,15 @@
       </div>
     </div>
 
+    <h3>With position="left'", multiple="yes" (multiple selection allowed)</h3>
+
+    <div class="demo extract">
+      <div style="margin-left:400px">Menu :
+        <xt:use types="choice2" label="ActivityDomains"
+        param="multiple=yes;xvalue=ActivityDomainRef;choice2_position=left;choice2_width0=302px;choice2_width1=300px;choice2_width2=300px;filter=event"
+        values='{ "5010" : { "_label" : "Energy &amp; Fossil Fuels", "501010" : "Coal", "501020" : "Oil &amp; Gas", "501030" : "Oil &amp; Gas Related Equipment and Services" }, "5020" : { "_label" : "Renewable Energy", "502010" : "Renewable Energy" }, "5030" : { "_label" : "Uranium", "503010" : "Uranium" }, "5110" : { "_label" : "Chemicals", "511010" : "Chemicals" }, "5120" : { "_label" : "Mineral Resources", "512010" : "Metals &amp; Mining", "512020" : "Construction Materials" }, "5130" : { "_label" : "Applied Ressources", "513010" : "Paper &amp; Forest Products", "513020" : "Containers &amp; Packaging" }, "5210" : { "_label" : "Industrial Goods", "521010" : "Aerospace &amp; Defense", "521020" : "Machinery, Equipment &amp; Components" }, "5220" : { "_label" : "Industrial &amp; Commercial Services", "522010" : "Construction &amp; Engineering", "522020" : "Diversified Trading &amp; Distributing", "522030" : "Professional &amp; Commercial Services " }, "5230" : { "_label" : "Industrial Conglomerates", "523010" : "Industrial Conglomerates" }, "5310" : { "_label" : "Automobiles &amp; Auto Parts", "531010" : "Automobiles &amp; Auto Parts" }, "5320" : { "_label" : "Cyclical Consumer Products", "532020" : "Textiles &amp; Apparel", "532030" : "Homebuilding &amp; Construction Supplies", "532040" : "Household Goods", "532050" : "Leisure Products" }, "5330" : { "_label" : "Cyclical Consumer Services", "533010" : "Hotels &amp; Entertainment Services", "533020" : "Media &amp; Publishing" }, "5340" : { "_label" : "Retailers", "534020" : "Diversified Retail", "534030" : "Other Specialty Retailers" }, "5410" : { "_label" : "Food &amp; Beverages", "541010" : "Beverages", "541020" : "Food &amp; Tobacco" }, "5420" : { "_label" : "Personal &amp; Houshold Products &amp; Services", "542010" : "Personal &amp; Household Products &amp; Services" }, "5430" : { "_label" : "Food &amp; Drug Retailing", "543010" : "Food &amp; Drug Retailing " }, "5510" : { "_label" : "Banking &amp; Investment Services", "551010" : "Banking Services", "551020" : "Investment Banking &amp; Investment Services" }, "5560" : { "_label" : "Holding Companies", "556010" : "Holding Companies" }, "5530" : { "_label" : "Insurance", "553010" : "Insurance" }, "5540" : { "_label" : "Real Estate", "554020" : "Real Estate Operations", "554030" : "Residential &amp; Commercial REIT" }, "5550" : { "_label" : "Collective Investments", "555010" : "Collective Investments " }, "5610" : { "_label" : "Healthcare Services", "561010" : "Healthcare Equipment &amp; Supplies", "561020" : "Healthcare Providers &amp; Services" }, "5620" : { "_label" : "Pharmaceuticals &amp; Medical Research", "562010" : "Pharmaceuticals", "562020" : "Biotechnology &amp; Medical Research" }, "5710" : { "_label" : "Technology Equipment", "571010" : "Semiconductors &amp; Semiconductor Equipment ", "571020" : "Communications &amp; Networking", "571050" : "Office Equipment", "571040" : "Electronic Equipment &amp; Parts", "571060" : "Computers, Phones &amp; Household Electronics" }, "5720" : { "_label" : "Software &amp; IT Services", "572010" : "Software &amp; IT Services" }, "5810" : { "_label" : "Telecommunications Services", "581010" : "Telecommunications Services" }, "5910" : { "_label" : "Utilities", "591010" : "Electrical Utilities &amp; IPPs", "591020" : "Natural Gas Utilities", "591030" : "Water Utilities", "591040" : "Multiline Utilities" } }'></xt:use>
+      </div>
+    </div>
 
 
   </body>
