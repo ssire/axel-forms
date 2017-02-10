@@ -54,8 +54,8 @@
       return res;
     },
 
-    // Implements the message part of an Ajax response
-    handleMessage : function ( cmd ) {
+    // Returns the message part of an Ajax response as a string
+    decodeMessage : function ( cmd ) {
       var msg;
       if (cmd.doc) {
         msg = $('success > message', cmd.doc).text();
@@ -64,6 +64,12 @@
       } else {
         msg = xhr.responseText;
       }
+      return msg;
+    },
+
+    // Implements the message part of an Ajax response
+    handleMessage : function ( cmd ) {
+      var msg = decodeMessage(cmd);
       if (msg) {
         alert(msg); // FIXME: integrate reporting with flash ?
       }
@@ -207,6 +213,10 @@
       getInstance : function (doc) {
         return {
           decode_success : function (xhr) {
+            var loc = xhr.getResponseHeader('Location');
+            if (loc) {
+              window.location.href = loc;
+            }
             return (-1 !== xhr.responseText.indexOf('<payload')) ? $axel.oppidum.unmarshalPayload(xhr) : $axel.oppidum.unmarshalMessage(xhr);
           },
           decode_error : function (xhr) {
