@@ -69,7 +69,7 @@
 
     // Implements the message part of an Ajax response
     handleMessage : function ( cmd ) {
-      var msg = decodeMessage(cmd);
+      var msg = $axel.oppidum.decodeMessage(cmd);
       if (msg) {
         alert(msg); // FIXME: integrate reporting with flash ?
       }
