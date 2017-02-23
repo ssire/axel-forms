@@ -27,6 +27,7 @@ function getDefaultTemplates () {
     path : '../templates/bindings/',
     files :
       [
+      "Ajax.xhtml",
       "Interval.xhtml",
       "Regexp.xhtml",
       "Required.xhtml"

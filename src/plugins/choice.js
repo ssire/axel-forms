@@ -31,6 +31,36 @@
      }
    }
 
+   // items is array of the form [{ label: XXX, value : YYY }]
+   function replaceOptions ( that, items ) {
+     var i, o, t, handle = that.getHandle(),
+         doc = that.getDocument(),
+         type = that.getParam('multiple') === 'yes' ? 'checkbox' : 'radio',
+         readonly = that.getParam('noedit') === 'true' ? 'disabled="true" ' : '',
+         name = that.getUniqueKey(),
+         full = that.getParam('appearance') === 'full';
+     $('*', handle).remove(":not(.axel-choice-placeholder)"); // reset options
+     if (items && (items.length > 0)) {
+       for (i = 0; i < items.length; i++) {
+         if (full) {
+           $(handle).append('<li><label><input ' + readonly + 'type="' + type + '" value="' + items[i].value + '" name ="' + name + '"/>' + items[i].label + '</label></li>');
+         } else {
+           o = xtdom.createElement(doc, 'option');
+           t = xtdom.createTextNode(doc, items[i].label);
+           xtdom.setAttribute(o, 'value', items[i].value);
+           if (that.getParam('noedit') === 'true') {
+             xtdom.setAttribute(o, 'disabled', true);
+           }
+           o.appendChild(t);
+           handle.appendChild(o);
+         }
+       }
+       $(handle).prop('disabled', false);
+     } else {
+       $(handle).prop('disabled', true);
+     }
+   }
+
    // options is an array of the form [labels, values]
    function createOptions ( that, values, labels ) {
      var i, o, t, handle = that.getHandle(),
@@ -39,19 +69,23 @@
          readonly = that.getParam('noedit') === 'true' ? 'disabled="true" ' : '',
          name = that.getUniqueKey(),
          full = that.getParam('appearance') === 'full';
-     for (i = 0; i < values.length; i++) {
-       if (full) {
-         $(handle).append('<li><label><input ' + readonly + 'type="' + type + '" value="' + values[i] + '" name ="' + name + '"/>' + labels[i] + '</label></li>');
-       } else {
-         o = xtdom.createElement(doc, 'option');
-         t = xtdom.createTextNode(doc, labels[i]);
-         xtdom.setAttribute(o, 'value', values[i]);
-         if (that.getParam('noedit') === 'true') {
-           xtdom.setAttribute(o, 'disabled', true);
+     if (values && (values.length > 0)) {
+       for (i = 0; i < values.length; i++) {
+         if (full) {
+           $(handle).append('<li><label><input ' + readonly + 'type="' + type + '" value="' + values[i] + '" name ="' + name + '"/>' + labels[i] + '</label></li>');
+         } else {
+           o = xtdom.createElement(doc, 'option');
+           t = xtdom.createTextNode(doc, labels[i]);
+           xtdom.setAttribute(o, 'value', values[i]);
+           if (that.getParam('noedit') === 'true') {
+             xtdom.setAttribute(o, 'disabled', true);
+           }
+           o.appendChild(t);
+           handle.appendChild(o);
          }
-         o.appendChild(t);
-         handle.appendChild(o);
        }
+     } else {
+       $(handle).prop('disabled', true);
      }
    }
 
@@ -109,11 +143,14 @@
      onAwake : function () {
        var  _this = this,
             defval = this.getDefaultData(),
-            pl = this.getParam("placeholder");
+            pl = this.getParam("placeholder"),
+            handle = $(this._handle);
        if ((this.getParam('appearance') !== 'full') && (pl || (! defval))) {
          pl = pl || "";
-         // inserts placeholder option
-         $(this._handle).prepend('<option class="axel-choice-placeholder" selected="selected" value="">' + (pl || "") + '</option>');
+         // inserts placeholder option (unless instantiated from a repeater and it exists)
+         if (handle.find('.axel-choice-placeholder').length === 0) {
+           handle.prepend('<option class="axel-choice-placeholder" selected="selected" value="">' + (pl || "") + '</option>');
+         }
          // creates default selection
          if (!defval) {
            this._param.values.splice(0,0,pl);
@@ -121,7 +158,7 @@
              this._param.i18n.splice(0,0,pl);
            }
            if (pl) {
-             $(this._handle).addClass("axel-choice-placeholder");
+             handle.addClass("axel-choice-placeholder");
            }
          }
        }
@@ -223,7 +260,7 @@
          // completes the parameter set
          var values = aXTNode.getAttribute('values'),
              i18n = aXTNode.getAttribute('i18n'),
-             _values = values ? _split(values) : ['undefined'],
+             _values = values ? _split(values) : [],
              _i18n = i18n ? _split(i18n) : undefined;
          this._param.values = _values; // FIXME: validate both are same lenght
          this._param.i18n = _i18n || _values;
@@ -244,6 +281,18 @@
      /////////////////////////////
 
      methods : {
+
+       // dynamically constructs options list
+       ajax : function ( config ) {
+         replaceOptions(this, config.items);
+         // TODO: change defaultData because the value may diverge
+         // (remove it if placeholder or set it to first option otherwise)
+         if (config.restore) {
+           this._setData(this._data);
+         } else {
+           this.clear(false);
+         }
+       },
 
        // FIXME: modifier l'option si ce n'est pas la bonne actuellement ?
        _setData : function ( value, withoutSideEffect ) {
