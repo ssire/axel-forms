@@ -83,8 +83,9 @@
       var type, msg, tmp, proceed, cmd;
 
       // 1) middle of transactional protocol
-      if ((xhr.status === 202) && memo) { 
-        proceed = confirm($('success > message', xhr.responseXML).text());
+      if ((xhr.status === 202) && memo) {
+        cmd = $axel.oppidum.getCommand(xhr);
+        proceed = confirm($axel.oppidum.decodeMessage(cmd));
         if (memo.url.indexOf('?') !== -1) {
           tmp = memo.url + '&_confirmed=1';
         } else {
