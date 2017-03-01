@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>The 'ajax' binding</title>
+
+  <xt:head version="1.1" templateVersion="1.0" label="Demo">
+  </xt:head>
+  
+  <link rel="stylesheet" type="text/css" href="../../3rd-part/select2/select2.css"></link>
+
+  <style type="text/css">
+      select.axel-choice {
+        width: 150px;
+      }
+      select.axel-choice-placeholder, option.axel-choice-placeholder {
+        font-style: italic !important;
+      }
+      select.axel-choice > option {
+        font-style: normal;
+      }
+  </style>
+
+  <!-- template enrichment : extracts and generates xt:attribute and xt:use sample code -->
+  <link rel="stylesheet" type="text/css" href="../../../axel/templates/shared/demo.css" />
+</head>
+<body>
+  
+  <h1>The 'ajax' binding</h1>
+  
+  <p><b>Goal</b> : dynamically loads a list of options into one or more target 'choice' plugins depending on the value of a master field</p>
+
+  <p><b>Master's field host declaration</b>:</p>
+  
+  <ul>
+    <li><code>data-binding="ajax"</code> : instantation</li>
+    <li><code>data-variable="<i>name</i>"</code> : variable name declaration</li>
+    <li><code>data-ajax-url="<i>url</i>"</code> : web service URL to query for the options to load into the target fiel host(s), the symbol <code>$_</code> will be dynamically replaced with the master's field current value</li>
+    <li><code>data-ajax-cache="<i>JSON cache</i>"</code> : direct options cache declaration, you can use it to avoid querying the web service for one or more values (see Sample demo below)</li>
+    <li><code>data-ajax-scope="<i>CSS rule</i>"</code> : optional CSS rule to define the scope for the 'ajax' binding, the scope limits the DOM fragment where to look for the target's field host(s), the CSS rule is applied using jQuery <i>closest</i> function starting at the master'field host (so it looks upwards to the closest ancestor matching the CSS rule); you MUST use this property if you intend to use the 'ajax' binding on a repeated master's field</li>
+    <li><code>data-ajax-container="<i>CSS rule</i>"</code> : optional CSS rule to specify the container that contains the editor that contains the master's field host; when this property is defined the 'ajax' binding will listen to 'axel-content-ready' event on the target container instead of the page's <code>document</code> object; the 'ajax' binding listen to the 'axel-content-ready' event to update the target's field host(s) when you load XML data into the editor; you MUST use this property if you intend to use the 'ajax' binding on a master's field inside a page that contains multiple editors; like with <i>data-ajax-scope</i> property, the container is looked upwards in the ancestors chain starting at the master's field host.</li>
+  </ul>
+  
+  <p><b>Target's field host(s) declaration</b>:</p>
+  
+  <ul>
+    <li><code>data-ajax-trigger="<i>variable</i>"</code> : use variable <i>name</i> to attach a target field to the 'ajax' binding source</li>
+  </ul>
+
+  <h2>Ajax protocol</h2>
+
+  <p>The web service must return a JSON hash record with an <code>items</code> array of hash containing the labels and values to load as options in the target field hos(s). In addition it may contain a <code>cache</code> property with the name of the corresponding master's field value, this will store it into the internal 'ajax' binding cache so that the web service will be queried only once.</p>
+  
+  <p><b>Sample :</b></p>
+  
+  <p>Web service invocation : <code>GET /selectors/contacts?company=123</code></p>
+  
+  <p>Sample JSON response :</p>
+  
+  <div>
+<pre>
+{ 
+  "cache" : "3", 
+  "items" : [
+    { "label" : "Paul", "value" : "6" }, 
+    { "label" : "Bill", "value" : "7" }, 
+    { "label" : "Melinda", "value" : "8" }
+    ] 
+}
+</pre>
+  </div>
+
+  <h2>Sample demo (with repeated master field and with repeated target field)</h2>
+  
+  <xt:repeat label="Companies" minOccurs="1" maxOccurs="*">
+    <fieldset class="company">
+      <label><xt:menu-marker/></label>
+      <p data-binding="ajax" data-variable="company" data-ajax-scope=".company" data-ajax-cache='{"1":[{"label":"Jacques","value":"1"},{"label":"Isabelle","value":"2"}],"2":[{"label":"Pierre","value":"3"},{"label":"Paul","value":"4"},{"label":"Aline","value":"5"}]}'>
+        Company : <xt:use types="choice" label="Company" values="1 2" i18n="Foo Bar" param="filter=event optional;placeholder=none"/>
+      </p>
+      <div>
+        <xt:repeat label="Contacts" minOccurs="0" maxOccurs="*">
+          <p data-ajax-trigger="company">Contact person : <xt:use types="choice" label="Contact" param="filter=optional"/><xt:menu-marker/></p>
+        </xt:repeat>
+      </div>
+    </fieldset>
+  </xt:repeat>
+</body> 
+</html>
