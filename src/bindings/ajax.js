@@ -90,6 +90,7 @@
 
       execute : function  (ev, editor) {
         this.update(false);
+        this.wrapper().trigger({ type: 'axel-update', value : this.editor.text() }, this);
       },
       
       synchronize : function  () {

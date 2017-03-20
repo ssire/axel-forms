@@ -78,14 +78,33 @@
     <fieldset class="company">
       <label><xt:menu-marker/></label>
       <p data-binding="ajax" data-variable="company" data-ajax-scope=".company" data-ajax-cache='{"1":[{"label":"Jacques","value":"1"},{"label":"Isabelle","value":"2"}],"2":[{"label":"Pierre","value":"3"},{"label":"Paul","value":"4"},{"label":"Aline","value":"5"}]}'>
-        Company : <xt:use types="choice" label="Company" values="1 2" i18n="Foo Bar" param="filter=event optional;placeholder=none"/>
+        Company : <xt:use types="choice" label="Company" values="1 2" i18n="Foo Bar" param="filter=event;placeholder=none"/>
       </p>
       <div>
+        <!-- <xt:repeat label="Contacts" minOccurs="0" maxOccurs="*">
+          <p data-ajax-trigger="company">Contact person : <xt:use types="choice" label="Contact" param="filter=optional select2;multiple=no;xvalue=ContactRef"></xt:use><xt:menu-marker/></p>
+        </xt:repeat> -->
         <xt:repeat label="Contacts" minOccurs="0" maxOccurs="*">
-          <p data-ajax-trigger="company">Contact person : <xt:use types="choice" label="Contact" param="filter=optional"/><xt:menu-marker/></p>
+          <p data-ajax-trigger="company">Contact person : <xt:use types="choice" label="Contact" param="filter=optional" values="a b c d"></xt:use><xt:menu-marker/></p>
         </xt:repeat>
       </div>
     </fieldset>
   </xt:repeat>
+  
+  <h2>Sample demo (with two linked fields)</h2>
+
+  <div class="demo extract">
+    <p data-binding="ajax" data-variable="racine" data-ajax-scope=".demo" data-ajax-cache='{"1":[{"label":"A","value":"1"},{"label":"B","value":"2"}],"2":[{"label":"C","value":"3"},{"label":"D","value":"4"},{"label":"E","value":"5"}]}'>
+      Racine: <xt:use types="choice" label="Racine" values="1 2" i18n="Foo Bar" param="filter=event optional;placeholder=none"/>
+    </p>
+    <p data-ajax-trigger="racine" data-binding="ajax" data-variable="satellite" data-ajax-scope=".demo"
+     data-ajax-cache='{"1":[{"label":"a","value":"1"},{"label":"b","value":"2"}],"2":[{"label": "c","value":"3"},{"label":"d","value":"4"},{"label":"e","value":"5"}],"3":[{"label":"f","value":"1"},{"label":"g","value":"2"}],"4":[{"label":"h","value":"1"},{"label":"i","value":"2"}],"5":[{"label":"j","value":"1"},{"label":"k","value":"2"}]}'>
+      Dépendance 1: <xt:use types="choice" label="Dep1" param="filter=event optional"></xt:use>
+    </p>
+    <p data-ajax-trigger="satellite">
+      Dépendance 2: <xt:use types="choice" label="Dep2" param="filter=optional"></xt:use>
+    </p>
+  </div>
+  
 </body> 
 </html>
