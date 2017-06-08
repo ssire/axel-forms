@@ -33,11 +33,18 @@
   <p><b>Declaration</b> :</p>
   
   <ul>
-    <li>Master's field host : <code>data-binding="condition"</code>, <code>data-variable="<i>name</i>"</code></li>
-    <li>Target's field host(s) : <code>data-avoid-</code><i>name</i><code>="<i>value</i>"</code></li>
+    <li>Master's field host : <code>data-binding="condition"</code></li>
+    <li>the binding variable name is defined with the <code>data-variable="<i>name</i>"</code> attribute on the master's field host</li>
+    <li>Target's field host(s) : <code>data-avoid-{name}="value"</code></li>
   </ul>
   
-  <h2>Sample demo (with a target 'date' plugin)</h2>
+  <p>The 'condition' sets a disabled attribute on all the input elements contained in its target's field hosts and turns all the target's field hosts CSS color property to gray when they are <i>off</i>. It removes the disabled attribute and reset the color to the 'inherit' value on all the other target's field elements.</p>
+  
+  <p>The target's field hosts are <i>off</i> when their <code>data-avoid-{name}</code> value is the current value of the master's field host or when they specify an empty value and the current value of the master's field host is the empty string.</p>
+  
+  <p>So basically you can read the <code>data-avoid-{name}="foobar"</code> attribute as : disable me when the master's field host value is <i>foobar</i>.</p>
+
+  <h2>Sample demo (with a 'choice' plugin defining value of the binding variable)</h2>
   
   <p data-binding="condition" data-variable="goal">
     Goal : <xt:use types="choice" label="Action" values="1 2" i18n="Write\ an\ email Make\ an\ appointment" param="filter=event optional"/>
