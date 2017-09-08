@@ -116,13 +116,16 @@
   // Computes and inserts a summary error message in the errid container if necessary 
   // You can deactivate the summary if errif is undefined (e.g. for pre-validating)
   // TODO: internationalize summary error messages
-  function _validate (fields, errid, doc, cssrule) {
+  function _validate (fields, errid, doc, cssrule, offrule) {
     var res, feedback, evt,
         labsel = cssrule || '.af-label', // selector rule to extract label
         err = [], // required error
         valid = [];  // validation error
       fields.apply(
       function (field) {
+        if (offrule && $(field.getHandle(true)).closest(offrule).size() > 0) { // short circuit
+          return;
+        }
         // we consider failure to meet required implies field is valid
         var rcheck = (field.getParam('required') === 'true'),
             vcheck = field.isValid,

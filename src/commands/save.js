@@ -189,7 +189,8 @@
                 fields = $axel(editor.spec.get(0)); // FIXME: define editor.getRoot()
                 valid = $axel.binding.validate(fields,
                   editor.attr('data-validation-output')  || this.spec.attr('data-validation-output'),
-                  this.doc, editor.attr('data-validation-label')  || this.spec.attr('data-validation-label'));
+                  this.doc, editor.attr('data-validation-label')  || this.spec.attr('data-validation-label'),
+                  editor.attr('data-no-validation-inside')  || this.spec.attr('data-no-validation-inside'));
               }
               if (valid) {
                 data = editor.serializeData();
