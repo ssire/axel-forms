@@ -157,10 +157,14 @@
     do {
       $(sel, cur).each( 
         function(index, n) {
-          if ($(n).attr('data-command') !== 'transform') {
+          var tokens = $(n).attr('data-command');
+          if (/\btransform\b/.test(tokens)) {
+            if (! $(n).attr('data-template')) {
+              buffer1.push(n); // complete implicit editors with explicit ones
+            }
+          } 
+          if (!/^\s*\btransform\b\s*$/.test(tokens)) { // there are other commands too
             buffer2.push(n);
-          } else if (! $(n).attr('data-template')) {
-            buffer1.push(n);
           }
         });
       cur = sliceStart ? cur.nextSibling : undefined;
@@ -179,7 +183,9 @@
     for (i = 0; i < buffer2.length; i++) {
       buffer1 = $(buffer2[i]).attr('data-command').split(' ');
       for (cur = 0; cur < buffer1.length; cur++) {
-        _createCommand(buffer2[i], buffer1[cur], doc);
+        if (buffer1[cur] !== 'transform') { // avoid creating twice
+          _createCommand(buffer2[i], buffer1[cur], doc);
+        }
       }
     }
 

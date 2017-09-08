@@ -29,7 +29,7 @@
     this.doc = doc;
     this.key = identifier;
     this.spec = spec;
-    if (spec.attr('data-command') !== 'transform') { // implicit command (data-template alone)
+    if (!/\btransform\b/.test(spec.attr('data-command'))) { // implicit command
       // xtiger.cross.log('debug','Transforming ' + identifier + ' in implicit mode');
       this.transform();
       this.implicit = true;
@@ -121,7 +121,7 @@
     // FIXME: replace by $axel(this.spec).reset() with builtin reset algorithm
     reset : function (hard) {
       var src;
-      if (hard && this.defaultTpl && (this.defaultTpl !== his.spec.attr('data-template'))) { // last test to avoid loop
+      if (hard && this.defaultTpl && (this.defaultTpl !== this.spec.attr('data-template'))) { // last test to avoid loop
         this.attr('data-src', this.defaultData);
         this.transform($axel.resolveUrl(this.defaultTpl, this.spec.get(0)));
       } else {
