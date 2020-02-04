@@ -26,10 +26,22 @@ Javascript developers have access to the binding and command mechanisms in the
 `$axel.binding` and `$axel.command` namespaces. Javascript developers can create
 and register new bindings and commands as explained in the documenation.
 
-Pre-requisites
---------------
+Compatibility and Branches
+--------------------------
 
-AXEL-FORMS requires JQuery and AXEL.
+AXEL-FORMS requires JQuery and AXEL. Some demos using the Date filter (from AXEL) also require the  jQuery-UI library. It is apparently compatible with jquery-ui-1.12.1 although third part contains an older version).
+
+The *master* branch is the stable release branch
+
+The *devel* branch is the development branch of current version
+
+Some versions have been tagged when we upgraded some components :
+
+* version **0.2** uses jquery-1.7.1
+* version **0.3** uses jquery-1.7.1 brings very few changes over version 0.3, however it is the last one using jquery-1.7.1
+
+Installation
+------------
 
 You must checkout the AXEL-FORMS repository into a sibling directory of the AXEL
 code distribution available at [https://github.com/ssire/axel]().
@@ -81,13 +93,14 @@ the `dist` folder, run the `build.lib` target in the scripts directory:
     cd scripts
     ant build.lib
 
-This requires that you have the [ant](http://ant.apache.org/) tool available
-on your system, which is already the case on many operating systems.
+You need to have or to install the [ant](http://ant.apache.org/) tool, 
+which is already available on many operating systems. Ant is easy to install, 
+you just need to copy its jars somewhere and to have it into your `$PATH`.
 
-This requires that you install the Yahoo UI compressor onto your machine, and
-that you edit the `scripts/ant.properties` file to point to it.
+You also need to install the Yahoo UI compressor onto your machine (jar file), and
+to edit the `scripts/ant.properties` file to point to it.
 
-You can get the Yahoo UI compressor at [http://developer.yahoo.com/yui/compressor/](http://developer.yahoo.com/yui/compressor/)
+You can get the Yahoo UI compressor at [https://github.com/yui/yuicompressor](https://github.com/yui/yuicompressor)
 
 Alternatively the `build.debug` target simply concatenates source files
 together, so you can use it without installing the compressor.
