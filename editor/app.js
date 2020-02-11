@@ -47,7 +47,7 @@
          $axel.binding.install(iframeDoc);
        }
        xtiger.cross.log('debug', "'axel-update' event listener installation");
-       $('body', iframeDoc).bind('axel-update', function( ev ) { xtiger.cross.log('debug', '[evt] axel-update value="' + ev.value + '"'); });
+       $('body', iframeDoc).on('axel-update', function( ev ) { xtiger.cross.log('debug', '[evt] axel-update value="' + ev.value + '"'); });
      } else {
        xtiger.cross.log('debug', 'command and binding installation skipped (self-transformed template) ');
      }
@@ -65,7 +65,7 @@
      // late filter registration
      $axel.filter.applyTo({ 'optional' : ['input', 'choice'], 'event' : 'input' });
      // Install Hook to install bindings
-     $(document).bind('__AXEL_DEMO_EDITOR_READY', onTemplateTransformed);
+     $(document).on('__AXEL_DEMO_EDITOR_READY', onTemplateTransformed);
      // configure command for templates with embedded transformation command
      $axel.command.configure('bundlesPath', appController.xttMakeLocalURLFor('../../axel/axel/bundles'))
      appController.run();

@@ -27,9 +27,9 @@
   function AddCommand ( identifier, node ) {
     this.spec = $(node);
     this.key = identifier;
-    this.spec.bind('click', $.proxy(this, 'execute'));
-    $('#' + identifier).bind('axel-cancel-edit', $.proxy(this, 'dismiss'));
-    $('#' + identifier).bind('axel-save-done', $.proxy(this, 'saved'));
+    this.spec.on('click', $.proxy(this, 'execute'));
+    $('#' + identifier).on('axel-cancel-edit', $.proxy(this, 'dismiss'));
+    $('#' + identifier).on('axel-save-done', $.proxy(this, 'saved'));
   }
   AddCommand.prototype = {
     execute : function (event) {

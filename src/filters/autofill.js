@@ -28,7 +28,7 @@
       var c = this.getParam('autofill_container');
       this.__autofill__onAwake();
       if (c) {
-        $(c).bind('AXEL-TEMPLATE-READY', $.proxy(this, 'autofill' )); // FIXME: finalize some 'axel-load-done' event
+        $(c).on('AXEL-TEMPLATE-READY', $.proxy(this, 'autofill' )); // FIXME: finalize some 'axel-load-done' event
       }
     },
     

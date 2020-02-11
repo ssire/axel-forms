@@ -90,7 +90,7 @@
 
           // 3. registers optional unload callback if transactionnal style
           if (this.spec.attr('data-cancel')) {
-            $(window).bind('unload', $.proxy(this, 'reportCancel'));
+            $(window).on('unload', $.proxy(this, 'reportCancel'));
             // FIXME: works only if self-transformed and called ONCE !
           }
 

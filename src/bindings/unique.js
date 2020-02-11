@@ -22,7 +22,7 @@
     onInstall : function ( host ) {
       this.editor = $axel(host);
       host.get(0).axel_binding_unique = this;
-      host.bind('axel-update', $.proxy(this.checkSet, this));
+      host.on('axel-update', $.proxy(this.checkSet, this));
       $axel.binding.setValidation(this.editor.get(0), $.proxy(this.checkOne, this));
       this.checkOne(); // just check this one to avoid too much iterations when loading XML
     },

@@ -123,7 +123,7 @@
         valid = [];  // validation error
       fields.apply(
       function (field) {
-        if (offrule && $(field.getHandle(true)).closest(offrule).size() > 0) { // short circuit
+        if (offrule && $(field.getHandle(true)).closest(offrule).length > 0) { // short circuit
           return;
         }
         // we consider failure to meet required implies field is valid

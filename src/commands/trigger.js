@@ -13,7 +13,7 @@
   function TriggerCommand ( identifier, node ) {
     this.spec = $(node);
     this.key = identifier;
-    this.spec.bind('click', $.proxy(this, 'execute'));
+    this.spec.on('click', $.proxy(this, 'execute'));
   }
 
   TriggerCommand.prototype = {

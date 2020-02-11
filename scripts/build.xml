@@ -25,6 +25,8 @@ Author(s) : Stephane Sire
 
   <target name="-load.properties">
     <property file="ant.properties"/>
+    <loadfile property="release.number" 
+              srcFile="release-nb.txt"/>    
   </target>
 
   <target name="-init.files" depends="-load.properties">
@@ -82,7 +84,8 @@ Author(s) : Stephane Sire
     </java>
 
     <!-- Add license notice and copy to dest -->
-    <filter token="VERSION" value="${version.number}"/>
+    <filter token="VERSION" value="${release.number}"/>
+    <!-- <filter token="VERSION" value="${version.number}"/> -->
     <!-- <filter token="REV" value="${revision.number}"/> -->
 
     <copy file="../license/header.txt" tofile="${build.dir}/header.txt" filtering="true"/>

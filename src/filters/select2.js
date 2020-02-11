@@ -217,7 +217,7 @@
         }
       }
       this._setData(defval);
-      $(this._handle).select2(params).change(
+      $(this._handle).select2(params).on('change',
         function (ev, data) {
          if (!(data && data.synthetic)) { // short circuit if forged event (onLoad)
            _this.update($(this).val()); // tells 'choice' instance to update its model

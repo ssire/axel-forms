@@ -20,9 +20,9 @@
       var trigger = $('[data-clear="' + this.getVariable() + '"]', this.getDocument());
       this.editors = $axel(host);
       this.ui = trigger;
-      trigger.bind('click', $.proxy(this, 'execute'));
-      host.bind('axel-update', $.proxy(this, 'update'));
-      host.bind('axel-select-all', $.proxy(this, 'update'));
+      trigger.on('click', $.proxy(this, 'execute'));
+      host.on('axel-update', $.proxy(this, 'update'));
+      host.on('axel-select-all', $.proxy(this, 'update'));
       trigger.hide();
     },
 

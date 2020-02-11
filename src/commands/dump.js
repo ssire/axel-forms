@@ -32,7 +32,7 @@
 
   function DumpCommand ( identifier, node ) {
     this.key = identifier; /* data-target */
-    $(node).bind('click', $.proxy(this, 'execute'));
+    $(node).on('click', $.proxy(this, 'execute'));
     xtiger.cross.log('debug', 'installing dump command');
   }
 

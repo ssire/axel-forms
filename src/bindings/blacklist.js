@@ -16,7 +16,7 @@
     onInstall : function ( host ) {
       this.terms = this.getParam('blacklist').split(' ');
       this.editor = $axel(host);
-      host.bind('axel-update', $.proxy(this.filter, this));
+      host.on('axel-update', $.proxy(this.filter, this));
       $axel.binding.setValidation(this.editor.get(0), $.proxy(this.filter, this));
     },
 

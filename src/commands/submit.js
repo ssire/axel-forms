@@ -17,7 +17,7 @@
     this.formid = spec.attr('data-form');
     if (this.formid && ($('form#' + this.formid).length > 0)) { // checks form element existence
       node.disabled = false;
-      spec.bind('click', $.proxy(this, 'execute'));
+      spec.on('click', $.proxy(this, 'execute'));
     } else {
       node.disabled = true;
       $axel.error('Missing or invalid data-form attribute in submit command ("' + this.formid + '")');

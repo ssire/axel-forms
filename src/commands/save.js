@@ -30,7 +30,7 @@
     this.doc = doc || document;
     this.spec = $(node);
     this.key = identifier;
-    this.spec.bind('click', $.proxy(this, 'execute'));
+    this.spec.on('click', $.proxy(this, 'execute'));
   }
   
   SaveCommand.prototype = (function () {
@@ -49,8 +49,8 @@
             fnode.after(this.swap);
             fnode.hide();
             this.fragment = fnode; // cached to implement data-command="continue"
-            $('button[data-command="continue"]', this.swap).bind('click', $.proxy(doSwap, this));
-            $('button[data-command="reset"]', this.swap).bind('click', $.proxy(doReset, this));
+            $('button[data-command="continue"]', this.swap).on('click', $.proxy(doSwap, this));
+            $('button[data-command="reset"]', this.swap).on('click', $.proxy(doReset, this));
           } else if (type.indexOf('append') !== -1) {
             fnode.append(content);
           } else if (type.indexOf('prepend') !== -1) {
@@ -168,7 +168,7 @@
     function finished (that) {
       var flags = that.spec.attr('data-save-flags');
       if (flags && flags.indexOf('disableOnSave') != -1) {
-        that.spec.removeAttr('disabled');
+        that.spec.prop('disabled', false);
       }
       that.spec.removeClass('axel-save-running');
     }

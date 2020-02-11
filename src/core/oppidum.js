@@ -123,7 +123,7 @@
       var type = xhr.getResponseHeader('Content-Type'),
           res = false;
       if (xhr.responseXML) {
-        res = $('error > message', xhr.responseXML).size() > 0;
+        res = $('error > message', xhr.responseXML).length > 0;
       } else if ($axel.oppidum.checkJSON(type)) {
         try {
           res = JSON.parse(xhr.responseText).message !== undefined;
@@ -163,9 +163,9 @@
       m = text.match('<h2>(.*)</h2>','m');
       if (m) {
         details = details + '\n' + m[1];
-      } else if ($('div.message', xhr.responseXML).size() > 0) {
+      } else if ($('div.message', xhr.responseXML).length > 0) {
         details = details + '\n' + $('div.message', xhr.responseXML).get(0).textContent;
-        if ($('div.description', xhr.responseXML).size() > 0) {
+        if ($('div.description', xhr.responseXML).length > 0) {
           details = details + '\n' + $('div.description', xhr.responseXML).get(0).textContent;
         }
       }

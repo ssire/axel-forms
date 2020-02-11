@@ -22,7 +22,7 @@
     this.errid = jhost.attr('data-validation-output'); // FIXME: this.getParam('validate-output') (search param on host then on editor)
     this.cssrule = jhost.attr('data-validation-label');
     if (this.errid) {
-      jhost.bind('click', $.proxy(this, 'execute'));
+      jhost.on('click', $.proxy(this, 'execute'));
     } else {
       xtiger.cross.log('error', 'Missing "data-validation-output" attribute in "validation" command');
     }

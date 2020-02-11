@@ -16,7 +16,7 @@
     onInstall : function ( host ) {
       this.host = host;
       this.editors = $axel(host);
-      $('[data-select="' + this.getVariable() + '"]', this.getDocument()).bind('click', $.proxy(this, 'execute'));
+      $('[data-select="' + this.getVariable() + '"]', this.getDocument()).on('click', $.proxy(this, 'execute'));
     },
 
     methods : {

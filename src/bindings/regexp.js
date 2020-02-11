@@ -20,7 +20,7 @@
       this.re = new RegExp(this.getParam('regexp') || '');
       this.editor = $axel(host);
       this.spec = host;
-      host.bind('axel-update', $.proxy(this.checkRegexp, this));
+      host.on('axel-update', $.proxy(this.checkRegexp, this));
       if (pattern) {
         host.find('input').attr("pattern", pattern); // adds HTML5 pattern attribute on input
       }

@@ -20,15 +20,15 @@
       cache = this.spec.attr('data-ajax-cache');
       this.cache = cache ? JSON.parse(cache) : {}; // TODO: validate cache
       this.scope = this.spec.attr('data-ajax-scope');
-      host.bind('axel-update', $.proxy(this.execute, this));
+      host.on('axel-update', $.proxy(this.execute, this));
       container = this.spec.attr('data-ajax-container');
       if (container) {
-        this.spec.closest(container).bind('axel-content-ready', $.proxy(this, 'synchronize'));
+        this.spec.closest(container).on('axel-content-ready', $.proxy(this, 'synchronize'));
       } else {
-        $(document).bind('axel-content-ready', $.proxy(this, 'synchronize'));
+        $(document).on('axel-content-ready', $.proxy(this, 'synchronize'));
       }
       if (this.scope) {
-        this.spec.closest(this.scope).bind('axel-add',  $.proxy(this, 'add'));
+        this.spec.closest(this.scope).on('axel-add',  $.proxy(this, 'add'));
       }
     },
 

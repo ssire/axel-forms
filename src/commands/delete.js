@@ -22,7 +22,7 @@
     this.doc = doc || document;
     this.spec = $(node);
     this.key = identifier;
-    this.spec.bind('click', $.proxy(this, 'execute'));
+    this.spec.on('click', $.proxy(this, 'execute'));
   }
 
   DeleteCommand.prototype = (function () {
@@ -52,8 +52,8 @@
               newblock = this.swap;
             }
             // followup actions protocol
-            $('button[data-command="proceed"]', newblock).bind('click', $.proxy(doDelete, this));
-            $('button[data-command="cancel"]', newblock).bind('click', $.proxy(doCancel, this));
+            $('button[data-command="proceed"]', newblock).on('click', $.proxy(doDelete, this));
+            $('button[data-command="cancel"]', newblock).on('click', $.proxy(doCancel, this));
           } else {
             $axel.error('Bad page design to complete delete action ("data-replace-target" error)');
           }

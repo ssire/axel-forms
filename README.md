@@ -40,6 +40,8 @@ Some versions have been tagged when we upgraded some components :
 * version **0.2** uses jquery-1.7.1
 * version **0.3** uses jquery-1.7.1 brings very few changes over version 0.3, however it is the last one using jquery-1.7.1
 
+Note: current version should be edited in `scripts/release-nb.txt`, this is the number used when generating the library file
+
 Installation
 ------------
 

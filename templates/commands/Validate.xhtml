@@ -171,7 +171,7 @@
 <script type="text/javascript">
   var n = document.getElementById('errors');
   console.log('Binding on ' + window.parent.$('#errors', document));
-  window.parent.$('#errors', document).bind('axel-validate-error', function() { window.console.log('Error'); });
+  window.parent.$('#errors', document).on('axel-validate-error', function() { window.console.log('Error'); });
   window.console.log('Subscribed to errors');
 </script>
 </body>

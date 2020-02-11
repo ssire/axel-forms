@@ -18,11 +18,11 @@
     onInstall : function ( host ) {
       this.avoidstr = 'data-avoid-' + this.getVariable();
       this.editor = $axel(host);
-      host.bind('axel-update', $.proxy(this.updateConditionals, this));
+      host.on('axel-update', $.proxy(this.updateConditionals, this));
       // command installation is post-rendering, hence we can change editor's state
       this.updateConditionals();
       // FIXME: should be optional (condition_container=selector trick as 'autofill' ?)
-      $(document).bind('axel-content-ready', $.proxy(this, 'updateConditionals'));
+      $(document).on('axel-content-ready', $.proxy(this, 'updateConditionals'));
       
     },
 
@@ -34,7 +34,7 @@
         var fullset = $('body [' + this.avoidstr + ']', this.getDocument());
         onset = (curval != '') ? fullset.not('[' + this.avoidstr + '*="' + curval + '"]') : fullset.not('[' + this.avoidstr + '=""]');
         offset = (curval != '') ? fullset.filter('[' + this.avoidstr + '*="' + curval + '"]') : fullset.filter('[' + this.avoidstr + '=""]');
-        onset.find('input').removeAttr('disabled');
+        onset.find('input').prop('disabled', false);
         onset.css('color', 'inherit');
         offset.find('input').attr('disabled', 'disabled');
         offset.css('color', 'lightgray');

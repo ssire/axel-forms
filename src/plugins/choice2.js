@@ -51,7 +51,7 @@
 
    // Utility to select level 1 option when all level 2 options selected
    function _fixItemSelection ( item ) {
-     if (0 === item.find('li.choice2-label:not(.selected)').size()) {
+     if (0 === item.find('li.choice2-label:not(.selected)').length) {
        item.addClass('selected');
      } else {
        item.removeClass('selected');
@@ -124,9 +124,9 @@
          // }
        }
       this._setData(defval);
-      $(this._handle).children('div.select2-container-multi').click($.proxy(this, '_handleClickOnChoices'));
-      $(this._handle).find('li.choice2-label').click($.proxy(this, '_handleClickOnLabel'));
-      $(this._handle).find('div.choice2-item').click($.proxy(this, '_handleClickOnItem'));
+      $(this._handle).children('div.select2-container-multi').on('click', $.proxy(this, '_handleClickOnChoices'));
+      $(this._handle).find('li.choice2-label').on('click', $.proxy(this, '_handleClickOnLabel'));
+      $(this._handle).find('div.choice2-item').on('click', $.proxy(this, '_handleClickOnItem'));
      },
 
      onLoad : function (aPoint, aDataSrc) {
@@ -256,7 +256,7 @@
              options = n.parent().find('li.choice2-label'),
              multiple = "yes" === this.getParam('multiple'),
              _this = this;
-         if (multiple || (1 === options.size())) {
+         if (multiple || (1 === options.length)) {
            if (n.parent().hasClass('selected')) {
              options.each(
                function (i,e) {
@@ -314,7 +314,7 @@
 
        addToSelection : function (value, name) {
          var sel = $('div.select2-container-multi > ul', this._handle);
-         if ((sel.find('li.select2-search-choice[data-code="' + value + '"]')).size() === 0) {
+         if ((sel.find('li.select2-search-choice[data-code="' + value + '"]')).length === 0) {
            sel.append(
              '<li class="select2-search-choice" data-code="' + value + '"><div class="select2-label">' + name.replace(/&/g,'&amp;') + '</div><a class="select2-search-choice-close" tabindex="-1" onclick="return false;" href="#"></a></li>'
              );

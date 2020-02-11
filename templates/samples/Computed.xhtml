@@ -10,7 +10,7 @@
     </xt:head>
 
     <link href="../../../axel/axel/axel.css" rel="stylesheet" type="text/css"></link>
-    <script src="../../../axel/3rd-part/jquery/js/jquery-1.7.1.min.js">//</script>
+    <script src="../../../axel/3rd-part/jquery/js/jquery-3.4.1.min.js">//</script>
     <script src="../../../axel/axel/axel.js">//</script>
     <script data-bundles-path="../../../axel/axel/bundles" src="../../dist/axel-forms.js">//</script>
 
@@ -41,10 +41,10 @@
   };
 
   function init() {
-    $('body').bind('axel-update', function (ev) {$('#total').text(_updated(ev)) });
-    $('body').bind('axel-add', function (ev) {$('#total').text(_updated(ev)) });
-    $('body').bind('axel-remove', function (ev) {$('#total').text(_updated(ev)) });
-    $('body').bind('axel-content-ready', _ready);
+    $('body').on('axel-update', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').on('axel-add', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').on('axel-remove', function (ev) {$('#total').text(_updated(ev)) });
+    $('body').on('axel-content-ready', _ready);
   }
 
   jQuery(function() { init(); });

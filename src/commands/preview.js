@@ -16,7 +16,7 @@
       'preview' : spec.attr('data-preview-label') || spec.text(),
       'edit' : spec.attr('data-edit-label') || 'Edit'
     };
-    spec.bind('click', $.proxy(this, 'execute'));
+    spec.on('click', $.proxy(this, 'execute'));
   }
   
   PreviewCommand.prototype = {
