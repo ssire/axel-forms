@@ -97,7 +97,7 @@
        if (typeof model === "string") { // single
          res = model !== defval;
        } else { // multiple
-         if (!model || ((model.length === 1) && !model[0])) {
+         if (!model || model.length === 0 || ((model.length === 1) && !model[0])) {
            res = false;
          }
        }
