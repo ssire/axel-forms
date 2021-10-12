@@ -143,10 +143,8 @@
           l.removeClass('af-invalid');
         }
         if ((rcheck || vcheck) && (!rsuccess || !vsuccess)) {
-          // FIXME: contents().filter(function () { return (this.nodeType === 3) } )
-          // because contents(':not(span)') may throw exception
-          label = l.contents(':not(span)').text(); // filters inner span (useful to skip hints)
-          // .parent().children(labsel).text();
+          // extracts text from label filtering out inner elements such as span (may be used for hints)
+          label = l.contents().filter(function () { return (this.nodeType === 3) } ).text();
           i = label.lastIndexOf(':');
           if (i != -1) {
             label = label.substr(0, i);
